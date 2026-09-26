@@ -2,3 +2,10 @@
 Thumbs.db
 *.log
 node_modules/
+
+.vercel
+.env*
+.agents/
+skills-lock.json
+.next/
+
