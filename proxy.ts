@@ -49,7 +49,7 @@ async function isValidToken(token: string): Promise<boolean> {
   return diff === 0;
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (pathname.startsWith("/admin/login")) return NextResponse.next();
