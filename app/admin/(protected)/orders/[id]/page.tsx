@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { sql, type Order, type OrderItem } from "@/lib/db";
-import OrderStatusSelect from "../../../components/admin/OrderStatusSelect";
+import OrderStatusSelect from "@/app/components/admin/OrderStatusSelect";
 
 export const revalidate = 0;
 export const metadata = { title: "Order Detail — Antique Home Admin" };

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { sql } from "@/lib/db";
-import SalesChart from "../components/admin/SalesChart";
-import CategoryDonut, { type Slice } from "../components/admin/CategoryDonut";
+import SalesChart from "@/app/components/admin/SalesChart";
+import CategoryDonut, { type Slice } from "@/app/components/admin/CategoryDonut";
 
 export const revalidate = 0;
 export const metadata = { title: "Dashboard — Antique Home Admin" };

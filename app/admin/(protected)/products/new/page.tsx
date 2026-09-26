@@ -1,5 +1,5 @@
 import { sql, type Category } from "@/lib/db";
-import ProductForm from "../../../components/admin/ProductForm";
+import ProductForm from "@/app/components/admin/ProductForm";
 
 export const revalidate = 0;
 export const metadata = { title: "Add Product — Antique Home Admin" };

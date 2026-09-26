@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { sql } from "@/lib/db";
-import DeleteProductButton from "../../components/admin/DeleteProductButton";
+import DeleteProductButton from "@/app/components/admin/DeleteProductButton";
 
 export const revalidate = 0;
 export const metadata = { title: "Products — Antique Home Admin" };

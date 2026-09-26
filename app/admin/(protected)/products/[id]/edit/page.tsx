@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { sql, type Product, type Category } from "@/lib/db";
-import ProductForm from "../../../../components/admin/ProductForm";
+import ProductForm from "@/app/components/admin/ProductForm";
 
 export const revalidate = 0;
 export const metadata = { title: "Edit Product — Antique Home Admin" };

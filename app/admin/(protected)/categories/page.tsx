@@ -1,5 +1,5 @@
 import { sql, type Category } from "@/lib/db";
-import NewCategoryForm from "../../components/admin/NewCategoryForm";
+import NewCategoryForm from "@/app/components/admin/NewCategoryForm";
 
 export const revalidate = 0;
 export const metadata = { title: "Categories — Antique Home Admin" };

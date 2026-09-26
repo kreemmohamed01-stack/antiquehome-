@@ -2,11 +2,11 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { sql } from "@/lib/db";
-import "../styles/admin.css";
-import { AdminNavList } from "../components/admin/AdminNav";
-import MobileDrawer from "../components/admin/MobileDrawer";
-import TabBar from "../components/admin/TabBar";
-import LogoutButton from "../components/admin/LogoutButton";
+import "@/app/styles/admin.css";
+import { AdminNavList } from "@/app/components/admin/AdminNav";
+import MobileDrawer from "@/app/components/admin/MobileDrawer";
+import TabBar from "@/app/components/admin/TabBar";
+import LogoutButton from "@/app/components/admin/LogoutButton";
 
 async function getOrderCount() {
   try {
