@@ -8,4 +8,5 @@ node_modules/
 .agents/
 skills-lock.json
 .next/
+ADMIN_CREDENTIALS.md
 
