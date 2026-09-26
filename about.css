@@ -1,0 +1,328 @@
+/* =========================================================
+   ANTIQUE HOME — ABOUT PAGE
+   Side-by-side split panels at every width, phone included —
+   same left/right arrangement as desktop, just scaled down.
+   ========================================================= */
+
+.about{
+  background: var(--paper);
+  color: var(--ink-900);
+  overflow:hidden;
+}
+
+/* =========================================================
+   01 · THE ART OF LIVING BEAUTIFULLY
+   ========================================================= */
+
+.about__hero{
+  display:flex;
+  flex-direction:row;
+  align-items:stretch;
+  min-height:52vh;
+}
+.about__heroCopy{
+  flex:0 0 46%;
+  max-width:46%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding: 18px clamp(14px, 4vw, 72px);
+}
+.about__heroTitle{
+  margin:0 0 10px;
+  font-family: var(--serif);
+  font-weight:500;
+  font-size: clamp(17px, 4.6vw, 46px);
+  line-height:1.14;
+  color: var(--ink-900);
+}
+.about__heroTitle em{
+  font-style:italic;
+  font-weight:400;
+  color: var(--gold-deep);
+}
+.about__heroText{
+  margin:0 0 12px;
+  max-width:46ch;
+  font-family: var(--sans);
+  font-size: clamp(9.5px, 2.2vw, 15px);
+  font-weight:300;
+  line-height:1.6;
+  color: var(--ink-600);
+}
+.about__heroMedia{
+  flex:1;
+  margin:0;
+  overflow:hidden;
+}
+.about__heroMedia img{ width:100%; height:100%; object-fit:cover; }
+
+@media (min-width: 900px){
+  .about__hero{ min-height:66vh; }
+  .about__heroCopy{ padding: 40px clamp(28px, 5vw, 72px); }
+}
+
+/* =========================================================
+   02 · OUR JOURNEY
+   ========================================================= */
+
+.about__journey{
+  display:flex;
+  flex-direction:row;
+  align-items:stretch;
+  min-height:52vh;
+}
+.about__journeyMedia{
+  flex:1;
+  margin:0;
+  overflow:hidden;
+}
+.about__journeyMedia img{ width:100%; height:100%; object-fit:cover; }
+.about__journeyCopy{
+  flex:0 0 46%;
+  max-width:46%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding: 18px clamp(14px, 4vw, 72px);
+  background: var(--paper-2);
+}
+.about__journeyTitle{
+  margin:0 0 10px;
+  font-family: var(--serif);
+  font-weight:500;
+  font-size: clamp(14px, 3.6vw, 36px);
+  line-height:1.18;
+  color: var(--ink-900);
+}
+.about__journeyText{
+  margin:0 0 14px;
+  max-width:52ch;
+  font-family: var(--sans);
+  font-size: clamp(9px, 2vw, 14.5px);
+  font-weight:300;
+  line-height:1.65;
+  color: var(--ink-600);
+}
+
+.about__stats{
+  list-style:none;
+  margin:0;
+  padding: clamp(10px, 2.4vw, 22px) 0 0;
+  display:flex;
+  align-items:center;
+  gap: clamp(8px, 2vw, 28px);
+  border-top:1px solid rgba(43,36,28,.1);
+}
+.about__stats li{ display:flex; flex-direction:column; gap:1px; min-width:0; }
+.about__stats strong{
+  font-family: var(--serif);
+  font-weight:600;
+  font-size: clamp(13px, 3.4vw, 32px);
+  color: var(--ink-900);
+  line-height:1;
+  white-space:nowrap;
+}
+.about__stats span{
+  font-family: var(--sans);
+  font-size: clamp(6.5px, 1.4vw, 10.5px);
+  color: var(--ink-600);
+  white-space:nowrap;
+}
+.about__statsDiv{
+  width:1px;
+  align-self:stretch;
+  background: rgba(43,36,28,.14);
+  flex:none;
+}
+
+@media (min-width: 900px){
+  .about__journey{ min-height:60vh; }
+  .about__journeyCopy{ padding: 40px clamp(28px, 5vw, 72px); }
+}
+
+/* =========================================================
+   03 · OUR PHILOSOPHY
+   ========================================================= */
+
+.about__philosophy{
+  display:flex;
+  flex-direction:row;
+  align-items:stretch;
+  min-height:52vh;
+}
+.about__philosophyCopy{
+  flex:0 0 46%;
+  max-width:46%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding: 18px clamp(14px, 4vw, 72px);
+}
+.about__philosophyTitle{
+  margin:0 0 10px;
+  font-family: var(--serif);
+  font-weight:500;
+  font-size: clamp(14px, 3.6vw, 36px);
+  line-height:1.18;
+  color: var(--ink-900);
+}
+.about__philosophyText{
+  margin:0;
+  max-width:50ch;
+  font-family: var(--sans);
+  font-size: clamp(9px, 2vw, 14.5px);
+  font-weight:300;
+  line-height:1.65;
+  color: var(--ink-600);
+}
+
+.about__philosophyMedia{
+  position:relative;
+  flex:1;
+  margin:0;
+  overflow:hidden;
+  background: var(--ink-900);
+}
+.about__philosophyMedia img{ width:100%; height:100%; object-fit:cover; }
+
+.about__quote{
+  position:absolute;
+  right: clamp(8px, 2vw, 36px);
+  bottom: clamp(8px, 2vw, 36px);
+  left:auto;
+  max-width: 22ch;
+  margin:0;
+  text-align:right;
+  color:#fff;
+}
+.about__quote p{
+  margin:0 0 6px;
+  font-family: var(--serif);
+  font-style:italic;
+  font-weight:400;
+  font-size: clamp(8.5px, 2.2vw, 20px);
+  line-height:1.4;
+}
+.about__quoteRule{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  justify-content:flex-end;
+  width:100%;
+}
+.about__quoteRule i{ width:16px; height:1px; background: rgba(255,255,255,.6); }
+.about__quoteRule b{ width:3.5px; height:3.5px; border-radius:50%; background: var(--champagne); }
+
+@media (min-width: 900px){
+  .about__philosophy{ min-height:64vh; }
+  .about__philosophyCopy{ padding: 40px clamp(28px, 5vw, 72px); }
+  .about__quote{ max-width:26ch; }
+  .about__quote p{ line-height:1.5; }
+  .about__quoteRule i{ width:20px; }
+  .about__quoteRule b{ width:4px; height:4px; }
+}
+
+/* =========================================================
+   04 · FEATURES ROW
+   ========================================================= */
+
+.about__features{
+  list-style:none;
+  margin:0;
+  padding: 18px clamp(10px, 3vw, 26px);
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(6px, 1.6vw, 20px);
+  background: var(--paper-2);
+  text-align:center;
+}
+.about__features li{ position:relative; display:flex; flex-direction:column; align-items:center; gap:5px; min-width:0; }
+.about__features li + li::before{
+  content:"";
+  position:absolute;
+  left: calc(-1 * clamp(3px, 0.8vw, 10px));
+  top:6px; bottom:6px;
+  width:1px;
+  background: rgba(43,36,28,.12);
+}
+.about__featureIco{ color: var(--gold-deep); }
+.about__featureIco svg{ width: clamp(16px, 3.6vw, 26px); height: clamp(16px, 3.6vw, 26px); fill:none; stroke:currentColor; stroke-width:1.3; stroke-linecap:round; stroke-linejoin:round; }
+.about__features h3{
+  margin:0;
+  font-family: var(--serif);
+  font-weight:600;
+  font-size: clamp(8.5px, 1.9vw, 14.5px);
+  color: var(--ink-900);
+  line-height:1.25;
+}
+.about__features p{
+  margin:0;
+  font-family: var(--sans);
+  font-size: clamp(6.5px, 1.4vw, 11px);
+  font-weight:300;
+  line-height:1.4;
+  color: var(--ink-600);
+}
+
+@media (min-width: 700px){
+  .about__features{ padding: 46px var(--gutter); gap:20px; }
+}
+
+/* =========================================================
+   05 · BRING YOUR VISION TO LIFE
+   ========================================================= */
+
+.about__cta{
+  display:flex;
+  flex-direction:row;
+  align-items:stretch;
+  min-height:48vh;
+}
+.about__ctaCopy{
+  flex:0 0 42%;
+  max-width:42%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding: 18px clamp(14px, 4vw, 72px);
+}
+.about__ctaTitle{
+  margin:0 0 8px;
+  font-family: var(--serif);
+  font-weight:500;
+  font-size: clamp(15px, 3.8vw, 38px);
+  line-height:1.18;
+  color: var(--ink-900);
+}
+.about__ctaText{
+  margin:0 0 12px;
+  max-width:40ch;
+  font-family: var(--sans);
+  font-size: clamp(8.5px, 1.9vw, 14.5px);
+  font-weight:300;
+  line-height:1.55;
+  color: var(--ink-600);
+}
+.about__ctaMedia{
+  flex:1;
+  margin:0;
+  overflow:hidden;
+}
+.about__ctaMedia img{ width:100%; height:100%; object-fit:cover; }
+
+@media (min-width: 900px){
+  .about__cta{ min-height:60vh; }
+  .about__ctaCopy{ padding: 40px clamp(28px, 5vw, 72px); }
+}
+
+/* shrink the shared solid button on very narrow phones so it
+   doesn't overflow the 42%-wide CTA column */
+@media (max-width: 480px){
+  .about__ctaCopy .btn-solid{
+    padding: 8px 12px;
+    font-size: 9px;
+    gap:6px;
+  }
+  .about__ctaCopy .btn-solid svg{ width:16px; height:8px; }
+}
