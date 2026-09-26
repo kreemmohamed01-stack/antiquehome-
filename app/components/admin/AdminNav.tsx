@@ -2,22 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { NAV_ITEMS } from "@/lib/admin-nav";
 
-export const NAV_ITEMS = [
-  { href: "/admin", label: "Dashboard", icon: "dashboard" },
-  { href: "/admin/orders", label: "Orders", icon: "orders", badgeKey: "orders" as const },
-  { href: "/admin/products", label: "Products", icon: "products" },
-  { href: "/admin/collections", label: "Collections", icon: "collections" },
-  { href: "/admin/categories", label: "Categories", icon: "categories" },
-  { href: "/admin/customers", label: "Customers", icon: "customers" },
-  { href: "/admin/content", label: "Content", icon: "content" },
-  { href: "/admin/marketing", label: "Marketing", icon: "marketing" },
-  { href: "/admin/discounts", label: "Discounts", icon: "discounts" },
-  { href: "/admin/analytics", label: "Analytics", icon: "analytics" },
-  { href: "/admin/reviews", label: "Reviews", icon: "reviews" },
-  { href: "/admin/ai-assistant", label: "AI Assistant", icon: "ai", isNew: true },
-  { href: "/admin/settings", label: "Settings", icon: "settings" },
-];
+export { NAV_ITEMS };
 
 function Icon({ name }: { name: string }) {
   switch (name) {
