@@ -1,6 +1,9 @@
 import { PromoBar, ShopHeader, ShopTopbar } from "../components/Header";
 import StorefrontChrome from "../components/StorefrontChrome";
 import AboutStats from "../components/AboutStats";
+import { getAboutContent } from "@/lib/db";
+
+export const revalidate = 0;
 
 export const metadata = {
   title: "About Us — Antique Home",
@@ -8,7 +11,9 @@ export const metadata = {
     "At Antique Home, we believe a home is more than a place — it's a reflection of your story, your taste, and the moments that matter most.",
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const content = await getAboutContent();
+
   return (
     <>
       <PromoBar />
@@ -20,11 +25,11 @@ export default function AboutPage() {
           <div className="about__heroCopy">
             <p className="kicker kicker--gold rv" data-rv><span>Our Story</span><i className="kicker__rule" aria-hidden="true"></i></p>
             <h1 className="about__heroTitle">
-              <span className="rv rv--up" data-rv>The Art of</span><br />
-              <span className="rv rv--up" data-rv style={{ ["--rd" as string]: ".08s" }}>Living <em>Beautifully</em></span>
+              <span className="rv rv--up" data-rv>{content.heroTitle}</span><br />
+              <span className="rv rv--up" data-rv style={{ ["--rd" as string]: ".08s" }}><em>{content.heroSubtitle}</em></span>
             </h1>
             <p className="about__heroText rv rv--up" data-rv style={{ ["--rd" as string]: ".18s" }}>
-              At Antique Home, we believe a home is more than a place, it&rsquo;s a reflection of your story, your taste, and the moments that matter most.
+              {content.heroText}
             </p>
             <span className="ornament rv" data-rv style={{ ["--rd" as string]: ".26s" }} aria-hidden="true"><i></i><b></b><i></i></span>
           </div>

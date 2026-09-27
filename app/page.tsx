@@ -3,6 +3,7 @@ import { PromoBar, HeroHeader } from "./components/Header";
 import StorefrontChrome from "./components/StorefrontChrome";
 import HeroVideo from "./components/HeroVideo";
 import ProductRail from "./components/ProductRail";
+import SaleBanner from "./components/SaleBanner";
 
 export const revalidate = 0;
 
@@ -64,6 +65,8 @@ export default async function HomePage() {
           </svg>
         </a>
       </section>
+
+      <SaleBanner />
 
       <section className="arrivals" id="collection">
         <header className="arrivals__head">

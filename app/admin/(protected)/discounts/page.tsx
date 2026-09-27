@@ -1,5 +1,18 @@
-import StubPage from "@/app/components/admin/StubPage";
+import { sql, getSiteSale, type Coupon } from "@/lib/db";
+import DiscountsManager from "@/app/components/admin/DiscountsManager";
+
+export const revalidate = 0;
 export const metadata = { title: "Discounts — Antique Home Admin" };
-export default function Page() {
-  return <StubPage title="Discounts" text="Discount codes and promotions management is coming soon." />;
+
+async function getCoupons() {
+  try {
+    return (await sql`SELECT * FROM coupons ORDER BY created_at DESC`) as Coupon[];
+  } catch {
+    return [];
+  }
+}
+
+export default async function AdminDiscountsPage() {
+  const [sale, coupons] = await Promise.all([getSiteSale(), getCoupons()]);
+  return <DiscountsManager initialSale={sale} initialCoupons={coupons} />;
 }

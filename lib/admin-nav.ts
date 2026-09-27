@@ -8,8 +8,8 @@ export const NAV_ITEMS = [
   { href: "/admin/content", label: "Content", icon: "content" },
   { href: "/admin/marketing", label: "Marketing", icon: "marketing" },
   { href: "/admin/discounts", label: "Discounts", icon: "discounts" },
+  { href: "/admin/shipping", label: "Shipping", icon: "shipping" },
   { href: "/admin/analytics", label: "Analytics", icon: "analytics" },
   { href: "/admin/reviews", label: "Reviews", icon: "reviews" },
-  { href: "/admin/ai-assistant", label: "AI Assistant", icon: "ai", isNew: true },
   { href: "/admin/settings", label: "Settings", icon: "settings" },
 ];

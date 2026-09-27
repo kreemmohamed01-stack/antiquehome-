@@ -37,15 +37,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
           <AdminNavList orderCount={orderCount} />
 
-          <div className="admin__upgrade">
-            <h4>Upgrade Your Store</h4>
-            <p>Unlock advanced analytics, AI tools, and more.</p>
-            <button type="button">
-              <span>Upgrade Plan</span>
-              <svg viewBox="0 0 26 12" aria-hidden="true"><line x1="0" y1="6" x2="22" y2="6"></line><polyline points="17.4,1.6 22.4,6 17.4,10.4"></polyline></svg>
-            </button>
-          </div>
-
           <div className="admin__profile">
             <span className="admin__avatar">{initials}</span>
             <div>

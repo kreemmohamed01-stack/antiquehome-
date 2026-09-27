@@ -357,6 +357,52 @@
 
 
 /* =========================================================
+   02a · SITE-WIDE SALE BANNER
+   ========================================================= */
+
+.sale-banner{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  flex-wrap:wrap;
+  padding:16px var(--gutter);
+  background: linear-gradient(100deg, #8A2E20 0%, #A93B29 50%, #8A2E20 100%);
+  color:#fff;
+  text-align:center;
+}
+.sale-banner__pct{
+  font-family: var(--serif);
+  font-weight:700;
+  font-size:20px;
+  letter-spacing:.02em;
+}
+.sale-banner__text{
+  font-family: var(--sans);
+  font-size:13px;
+  font-weight:500;
+  letter-spacing:.02em;
+}
+.sale-banner__arrow{
+  display:flex;
+}
+.sale-banner__arrow svg{
+  width:20px; height:9px;
+  fill:none; stroke:currentColor; stroke-width:1.6;
+  stroke-linecap:round; stroke-linejoin:round;
+  transition: transform .3s var(--ease);
+}
+@media (hover:hover){
+  .sale-banner:hover .sale-banner__arrow svg{ transform: translateX(4px); }
+}
+
+@media (min-width: 700px){
+  .sale-banner{ padding:20px var(--gutter); gap:18px; }
+  .sale-banner__pct{ font-size:24px; }
+  .sale-banner__text{ font-size:14.5px; }
+}
+
+/* =========================================================
    02b · NEW ARRIVALS
    ========================================================= */
 

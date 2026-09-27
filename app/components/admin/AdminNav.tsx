@@ -52,9 +52,9 @@ function Icon({ name }: { name: string }) {
       return (
         <svg viewBox="0 0 24 24"><path d="M12 3 14.6 8.6 20.6 9.4 16.3 13.4 17.4 19.4 12 16.5 6.6 19.4 7.7 13.4 3.4 9.4 9.4 8.6Z"></path></svg>
       );
-    case "ai":
+    case "shipping":
       return (
-        <svg viewBox="0 0 24 24"><path d="M12 3 14 9 20 11 14 13 12 19 10 13 4 11 10 9Z"></path></svg>
+        <svg viewBox="0 0 24 24"><path d="M2.6 8.4h14v12.8h-14z"></path><path d="M16.6 12.4h6.6l4.2 4.2v4.6h-10.8z"></path><circle cx="9.2" cy="24" r="2.6" transform="translate(0 -3)"></circle><circle cx="22.6" cy="24" r="2.6" transform="translate(0 -3)"></circle></svg>
       );
     case "settings":
       return (
@@ -83,7 +83,6 @@ export function AdminNavList({ orderCount, onNavigate }: { orderCount: number; o
               {item.badgeKey === "orders" && orderCount > 0 ? (
                 <span className="admin__navBadge">{orderCount}</span>
               ) : null}
-              {item.isNew ? <span className="admin__navPill">NEW</span> : null}
             </Link>
           </li>
         );

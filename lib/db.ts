@@ -30,13 +30,89 @@ export type Product = {
   material: string | null;
   colors: string[] | null;
   size_cm: string | null;
+  sizes: string[] | null;
   image_urls: string[] | null;
   badge: string | null;
+  sale_percent: string | null;
+  sale_label: string | null;
   stock_qty: number;
   rating: string;
   review_count: number;
   created_at: string;
 };
+
+export type Coupon = {
+  id: number;
+  code: string;
+  percent: string;
+  active: boolean;
+  created_at: string;
+};
+
+export type ShippingRate = {
+  id: number;
+  governorate: string;
+  standard_price: string;
+  express_price: string;
+  sort_order: number;
+};
+
+export type SiteSale = {
+  active: boolean;
+  percent: number;
+  label: string;
+};
+
+export async function getSiteSale(): Promise<SiteSale> {
+  try {
+    const rows = (await sql`SELECT value FROM settings WHERE key = 'site_sale'`) as { value: SiteSale }[];
+    if (!rows.length) return { active: false, percent: 0, label: "" };
+    return rows[0].value;
+  } catch {
+    return { active: false, percent: 0, label: "" };
+  }
+}
+
+export type AboutContent = {
+  heroTitle: string;
+  heroSubtitle: string;
+  heroText: string;
+};
+
+const DEFAULT_ABOUT_CONTENT: AboutContent = {
+  heroTitle: "The Art of",
+  heroSubtitle: "Living Beautifully",
+  heroText:
+    "At Antique Home, we believe a home is more than a place, it's a reflection of your story, your taste, and the moments that matter most.",
+};
+
+export async function getAboutContent(): Promise<AboutContent> {
+  try {
+    const rows = (await sql`SELECT value FROM settings WHERE key = 'about_content'`) as { value: AboutContent }[];
+    if (!rows.length) return DEFAULT_ABOUT_CONTENT;
+    return { ...DEFAULT_ABOUT_CONTENT, ...rows[0].value };
+  } catch {
+    return DEFAULT_ABOUT_CONTENT;
+  }
+}
+
+/** Effective sale % for a product: per-product sale wins over the
+ *  site-wide sale if both are active. Returns 0 if neither applies. */
+export function effectiveSalePercent(
+  product: { sale_percent: string | null },
+  siteSale: SiteSale
+): number {
+  const own = product.sale_percent ? parseFloat(product.sale_percent) : 0;
+  if (own > 0) return own;
+  if (siteSale.active && siteSale.percent > 0) return siteSale.percent;
+  return 0;
+}
+
+export function priceWithSale(price: string | number, salePercent: number): number {
+  const base = typeof price === "string" ? parseFloat(price) : price;
+  if (!salePercent) return base;
+  return Math.round(base * (1 - salePercent / 100) * 100) / 100;
+}
 
 export type Order = {
   id: number;
