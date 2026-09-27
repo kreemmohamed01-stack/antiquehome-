@@ -19,6 +19,18 @@ export type Category = {
   sort_order: number;
 };
 
+export type ProductVariant = {
+  label: string;
+  price: number;
+  stock: number;
+};
+
+export type ColorOption = {
+  name: string;
+  hex: string;
+  imageUrls: string[];
+};
+
 export type Product = {
   id: number;
   name: string;
@@ -29,6 +41,8 @@ export type Product = {
   category_id: number | null;
   material: string | null;
   colors: string[] | null;
+  color_options: ColorOption[] | null;
+  variants: ProductVariant[] | null;
   size_cm: string | null;
   sizes: string[] | null;
   image_urls: string[] | null;
@@ -36,10 +50,31 @@ export type Product = {
   sale_percent: string | null;
   sale_label: string | null;
   stock_qty: number;
+  low_stock_threshold: number;
+  is_new_arrival: boolean;
+  status: string;
+  sku: string | null;
+  views: number;
+  pricing_mode: string;
+  price_per_piece: string | null;
+  set_size: number | null;
+  is_demo: boolean;
   rating: string;
   review_count: number;
   created_at: string;
 };
+
+export type StockState = "in" | "low" | "out";
+
+export function stockState(p: {
+  stock_qty: number;
+  low_stock_threshold?: number | null;
+}): StockState {
+  const threshold = p.low_stock_threshold ?? 5;
+  if (p.stock_qty <= 0) return "out";
+  if (p.stock_qty <= threshold) return "low";
+  return "in";
+}
 
 export type Coupon = {
   id: number;
@@ -129,8 +164,13 @@ export type Order = {
   subtotal: string;
   shipping: string;
   discount: string;
+  coupon_code: string | null;
   total: string;
   status: string;
+  payment_status: string | null;
+  courier: string | null;
+  tracking_number: string | null;
+  is_demo: boolean;
   created_at: string;
 };
 
@@ -141,5 +181,7 @@ export type OrderItem = {
   name_snapshot: string;
   price_snapshot: string;
   image_snapshot: string | null;
+  variant_label: string | null;
+  color_name: string | null;
   qty: number;
 };

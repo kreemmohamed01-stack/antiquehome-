@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import "@/app/styles/admin.css";
+import "@/app/styles/admin-v3.css";
 import { AdminNavList } from "@/app/components/admin/AdminNav";
 import MobileDrawer from "@/app/components/admin/MobileDrawer";
 import TabBar from "@/app/components/admin/TabBar";

@@ -7,41 +7,59 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  let body: Record<string, unknown>;
+  const pid = Number(id);
+
+  let b: Record<string, unknown>;
   try {
-    body = await req.json();
+    b = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const name = String(body.name || "").trim();
-  const slug = String(body.slug || "").trim();
-  if (!name || !slug) return NextResponse.json({ error: "Name and slug are required." }, { status: 400 });
+  const name = String(b.name || "").trim();
+  const slug = String(b.slug || "").trim();
+  if (!name || !slug) {
+    return NextResponse.json({ error: "Name and slug are required." }, { status: 400 });
+  }
 
-  const price = parseFloat(String(body.price)) || 0;
-  const compareAtPrice = body.compareAtPrice ? parseFloat(String(body.compareAtPrice)) : null;
-  const categoryId = body.categoryId ? Number(body.categoryId) : null;
-  const description = body.description ? String(body.description) : null;
-  const material = body.material ? String(body.material) : null;
-  const sizeCm = body.sizeCm ? String(body.sizeCm) : null;
-  const sizes = Array.isArray(body.sizes) ? body.sizes : [];
-  const badge = body.badge ? String(body.badge) : null;
-  const salePercent = body.salePercent ? parseFloat(String(body.salePercent)) : null;
-  const saleLabel = body.saleLabel ? String(body.saleLabel) : null;
-  const stockQty = body.stockQty !== undefined ? Number(body.stockQty) : 0;
-  const colors = Array.isArray(body.colors) ? body.colors : [];
-  const imageUrls = Array.isArray(body.imageUrls) ? body.imageUrls : [];
+  const categoryIds = Array.isArray(b.categoryIds) ? (b.categoryIds as number[]) : [];
+  const primaryCategory = categoryIds.length ? Number(categoryIds[0]) : null;
+  const num = (x: unknown) => (x === "" || x === null || x === undefined ? null : Number(x));
 
   try {
     await sql`
       UPDATE products SET
-        name = ${name}, slug = ${slug}, description = ${description},
-        price = ${price}, compare_at_price = ${compareAtPrice}, category_id = ${categoryId},
-        material = ${material}, colors = ${JSON.stringify(colors)}, size_cm = ${sizeCm},
-        sizes = ${JSON.stringify(sizes)}, image_urls = ${JSON.stringify(imageUrls)}, badge = ${badge},
-        sale_percent = ${salePercent}, sale_label = ${saleLabel}, stock_qty = ${stockQty}
-      WHERE id = ${Number(id)}
+        name = ${name},
+        slug = ${slug},
+        description = ${b.description ? String(b.description) : null},
+        price = ${Number(b.price) || 0},
+        compare_at_price = ${num(b.compareAtPrice)},
+        category_id = ${primaryCategory},
+        material = ${b.material ? String(b.material) : null},
+        colors = ${JSON.stringify(Array.isArray(b.colors) ? b.colors : [])},
+        color_options = ${JSON.stringify(Array.isArray(b.colorOptions) ? b.colorOptions : [])},
+        variants = ${JSON.stringify(Array.isArray(b.variants) ? b.variants : [])},
+        size_cm = ${b.sizeCm ? String(b.sizeCm) : null},
+        image_urls = ${JSON.stringify(Array.isArray(b.imageUrls) ? b.imageUrls : [])},
+        badge = ${b.badge ? String(b.badge) : null},
+        sale_percent = ${num(b.salePercent)},
+        sale_label = ${b.saleLabel ? String(b.saleLabel) : null},
+        stock_qty = ${Number(b.stockQty) || 0},
+        low_stock_threshold = ${Number(b.lowStockThreshold) || 5},
+        is_new_arrival = ${Boolean(b.isNewArrival)},
+        status = ${b.status ? String(b.status) : "active"},
+        sku = ${b.sku ? String(b.sku) : null},
+        pricing_mode = ${b.pricingMode ? String(b.pricingMode) : "unit"},
+        price_per_piece = ${num(b.pricePerPiece)},
+        set_size = ${num(b.setSize)}
+      WHERE id = ${pid}
     `;
+
+    await sql`DELETE FROM product_categories WHERE product_id = ${pid}`;
+    for (const cid of categoryIds) {
+      await sql`INSERT INTO product_categories (product_id, category_id) VALUES (${pid}, ${Number(cid)}) ON CONFLICT DO NOTHING`;
+    }
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error(err);
