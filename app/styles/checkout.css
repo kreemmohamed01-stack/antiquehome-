@@ -248,6 +248,9 @@
 @media (min-width: 480px){
   .chk__delivery{ grid-template-columns: 1fr 1fr; }
 }
+@media (min-width: 900px){
+  .chk__delivery{ grid-template-columns: 1fr 1fr 1fr; }
+}
 
 .chk__radioCard{
   position:relative;

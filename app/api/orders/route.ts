@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
     subtotal: number;
     shipping: number;
     discount?: number;
+    couponCode?: string;
     total: number;
   };
 
@@ -43,12 +44,12 @@ export async function POST(req: NextRequest) {
     const orderRows = (await sql`
       INSERT INTO orders (
         order_number, customer_name, email, phone, governorate, city, address,
-        delivery_method, payment_method, notes, subtotal, shipping, discount, total, status
+        delivery_method, payment_method, notes, subtotal, shipping, discount, coupon_code, total, status
       ) VALUES (
         ${orderNumber}, ${body.fullName}, ${body.email}, ${body.phone},
         ${body.governorate || null}, ${body.city || null}, ${body.address || null},
         ${body.delivery}, ${body.payment}, ${body.notes || null},
-        ${body.subtotal}, ${body.shipping}, ${body.discount || 0}, ${body.total}, 'pending'
+        ${body.subtotal}, ${body.shipping}, ${body.discount || 0}, ${body.couponCode || null}, ${body.total}, 'pending'
       ) RETURNING id, order_number
     `) as { id: number; order_number: string }[];
 

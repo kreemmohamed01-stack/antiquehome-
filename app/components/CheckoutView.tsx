@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { readCart, removeFromCart, setQty, cartTotals, clearCart, CART_EVENT, type CartLine } from "@/lib/cart";
+import type { ShippingRate } from "@/lib/db";
 
-const SHIPPING_STANDARD = 100;
-const SHIPPING_PICKUP = 0;
+const FALLBACK_STANDARD = 100;
+const FALLBACK_EXPRESS = 150;
 
 export default function CheckoutView() {
   const [lines, setLines] = useState<CartLine[]>([]);
-  const [delivery, setDelivery] = useState<"standard" | "pickup">("standard");
+  const [delivery, setDelivery] = useState<"standard" | "express" | "pickup">("standard");
   const [payment, setPayment] = useState<"instapay" | "cod" | "card">("instapay");
   const [agree, setAgree] = useState(false);
   const [placing, setPlacing] = useState(false);
@@ -22,6 +23,13 @@ export default function CheckoutView() {
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
 
+  const [rates, setRates] = useState<ShippingRate[]>([]);
+
+  const [couponInput, setCouponInput] = useState("");
+  const [coupon, setCoupon] = useState<{ code: string; percent: number } | null>(null);
+  const [couponError, setCouponError] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+
   useEffect(() => {
     const sync = () => setLines(readCart());
     sync();
@@ -29,12 +37,60 @@ export default function CheckoutView() {
     return () => window.removeEventListener(CART_EVENT, sync);
   }, []);
 
+  useEffect(() => {
+    fetch("/api/shipping")
+      .then((r) => r.json())
+      .then((d) => setRates(d.rates || []))
+      .catch(() => setRates([]));
+  }, []);
+
   const { subtotal } = cartTotals(lines);
-  const shipping = delivery === "pickup" ? SHIPPING_PICKUP : SHIPPING_STANDARD;
-  const total = subtotal + shipping;
+
+  const rate = rates.find((r) => r.governorate === governorate);
+  const shipping =
+    delivery === "pickup"
+      ? 0
+      : delivery === "express"
+      ? rate
+        ? Number(rate.express_price)
+        : FALLBACK_EXPRESS
+      : rate
+      ? Number(rate.standard_price)
+      : FALLBACK_STANDARD;
+
+  const discount = coupon ? Math.round(subtotal * (coupon.percent / 100) * 100) / 100 : 0;
+  const total = Math.max(0, subtotal - discount) + shipping;
 
   function fmt(n: number) {
     return "EGP " + Math.round(n).toLocaleString("en-US");
+  }
+
+  async function applyCoupon() {
+    setCouponError("");
+    const code = couponInput.trim();
+    if (!code) return;
+    setCouponLoading(true);
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Invalid code");
+      setCoupon({ code: data.code, percent: data.percent });
+      setCouponInput("");
+    } catch (err) {
+      setCoupon(null);
+      setCouponError(err instanceof Error ? err.message : "Invalid coupon code.");
+    } finally {
+      setCouponLoading(false);
+    }
+  }
+
+  function removeCoupon() {
+    setCoupon(null);
+    setCouponError("");
   }
 
   async function placeOrder() {
@@ -54,6 +110,13 @@ export default function CheckoutView() {
 
     setPlacing(true);
     try {
+      const deliveryLabel =
+        delivery === "pickup"
+          ? "Store Pickup"
+          : delivery === "express"
+          ? "Express Delivery (1–2 Business Days)"
+          : "Standard Delivery (2–4 Business Days)";
+
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -64,13 +127,14 @@ export default function CheckoutView() {
           governorate,
           city,
           address,
-          delivery: delivery === "pickup" ? "Store Pickup" : "Standard Delivery (2–4 Business Days)",
+          delivery: deliveryLabel,
           payment: payment === "instapay" ? "InstaPay" : payment === "cod" ? "Cash on Delivery" : "Debit Card",
           notes,
           items: lines.map((l) => ({ name: l.name, price: l.price, image: l.image, qty: l.qty })),
           subtotal,
           shipping,
-          discount: 0,
+          discount,
+          couponCode: coupon?.code || null,
           total,
         }),
       });
@@ -133,11 +197,9 @@ export default function CheckoutView() {
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4S5 15 5 9.8a7 7 0 0 1 14 0c0 5.2-7 11.6-7 11.6Z"></path><circle cx="12" cy="9.6" r="2.6"></circle></svg>
               <select required value={governorate} onChange={(e) => setGovernorate(e.target.value)}>
                 <option value="" disabled>Governorate</option>
-                <option>Cairo</option>
-                <option>Giza</option>
-                <option>Alexandria</option>
-                <option>Qalyubia</option>
-                <option>Other</option>
+                {rates.length > 0
+                  ? rates.map((r) => <option key={r.governorate}>{r.governorate}</option>)
+                  : ["Cairo", "Giza", "Alexandria", "Qalyubia", "Other"].map((g) => <option key={g}>{g}</option>)}
               </select>
               <svg className="chk__chev" viewBox="0 0 12 8" aria-hidden="true"><polyline points="1,1.5 6,6.5 11,1.5"></polyline></svg>
             </label>
@@ -161,7 +223,15 @@ export default function CheckoutView() {
                 <span className="chk__radioIco" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M2.6 8.4h14v12.8h-14z"></path><path d="M16.6 12.4h6.6l4.2 4.2v4.6h-10.8z"></path><circle cx="9.2" cy="24" r="2.6"></circle><circle cx="22.6" cy="24" r="2.6"></circle></svg></span>
                 <strong>Standard Delivery</strong>
                 <span className="chk__radioMeta">2 &ndash; 4 Business Days</span>
-                <span className="chk__radioPrice">EGP 100</span>
+                <span className="chk__radioPrice">{governorate ? fmt(rate ? Number(rate.standard_price) : FALLBACK_STANDARD) : "From EGP 80"}</span>
+              </label>
+              <label className={`chk__radioCard${delivery === "express" ? " is-active" : ""}`}>
+                <input type="radio" name="delivery" checked={delivery === "express"} onChange={() => setDelivery("express")} />
+                <span className="chk__radioDot" aria-hidden="true"></span>
+                <span className="chk__radioIco" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M4 16h20l-4-8h6l4 8v8H4Z"></path><circle cx="10" cy="26" r="2.4"></circle><circle cx="22" cy="26" r="2.4"></circle></svg></span>
+                <strong>Express Delivery</strong>
+                <span className="chk__radioMeta">1 &ndash; 2 Business Days</span>
+                <span className="chk__radioPrice">{governorate ? fmt(rate ? Number(rate.express_price) : FALLBACK_EXPRESS) : "From EGP 130"}</span>
               </label>
               <label className={`chk__radioCard${delivery === "pickup" ? " is-active" : ""}`}>
                 <input type="radio" name="delivery" checked={delivery === "pickup"} onChange={() => setDelivery("pickup")} />
@@ -187,7 +257,7 @@ export default function CheckoutView() {
                     <figure className="chk__itemMedia"><img src={l.image} alt={l.name} loading="lazy" /></figure>
                     <div className="chk__itemBody">
                       <div className="chk__itemTop">
-                        <div><h3>{l.name}</h3></div>
+                        <div><h3>{l.name}</h3>{l.variant && <p style={{ margin: "2px 0 0", fontSize: 11, color: "var(--ink-400)" }}>{l.variant}</p>}</div>
                         <button type="button" className="chk__itemRemove" aria-label={`Remove ${l.name}`} onClick={() => removeFromCart(l.id)}>
                           <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="5.4" y1="5.4" x2="18.6" y2="18.6"></line><line x1="18.6" y1="5.4" x2="5.4" y2="18.6"></line></svg>
                         </button>
@@ -210,8 +280,62 @@ export default function CheckoutView() {
               </ul>
             )}
 
+            {/* coupon code */}
+            <div style={{ marginTop: 18 }}>
+              {coupon ? (
+                <div
+                  style={{
+                    display: "flex", alignItems: "center", gap: 10,
+                    padding: "10px 14px", borderRadius: 9,
+                    background: "rgba(111,163,107,.1)", border: "1px solid rgba(111,163,107,.35)",
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" style={{ flex: "none", color: "#4C6B3F" }}>
+                    <circle cx="12" cy="12" r="9.4" fill="none" stroke="currentColor" strokeWidth="1.8" />
+                    <polyline points="7.5,12.5 10.5,15.5 16.5,9" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span style={{ flex: 1, fontSize: 12.5, color: "#4C6B3F", fontWeight: 600 }}>
+                    Coupon &ldquo;{coupon.code}&rdquo; applied — {coupon.percent}% off
+                  </span>
+                  <button
+                    type="button"
+                    onClick={removeCoupon}
+                    style={{ background: "none", border: "none", color: "#4C6B3F", cursor: "pointer", fontSize: 11, textDecoration: "underline" }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <input
+                      type="text"
+                      placeholder="Discount code"
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), applyCoupon())}
+                      style={{ flex: 1, padding: "10px 12px", borderRadius: 8, border: "1px solid rgba(43,36,28,.16)", fontSize: 12.5 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={applyCoupon}
+                      disabled={couponLoading}
+                      className="chk__submit"
+                      style={{ padding: "0 20px", fontSize: 11 }}
+                    >
+                      <span>{couponLoading ? "…" : "Apply"}</span>
+                    </button>
+                  </div>
+                  {couponError && <p style={{ color: "#a33", fontSize: 11.5, marginTop: 6 }}>{couponError}</p>}
+                </div>
+              )}
+            </div>
+
             <div className="chk__totals">
               <div className="chk__totalsRow"><span>Subtotal</span><span>{fmt(subtotal)}</span></div>
+              {discount > 0 && (
+                <div className="chk__totalsRow" style={{ color: "#4C6B3F" }}><span>Discount ({coupon?.code})</span><span>-{fmt(discount)}</span></div>
+              )}
               <div className="chk__totalsRow"><span>Shipping</span><span>{shipping === 0 ? "Free" : fmt(shipping)}</span></div>
               <div className="chk__totalsFinal"><span>Total</span><strong>{fmt(total)}</strong></div>
             </div>
