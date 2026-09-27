@@ -4,6 +4,7 @@ import StorefrontChrome from "./components/StorefrontChrome";
 import HeroVideo from "./components/HeroVideo";
 import ProductRail from "./components/ProductRail";
 import SaleBanner from "./components/SaleBanner";
+import { cldUrl } from "@/lib/cloudinaryUrl";
 
 export const revalidate = 0;
 
@@ -122,7 +123,7 @@ export default async function HomePage() {
               </div>
             </div>
             <figure className="feat__media">
-              <img src={(featured.image_urls || [])[0] || ""} alt={featured.name} loading="lazy" />
+              <img src={cldUrl((featured.image_urls || [])[0], 900)} alt={featured.name} loading="lazy" />
             </figure>
           </article>
         ) : (

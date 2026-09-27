@@ -2,6 +2,7 @@
 
 import type { Product } from "@/lib/db";
 import { useEffect, useRef } from "react";
+import { cldUrl } from "@/lib/cloudinaryUrl";
 
 export default function ProductRail({ products }: { products: Product[] }) {
   const railRef = useRef<HTMLDivElement>(null);
@@ -55,7 +56,7 @@ export default function ProductRail({ products }: { products: Product[] }) {
       {products.map((p, i) => (
         <article className="card" key={p.id} data-href={`/product/${p.slug}`}>
           <figure className="card__media">
-            <img src={(p.image_urls || [])[0] || ""} alt={p.name} loading="lazy" />
+            <img src={cldUrl((p.image_urls || [])[0], 480)} alt={p.name} loading="lazy" />
             <span className="card__no">{String(i + 2).padStart(2, "0")}</span>
             <button className="fav fav--sm" type="button" aria-label={`Save ${p.name}`} aria-pressed="false">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.4 4.6 13.2a4.6 4.6 0 1 1 7.4-5.3 4.6 4.6 0 1 1 7.4 5.3Z"></path></svg>

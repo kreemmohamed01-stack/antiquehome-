@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { Product, SiteSale } from "@/lib/db";
 import { effectiveSalePercent, priceWithSale, stockState } from "@/lib/db";
 import { addToCart } from "@/lib/cart";
+import { cldUrl } from "@/lib/cloudinaryUrl";
 
 export default function ProductDetail({
   product,
@@ -121,13 +122,13 @@ export default function ProductDetail({
                   onClick={() => setActiveIdx(i)}
                   aria-label={`View image ${i + 1}`}
                 >
-                  <img src={img} alt="" loading="lazy" />
+                  <img src={cldUrl(img, 160)} alt="" loading="lazy" />
                 </button>
               ))}
             </div>
 
             <figure className="pdp__main">
-              <img src={activeImg} alt={product.name} loading="eager" onClick={() => setLightboxOpen(true)} />
+              <img src={cldUrl(activeImg, 900)} alt={product.name} loading="eager" onClick={() => setLightboxOpen(true)} />
               <span className="pdp__count">
                 <em>{String(activeIdx + 1).padStart(2, "0")}</em><i></i><b>{String(images.length).padStart(2, "0")}</b>
               </span>
@@ -329,7 +330,7 @@ export default function ProductDetail({
       <div className="pdp-lightbox" data-open={lightboxOpen ? "true" : "false"} aria-hidden={!lightboxOpen}>
         <button type="button" className="pdp-lightbox__scrim" tabIndex={-1} aria-label="Close zoom" onClick={() => setLightboxOpen(false)}></button>
         <div className="pdp-lightbox__stage">
-          <img src={activeImg} alt={product.name} onClick={() => setLightboxOpen(false)} />
+          <img src={cldUrl(activeImg, 1600)} alt={product.name} onClick={() => setLightboxOpen(false)} />
           <button type="button" className="pdp-lightbox__close" aria-label="Close zoom" onClick={() => setLightboxOpen(false)}>
             <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4.6" y1="4.6" x2="19.4" y2="19.4"></line><line x1="19.4" y1="4.6" x2="4.6" y2="19.4"></line></svg>
           </button>
