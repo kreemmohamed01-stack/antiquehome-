@@ -32,15 +32,25 @@ export async function POST(req: NextRequest) {
   const description = body.description ? String(body.description) : null;
   const material = body.material ? String(body.material) : null;
   const sizeCm = body.sizeCm ? String(body.sizeCm) : null;
+  const sizes = Array.isArray(body.sizes) ? body.sizes : [];
   const badge = body.badge ? String(body.badge) : null;
+  const salePercent = body.salePercent ? parseFloat(String(body.salePercent)) : null;
+  const saleLabel = body.saleLabel ? String(body.saleLabel) : null;
   const stockQty = body.stockQty !== undefined ? Number(body.stockQty) : 0;
   const colors = Array.isArray(body.colors) ? body.colors : [];
   const imageUrls = Array.isArray(body.imageUrls) ? body.imageUrls : [];
 
   try {
     const rows = await sql`
-      INSERT INTO products (name, slug, description, price, compare_at_price, category_id, material, colors, size_cm, image_urls, badge, stock_qty)
-      VALUES (${name}, ${slug}, ${description}, ${price}, ${compareAtPrice}, ${categoryId}, ${material}, ${JSON.stringify(colors)}, ${sizeCm}, ${JSON.stringify(imageUrls)}, ${badge}, ${stockQty})
+      INSERT INTO products (
+        name, slug, description, price, compare_at_price, category_id, material,
+        colors, size_cm, sizes, image_urls, badge, sale_percent, sale_label, stock_qty
+      )
+      VALUES (
+        ${name}, ${slug}, ${description}, ${price}, ${compareAtPrice}, ${categoryId}, ${material},
+        ${JSON.stringify(colors)}, ${sizeCm}, ${JSON.stringify(sizes)}, ${JSON.stringify(imageUrls)},
+        ${badge}, ${salePercent}, ${saleLabel}, ${stockQty}
+      )
       RETURNING id, slug
     `;
     return NextResponse.json({ ok: true, id: rows[0].id, slug: rows[0].slug });

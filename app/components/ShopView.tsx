@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Product, Category } from "@/lib/db";
+import type { Product, Category, SiteSale } from "@/lib/db";
+import { effectiveSalePercent, priceWithSale } from "@/lib/db";
 
 type SortValue = "newest" | "price-asc" | "price-desc" | "name-asc";
 const PAGE_SIZE = 8;
@@ -23,11 +24,14 @@ export default function ShopView({
   products,
   categories,
   activeCategory,
+  siteSale,
 }: {
   products: Product[];
   categories: Category[];
   activeCategory: string; // "all" or a slug
+  siteSale?: SiteSale;
 }) {
+  const sale = siteSale || { active: false, percent: 0, label: "" };
   const [sort, setSort] = useState<SortValue>("newest");
   const [page, setPage] = useState(1);
   const [maxPrice, setMaxPrice] = useState(20000);
@@ -198,6 +202,9 @@ export default function ShopView({
             )}
             {visible.map((p) => {
               const cat = catBySlug.get(String(p.category_id));
+              const pct = effectiveSalePercent(p, sale);
+              const finalPrice = pct > 0 ? priceWithSale(p.price, pct) : Number(p.price);
+              const saleText = pct > 0 ? (p.sale_label && parseFloat(p.sale_percent || "0") > 0 ? p.sale_label : `Sale ${pct}%`) : "";
               return (
                 <article
                   key={p.id}
@@ -209,7 +216,11 @@ export default function ShopView({
                   data-color={(p.colors || []).join(",")}
                 >
                   <a className="pcard__media" href={`/product/${p.slug}`}>
-                    {p.badge && <span className={`pcard__badge${p.badge === "sale" ? " pcard__badge--sale" : ""}`}>{p.badge}</span>}
+                    {pct > 0 ? (
+                      <span className="pcard__badge pcard__badge--sale">{saleText}</span>
+                    ) : (
+                      p.badge && <span className="pcard__badge">{p.badge}</span>
+                    )}
                     <img src={(p.image_urls || [])[0] || ""} alt={p.name} loading="lazy" />
                     <button className="fav" type="button" aria-label={`Save ${p.name}`} aria-pressed="false" onClick={(e) => e.preventDefault()}>
                       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.4 4.6 13.2a4.6 4.6 0 1 1 7.4-5.3 4.6 4.6 0 1 1 7.4 5.3Z"></path></svg>
@@ -237,10 +248,19 @@ export default function ShopView({
                       <em>({p.review_count})</em>
                     </span>
                     <p className="pcard__price">
-                      {p.compare_at_price && Number(p.compare_at_price) > Number(p.price) && (
-                        <s style={{ opacity: 0.5, fontWeight: 400, marginRight: 6 }}>EGP {Number(p.compare_at_price).toLocaleString("en-US")}</s>
+                      {pct > 0 ? (
+                        <>
+                          <s style={{ opacity: 0.5, fontWeight: 400, marginRight: 6 }}>EGP {Number(p.price).toLocaleString("en-US")}</s>
+                          <span style={{ color: "#A93B29", fontWeight: 700 }}>EGP {finalPrice.toLocaleString("en-US")}</span>
+                        </>
+                      ) : (
+                        <>
+                          {p.compare_at_price && Number(p.compare_at_price) > Number(p.price) && (
+                            <s style={{ opacity: 0.5, fontWeight: 400, marginRight: 6 }}>EGP {Number(p.compare_at_price).toLocaleString("en-US")}</s>
+                          )}
+                          EGP {Number(p.price).toLocaleString("en-US")}
+                        </>
                       )}
-                      EGP {Number(p.price).toLocaleString("en-US")}
                     </p>
                   </div>
                 </article>

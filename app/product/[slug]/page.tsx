@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { sql, type Product } from "@/lib/db";
+import { sql, getSiteSale, type Product } from "@/lib/db";
 import { PromoBar, ShopHeader, ShopTopbar } from "../../components/Header";
 import StorefrontChrome from "../../components/StorefrontChrome";
 import ProductDetail from "../../components/ProductDetail";
@@ -41,6 +41,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     data = null;
   }
   if (!data) notFound();
+  const siteSale = await getSiteSale();
 
   return (
     <>
@@ -48,7 +49,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       <ShopTopbar />
       <ShopHeader active="" />
 
-      <ProductDetail product={data.product} prevSlug={data.prevSlug} nextSlug={data.nextSlug} />
+      <ProductDetail product={data.product} prevSlug={data.prevSlug} nextSlug={data.nextSlug} siteSale={siteSale} />
 
       <StorefrontChrome />
     </>

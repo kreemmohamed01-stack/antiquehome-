@@ -1,4 +1,4 @@
-import { sql, type Product, type Category } from "@/lib/db";
+import { sql, getSiteSale, type Product, type Category } from "@/lib/db";
 import { PromoBar, ShopHeader } from "../components/Header";
 import CategoryRail from "../components/CategoryRail";
 import ShopView from "../components/ShopView";
@@ -20,7 +20,7 @@ async function getData() {
 }
 
 export default async function ShopPage() {
-  const { products, categories } = await getData();
+  const [{ products, categories }, siteSale] = await Promise.all([getData(), getSiteSale()]);
 
   return (
     <>
@@ -77,7 +77,7 @@ export default async function ShopPage() {
 
       <CategoryRail active="all" />
 
-      <ShopView products={products} categories={categories} activeCategory="all" />
+      <ShopView products={products} categories={categories} activeCategory="all" siteSale={siteSale} />
 
       <StorefrontChrome />
     </>

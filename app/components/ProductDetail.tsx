@@ -1,17 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Product } from "@/lib/db";
+import type { Product, SiteSale } from "@/lib/db";
+import { effectiveSalePercent, priceWithSale } from "@/lib/db";
 import { addToCart } from "@/lib/cart";
 
 export default function ProductDetail({
   product,
   prevSlug,
   nextSlug,
+  siteSale,
 }: {
   product: Product;
   prevSlug: string | null;
   nextSlug: string | null;
+  siteSale?: SiteSale;
 }) {
   const images = product.image_urls && product.image_urls.length ? product.image_urls : ["/khph.png"];
   const [activeImg, setActiveImg] = useState(images[0]);
@@ -20,18 +23,24 @@ export default function ProductDetail({
   const [fav, setFav] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [openAcc, setOpenAcc] = useState<number | null>(null);
+  const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || "");
 
   useEffect(() => {
     setActiveImg(images[0]);
     setActiveIdx(0);
+    setSelectedSize(product.sizes?.[0] || "");
   }, [product.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const price = Number(product.price);
+  const basePrice = Number(product.price);
+  const sale = siteSale || { active: false, percent: 0, label: "" };
+  const salePct = effectiveSalePercent(product, sale);
+  const price = salePct > 0 ? priceWithSale(basePrice, salePct) : basePrice;
+  const saleText = salePct > 0 ? (product.sale_label && product.sale_percent ? product.sale_label : `Sale ${salePct}%`) : "";
   const compareAt = product.compare_at_price ? Number(product.compare_at_price) : null;
-  const off = compareAt && compareAt > price ? Math.round(((compareAt - price) / compareAt) * 100) : null;
+  const off = salePct > 0 ? salePct : compareAt && compareAt > basePrice ? Math.round(((compareAt - basePrice) / compareAt) * 100) : null;
 
   function handleAddToCart() {
-    addToCart({ id: product.slug, name: product.name, price, image: images[0] }, qty);
+    addToCart({ id: product.slug, name: product.name, price, image: images[0], variant: selectedSize || undefined }, qty);
     const cartBtn = document.getElementById("cartBtn");
     cartBtn?.click();
   }
@@ -96,12 +105,20 @@ export default function ProductDetail({
           </div>
 
           <div className="pdp__info">
-            {product.badge && <p className="pdp__eyebrow">{product.badge}</p>}
+            {salePct > 0 ? (
+              <p className="pdp__eyebrow" style={{ color: "#A93B29" }}>{saleText}</p>
+            ) : (
+              product.badge && <p className="pdp__eyebrow">{product.badge}</p>
+            )}
             <h1 className="pdp__title">{product.name}</h1>
 
             <div className="pdp__priceRow">
-              <span className="pdp__price">EGP {price.toLocaleString("en-US")}</span>
-              {compareAt && <span className="pdp__compare">EGP {compareAt.toLocaleString("en-US")}</span>}
+              <span className="pdp__price" style={salePct > 0 ? { color: "#A93B29" } : undefined}>EGP {price.toLocaleString("en-US")}</span>
+              {salePct > 0 ? (
+                <span className="pdp__compare">EGP {basePrice.toLocaleString("en-US")}</span>
+              ) : (
+                compareAt && <span className="pdp__compare">EGP {compareAt.toLocaleString("en-US")}</span>
+              )}
               {off && <span className="pdp__off">{off}% OFF</span>}
             </div>
 
@@ -125,6 +142,24 @@ export default function ProductDetail({
                 <div className="pdp__swatches">
                   {product.colors.map((c, i) => (
                     <button key={c} type="button" className={`pdp__swatch${i === 0 ? " is-active" : ""}`} style={{ background: c }} aria-label={c}></button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {product.sizes && product.sizes.length > 0 && (
+              <div className="pdp__option">
+                <p className="pdp__option-label">Size</p>
+                <div className="pdp__sizes">
+                  {product.sizes.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      className={`pdp__size${s === selectedSize ? " is-active" : ""}`}
+                      onClick={() => setSelectedSize(s)}
+                    >
+                      {s}
+                    </button>
                   ))}
                 </div>
               </div>

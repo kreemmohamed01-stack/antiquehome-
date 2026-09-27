@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { sql, type Product, type Category } from "@/lib/db";
+import { sql, getSiteSale, type Product, type Category } from "@/lib/db";
 import { ShopHeader, ShopTopbar } from "../../components/Header";
 import ShopView from "../../components/ShopView";
 import StorefrontChrome from "../../components/StorefrontChrome";
@@ -41,7 +41,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   const banner = BANNER[slug];
   if (!banner) notFound();
 
-  const { products, categories } = await getData(slug);
+  const [{ products, categories }, siteSale] = await Promise.all([getData(slug), getSiteSale()]);
 
   return (
     <>
@@ -66,7 +66,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         </div>
       </section>
 
-      <ShopView products={products} categories={categories} activeCategory={slug} />
+      <ShopView products={products} categories={categories} activeCategory={slug} siteSale={siteSale} />
 
       <StorefrontChrome />
     </>

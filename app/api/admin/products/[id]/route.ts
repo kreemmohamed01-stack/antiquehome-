@@ -24,7 +24,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const description = body.description ? String(body.description) : null;
   const material = body.material ? String(body.material) : null;
   const sizeCm = body.sizeCm ? String(body.sizeCm) : null;
+  const sizes = Array.isArray(body.sizes) ? body.sizes : [];
   const badge = body.badge ? String(body.badge) : null;
+  const salePercent = body.salePercent ? parseFloat(String(body.salePercent)) : null;
+  const saleLabel = body.saleLabel ? String(body.saleLabel) : null;
   const stockQty = body.stockQty !== undefined ? Number(body.stockQty) : 0;
   const colors = Array.isArray(body.colors) ? body.colors : [];
   const imageUrls = Array.isArray(body.imageUrls) ? body.imageUrls : [];
@@ -35,7 +38,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         name = ${name}, slug = ${slug}, description = ${description},
         price = ${price}, compare_at_price = ${compareAtPrice}, category_id = ${categoryId},
         material = ${material}, colors = ${JSON.stringify(colors)}, size_cm = ${sizeCm},
-        image_urls = ${JSON.stringify(imageUrls)}, badge = ${badge}, stock_qty = ${stockQty}
+        sizes = ${JSON.stringify(sizes)}, image_urls = ${JSON.stringify(imageUrls)}, badge = ${badge},
+        sale_percent = ${salePercent}, sale_label = ${saleLabel}, stock_qty = ${stockQty}
       WHERE id = ${Number(id)}
     `;
     return NextResponse.json({ ok: true });

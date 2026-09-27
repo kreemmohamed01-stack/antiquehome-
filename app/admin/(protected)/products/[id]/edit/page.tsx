@@ -40,7 +40,10 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
           material: product.material || "",
           colors: (product.colors || []).join(", "),
           sizeCm: product.size_cm || "",
+          sizes: product.sizes || [],
           badge: product.badge || "",
+          salePercent: product.sale_percent || "",
+          saleLabel: product.sale_label || "",
           stockQty: String(product.stock_qty),
           imageUrls: product.image_urls || [],
         }}
