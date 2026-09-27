@@ -12,12 +12,12 @@ export async function POST(req: NextRequest) {
   const email = (body.email || "").trim().toLowerCase();
   const password = body.password || "";
   if (!email || !password) {
-    return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
+    return NextResponse.json({ error: "Username and password are required." }, { status: 400 });
   }
 
   const session = await verifyCredentials(email, password);
   if (!session) {
-    return NextResponse.json({ error: "Invalid email or password." }, { status: 401 });
+    return NextResponse.json({ error: "Invalid username or password." }, { status: 401 });
   }
 
   await createSession(session);

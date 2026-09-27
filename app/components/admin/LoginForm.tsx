@@ -38,11 +38,11 @@ export default function LoginForm() {
     <form className="admin__form" onSubmit={onSubmit}>
       {error ? <div className="admin__loginError">{error}</div> : null}
       <div className="admin__field">
-        <label htmlFor="email">Email</label>
+        <label htmlFor="email">Username</label>
         <input
           id="email"
-          type="email"
-          autoComplete="email"
+          type="text"
+          autoComplete="username"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
