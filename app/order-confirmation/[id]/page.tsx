@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { sql, type Order, type OrderItem } from "@/lib/db";
 import PrintButton from "../../components/PrintButton";
+import { cldUrl } from "@/lib/cloudinaryUrl";
 
 export const metadata = {
   title: "Order Confirmed — Antique Home",
@@ -168,7 +169,7 @@ export default async function OrderConfirmationPage({
                     <td>
                       <div className="receipt__itemName">
                         {item.image_snapshot ? (
-                          <img className="receipt__itemImg" src={item.image_snapshot} alt="" />
+                          <img className="receipt__itemImg" src={cldUrl(item.image_snapshot, 120)} alt="" />
                         ) : null}
                         <span>
                           {item.name_snapshot}

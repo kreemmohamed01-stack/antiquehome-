@@ -1,0 +1,45 @@
+.routeLoader{
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: routeLoaderFade .18s ease;
+}
+@keyframes routeLoaderFade{
+  from{ opacity: 0; }
+  to{ opacity: 1; }
+}
+.routeLoader__ring{
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.routeLoader__ring svg{
+  transform: rotate(-90deg);
+}
+.routeLoader__track{
+  fill: none;
+  stroke: rgba(201,162,39,.16);
+  stroke-width: 4;
+}
+.routeLoader__bar{
+  fill: none;
+  stroke: #C9A227;
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset .08s linear;
+}
+.routeLoader__pct{
+  position: absolute;
+  font-family: "Jost", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .02em;
+  color: #4A4438;
+}

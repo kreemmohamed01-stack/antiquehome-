@@ -11,6 +11,8 @@ import "./styles/product.css";
 import "./styles/checkout.css";
 import "./styles/order-confirmation.css";
 import "./styles/about.css";
+import "./styles/route-loader.css";
+import RouteLoaderWrapper from "./components/RouteLoaderWrapper";
 
 export const metadata: Metadata = {
   title: "Antique Home — Vase & Decor",
@@ -29,7 +31,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <RouteLoaderWrapper />
+        {children}
+      </body>
     </html>
   );
 }
