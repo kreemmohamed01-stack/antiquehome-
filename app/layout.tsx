@@ -13,6 +13,7 @@ import "./styles/order-confirmation.css";
 import "./styles/about.css";
 import "./styles/route-loader.css";
 import RouteLoaderWrapper from "./components/RouteLoaderWrapper";
+import VisitTracker from "./components/VisitTracker";
 
 export const metadata: Metadata = {
   title: "Antique Home — Vase & Decor",
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <RouteLoaderWrapper />
+        <VisitTracker />
         {children}
       </body>
     </html>
