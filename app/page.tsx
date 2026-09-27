@@ -9,8 +9,18 @@ export const revalidate = 0;
 
 async function getArrivals(): Promise<Product[]> {
   try {
-    const rows = (await sql`SELECT * FROM products ORDER BY created_at DESC LIMIT 7`) as Product[];
-    return rows;
+    // products explicitly flagged as New Arrivals win; if the client has
+    // not flagged any yet, fall back to the newest active products
+    const flagged = (await sql`
+      SELECT * FROM products
+      WHERE is_new_arrival = true AND status = 'active'
+      ORDER BY created_at DESC LIMIT 7
+    `) as Product[];
+    if (flagged.length) return flagged;
+    return (await sql`
+      SELECT * FROM products WHERE status = 'active'
+      ORDER BY created_at DESC LIMIT 7
+    `) as Product[];
   } catch {
     return [];
   }

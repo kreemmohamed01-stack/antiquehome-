@@ -29,7 +29,15 @@ async function getData(slug: string) {
     const categories = (await sql`SELECT * FROM categories ORDER BY sort_order`) as Category[];
     const category = categories.find((c) => c.slug === slug);
     if (!category) return { category: null, products: [] as Product[], categories };
-    const products = (await sql`SELECT * FROM products WHERE category_id = ${category.id} ORDER BY created_at DESC`) as Product[];
+    // a product can sit in several categories, so read through the join
+    // table and fall back to the legacy single category_id
+    const products = (await sql`
+      SELECT DISTINCT p.* FROM products p
+      LEFT JOIN product_categories pc ON pc.product_id = p.id
+      WHERE (pc.category_id = ${category.id} OR p.category_id = ${category.id})
+        AND p.status = 'active'
+      ORDER BY p.created_at DESC
+    `) as Product[];
     return { category, products, categories };
   } catch {
     return { category: null, products: [] as Product[], categories: [] as Category[] };

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { sql } from "@/lib/db";
 import SalesChart from "@/app/components/admin/SalesChart";
 import CategoryDonut, { type Slice } from "@/app/components/admin/CategoryDonut";
+import DemoBar from "@/app/components/admin/DemoBar";
 
 export const revalidate = 0;
 export const metadata = { title: "Dashboard — Antique Home Admin" };
@@ -107,20 +108,26 @@ async function getDashboardData() {
   const lowStock = await safe(
     async () =>
       (await sql`
-        SELECT id, name, image_urls, stock_qty
+        SELECT id, name, image_urls, stock_qty, low_stock_threshold
         FROM products
-        WHERE stock_qty < 10
+        WHERE stock_qty <= COALESCE(low_stock_threshold, 5)
         ORDER BY stock_qty ASC
         LIMIT 5
       `) as { id: number; name: string; image_urls: string[]; stock_qty: number }[],
     []
   );
 
-  return { totals, dailySales, categorySales, recentOrders, topProducts, lowStock };
+  const demoCount = await safe(
+    async () =>
+      ((await sql`SELECT COUNT(*)::int AS c FROM orders WHERE is_demo = true`) as { c: number }[])[0]?.c ?? 0,
+    0
+  );
+
+  return { totals, dailySales, categorySales, recentOrders, topProducts, lowStock, demoCount };
 }
 
 export default async function AdminDashboardPage() {
-  const { totals, dailySales, categorySales, recentOrders, topProducts, lowStock } = await getDashboardData();
+  const { totals, dailySales, categorySales, recentOrders, topProducts, lowStock, demoCount } = await getDashboardData();
 
   const chartData = dailySales.map((d) => ({
     date: d.day,
@@ -138,6 +145,8 @@ export default async function AdminDashboardPage() {
 
   return (
     <>
+      <DemoBar count={demoCount} />
+
       <div className="admin__hero">
         <img src="/sec 2/main sec 2.jpeg" alt="" />
         <div className="admin__hero-body">

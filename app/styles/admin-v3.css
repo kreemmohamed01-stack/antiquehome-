@@ -525,3 +525,11 @@
   .admin__content > *{ animation:none !important; }
   .admin__btn--gold::after{ display:none; }
 }
+
+/* responsive swap between the orders table and the mobile cards */
+.admin__ordersTable{ display:none; }
+.admin__ordersCards{ display:block; }
+@media (min-width: 1024px){
+  .admin__ordersTable{ display:block; overflow-x:auto; }
+  .admin__ordersCards{ display:none; }
+}

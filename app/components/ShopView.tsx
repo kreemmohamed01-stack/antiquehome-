@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { Product, Category, SiteSale } from "@/lib/db";
-import { effectiveSalePercent, priceWithSale } from "@/lib/db";
+import { effectiveSalePercent, priceWithSale, stockState } from "@/lib/db";
 
 type SortValue = "newest" | "price-asc" | "price-desc" | "name-asc";
 const PAGE_SIZE = 8;
@@ -218,6 +218,12 @@ export default function ShopView({
                   <a className="pcard__media" href={`/product/${p.slug}`}>
                     {pct > 0 ? (
                       <span className="pcard__badge pcard__badge--sale">{saleText}</span>
+                    ) : stockState(p) === "out" ? (
+                      <span className="pcard__badge pcard__badge--sale">Out of Stock</span>
+                    ) : stockState(p) === "low" ? (
+                      <span className="pcard__badge" style={{ background: "#D9A441", color: "#1C1611" }}>Low Stock</span>
+                    ) : p.is_new_arrival ? (
+                      <span className="pcard__badge">New</span>
                     ) : (
                       p.badge && <span className="pcard__badge">{p.badge}</span>
                     )}

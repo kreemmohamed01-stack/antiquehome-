@@ -10,7 +10,7 @@ export const metadata = { title: "All Products — Antique Home" };
 async function getData() {
   try {
     const [products, categories] = await Promise.all([
-      sql`SELECT * FROM products ORDER BY created_at DESC` as unknown as Promise<Product[]>,
+      sql`SELECT * FROM products WHERE status = 'active' ORDER BY created_at DESC` as unknown as Promise<Product[]>,
       sql`SELECT * FROM categories ORDER BY sort_order` as unknown as Promise<Category[]>,
     ]);
     return { products, categories };

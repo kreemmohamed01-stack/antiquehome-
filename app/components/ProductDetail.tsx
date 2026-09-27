@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Product, SiteSale } from "@/lib/db";
-import { effectiveSalePercent, priceWithSale } from "@/lib/db";
+import { effectiveSalePercent, priceWithSale, stockState } from "@/lib/db";
 import { addToCart } from "@/lib/cart";
 
 export default function ProductDetail({
@@ -16,33 +16,64 @@ export default function ProductDetail({
   nextSlug: string | null;
   siteSale?: SiteSale;
 }) {
-  const images = product.image_urls && product.image_urls.length ? product.image_urls : ["/khph.png"];
-  const [activeImg, setActiveImg] = useState(images[0]);
-  const [activeIdx, setActiveIdx] = useState(0);
+  const colorOptions = product.color_options || [];
+  const variants = product.variants || [];
+
+  const [colorIdx, setColorIdx] = useState(0);
+  const [variantIdx, setVariantIdx] = useState(0);
   const [qty, setQty] = useState(1);
   const [fav, setFav] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [openAcc, setOpenAcc] = useState<number | null>(null);
-  const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || "");
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [added, setAdded] = useState(false);
+
+  // gallery follows the selected colour when that colour has its own shots
+  const images = useMemo(() => {
+    const own = colorOptions[colorIdx]?.imageUrls;
+    if (own && own.length) return own;
+    return product.image_urls && product.image_urls.length ? product.image_urls : ["/logo hero.png"];
+  }, [colorOptions, colorIdx, product.image_urls]);
+
+  const activeImg = images[Math.min(activeIdx, images.length - 1)];
 
   useEffect(() => {
-    setActiveImg(images[0]);
     setActiveIdx(0);
-    setSelectedSize(product.sizes?.[0] || "");
-  }, [product.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [colorIdx, product.id]);
 
-  const basePrice = Number(product.price);
+  const selectedVariant = variants[variantIdx];
+  const basePrice = selectedVariant ? Number(selectedVariant.price) : Number(product.price);
   const sale = siteSale || { active: false, percent: 0, label: "" };
   const salePct = effectiveSalePercent(product, sale);
   const price = salePct > 0 ? priceWithSale(basePrice, salePct) : basePrice;
   const saleText = salePct > 0 ? (product.sale_label && product.sale_percent ? product.sale_label : `Sale ${salePct}%`) : "";
   const compareAt = product.compare_at_price ? Number(product.compare_at_price) : null;
-  const off = salePct > 0 ? salePct : compareAt && compareAt > basePrice ? Math.round(((compareAt - basePrice) / compareAt) * 100) : null;
+  const off = salePct > 0 ? salePct
+    : compareAt && compareAt > basePrice ? Math.round(((compareAt - basePrice) / compareAt) * 100)
+    : null;
+
+  // stock follows the selected size when sizes carry their own stock
+  const stockQty = selectedVariant ? Number(selectedVariant.stock) : product.stock_qty;
+  const state = stockState({ stock_qty: stockQty, low_stock_threshold: product.low_stock_threshold });
+
+  const setSize = product.pricing_mode === "set" ? product.set_size : null;
+  const perPiece = product.price_per_piece ? Number(product.price_per_piece) : null;
 
   function handleAddToCart() {
-    addToCart({ id: product.slug, name: product.name, price, image: images[0], variant: selectedSize || undefined }, qty);
-    const cartBtn = document.getElementById("cartBtn");
-    cartBtn?.click();
+    if (state === "out") return;
+    addToCart(
+      {
+        id: product.slug + (selectedVariant ? `::${selectedVariant.label}` : "") + (colorOptions[colorIdx] ? `::${colorOptions[colorIdx].name}` : ""),
+        name: product.name,
+        price,
+        image: images[0],
+        variant: [colorOptions[colorIdx]?.name, selectedVariant?.label].filter(Boolean).join(" · ") || undefined,
+      },
+      qty
+    );
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1400);
+    document.getElementById("cartBtn")?.click();
   }
 
   return (
@@ -84,10 +115,10 @@ export default function ProductDetail({
             <div className="pdp__thumbs">
               {images.map((img, i) => (
                 <button
-                  key={i}
+                  key={img + i}
                   type="button"
                   className={`pdp__thumb${i === activeIdx ? " is-active" : ""}`}
-                  onClick={() => { setActiveImg(img); setActiveIdx(i); }}
+                  onClick={() => setActiveIdx(i)}
                   aria-label={`View image ${i + 1}`}
                 >
                   <img src={img} alt="" loading="lazy" />
@@ -97,7 +128,9 @@ export default function ProductDetail({
 
             <figure className="pdp__main">
               <img src={activeImg} alt={product.name} loading="eager" onClick={() => setLightboxOpen(true)} />
-              <span className="pdp__count"><em>{String(activeIdx + 1).padStart(2, "0")}</em><i></i><b>{String(images.length).padStart(2, "0")}</b></span>
+              <span className="pdp__count">
+                <em>{String(activeIdx + 1).padStart(2, "0")}</em><i></i><b>{String(images.length).padStart(2, "0")}</b>
+              </span>
               <button type="button" className="pdp__zoom" aria-label="Zoom image" onClick={() => setLightboxOpen(true)}>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3H3v6"></path><path d="M15 21h6v-6"></path><path d="M21 3h-6"></path><path d="M3 21h6"></path></svg>
               </button>
@@ -107,20 +140,32 @@ export default function ProductDetail({
           <div className="pdp__info">
             {salePct > 0 ? (
               <p className="pdp__eyebrow" style={{ color: "#A93B29" }}>{saleText}</p>
-            ) : (
-              product.badge && <p className="pdp__eyebrow">{product.badge}</p>
-            )}
+            ) : product.is_new_arrival ? (
+              <p className="pdp__eyebrow">New Arrival</p>
+            ) : product.badge ? (
+              <p className="pdp__eyebrow">{product.badge}</p>
+            ) : null}
+
             <h1 className="pdp__title">{product.name}</h1>
 
             <div className="pdp__priceRow">
-              <span className="pdp__price" style={salePct > 0 ? { color: "#A93B29" } : undefined}>EGP {price.toLocaleString("en-US")}</span>
+              <span className="pdp__price" style={salePct > 0 ? { color: "#A93B29" } : undefined}>
+                EGP {price.toLocaleString("en-US")}
+              </span>
               {salePct > 0 ? (
                 <span className="pdp__compare">EGP {basePrice.toLocaleString("en-US")}</span>
               ) : (
                 compareAt && <span className="pdp__compare">EGP {compareAt.toLocaleString("en-US")}</span>
               )}
-              {off && <span className="pdp__off">{off}% OFF</span>}
+              {off ? <span className="pdp__off">{off}% OFF</span> : null}
             </div>
+
+            {setSize ? (
+              <p style={{ margin: "-6px 0 14px", fontSize: 12.5, color: "var(--ink-600)" }}>
+                Sold as a set of {setSize}
+                {perPiece ? ` — EGP ${perPiece.toLocaleString("en-US")} per piece` : ""}
+              </p>
+            ) : null}
 
             <div className="pdp__rating">
               <span className="pdp__stars" aria-hidden="true">
@@ -136,31 +181,51 @@ export default function ProductDetail({
 
             <span className="pdp__rule" aria-hidden="true"></span>
 
-            {product.colors && product.colors.length > 0 && (
+            {colorOptions.length > 0 && (
               <div className="pdp__option">
-                <p className="pdp__option-label">Color</p>
+                <p className="pdp__option-label">
+                  Color{colorOptions[colorIdx] ? `: ${colorOptions[colorIdx].name}` : ""}
+                </p>
                 <div className="pdp__swatches">
-                  {product.colors.map((c, i) => (
-                    <button key={c} type="button" className={`pdp__swatch${i === 0 ? " is-active" : ""}`} style={{ background: c }} aria-label={c}></button>
+                  {colorOptions.map((c, i) => (
+                    <button
+                      key={c.name}
+                      type="button"
+                      className={`pdp__swatch${i === colorIdx ? " is-active" : ""}`}
+                      style={{ background: c.hex }}
+                      aria-label={c.name}
+                      title={c.name}
+                      onClick={() => setColorIdx(i)}
+                    />
                   ))}
                 </div>
               </div>
             )}
 
-            {product.sizes && product.sizes.length > 0 && (
+            {variants.length > 0 && (
               <div className="pdp__option">
                 <p className="pdp__option-label">Size</p>
                 <div className="pdp__sizes">
-                  {product.sizes.map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      className={`pdp__size${s === selectedSize ? " is-active" : ""}`}
-                      onClick={() => setSelectedSize(s)}
-                    >
-                      {s}
-                    </button>
-                  ))}
+                  {variants.map((v, i) => {
+                    const vOut = Number(v.stock) <= 0;
+                    return (
+                      <button
+                        key={v.label}
+                        type="button"
+                        className={`pdp__size${i === variantIdx ? " is-active" : ""}`}
+                        onClick={() => setVariantIdx(i)}
+                        disabled={vOut}
+                        style={vOut ? { opacity: 0.45, cursor: "not-allowed" } : undefined}
+                      >
+                        {v.label}
+                        <small>
+                          {vOut
+                            ? "Sold out"
+                            : `EGP ${(salePct > 0 ? priceWithSale(v.price, salePct) : Number(v.price)).toLocaleString("en-US")}`}
+                        </small>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -173,20 +238,48 @@ export default function ProductDetail({
                     <svg viewBox="0 0 16 16" aria-hidden="true"><line x1="3" y1="8" x2="13" y2="8"></line></svg>
                   </button>
                   <span className="qty__num">{qty}</span>
-                  <button type="button" className="qty__btn" aria-label="Increase quantity" onClick={() => setQty((q) => q + 1)}>
+                  <button
+                    type="button"
+                    className="qty__btn"
+                    aria-label="Increase quantity"
+                    onClick={() => setQty((q) => Math.min(Math.max(1, stockQty || 1), q + 1))}
+                  >
                     <svg viewBox="0 0 16 16" aria-hidden="true"><line x1="8" y1="3" x2="8" y2="13"></line><line x1="3" y1="8" x2="13" y2="8"></line></svg>
                   </button>
                 </div>
               </div>
               <p className="pdp__stock">
-                <span className="pdp__stock-dot" aria-hidden="true"></span>
-                {product.stock_qty > 0 ? "In Stock" : "Out of Stock"}<br /><small>{product.stock_qty > 0 ? "Ready to ship" : "Restocking soon"}</small>
+                <span
+                  className="pdp__stock-dot"
+                  style={{ background: state === "out" ? "#A93B29" : state === "low" ? "#D9A441" : "#5C6B4A" }}
+                  aria-hidden="true"
+                ></span>
+                {state === "out" ? "Out of Stock" : state === "low" ? "Low Stock" : "In Stock"}
+                <br />
+                <small>
+                  {state === "out"
+                    ? "Restocking soon"
+                    : state === "low"
+                    ? `Only ${stockQty} left`
+                    : "Ready to ship"}
+                </small>
               </p>
             </div>
 
             <div className="pdp__actions">
-              <button type="button" className="pdp-btn pdp-btn--dark" onClick={handleAddToCart} disabled={product.stock_qty <= 0}>
-                <span>Add to Cart — <span>EGP {price.toLocaleString("en-US")}</span></span>
+              <button
+                type="button"
+                className="pdp-btn pdp-btn--dark"
+                onClick={handleAddToCart}
+                disabled={state === "out"}
+              >
+                <span>
+                  {state === "out"
+                    ? "Out of Stock"
+                    : added
+                    ? "Added to Cart ✓"
+                    : <>Add to Cart — <span>EGP {(price * qty).toLocaleString("en-US")}</span></>}
+                </span>
               </button>
               <button type="button" className="pdp-fav" aria-label="Save to wishlist" aria-pressed={fav} onClick={() => setFav((v) => !v)}>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.4 4.6 13.2a4.6 4.6 0 1 1 7.4-5.3 4.6 4.6 0 1 1 7.4 5.3Z"></path></svg>
@@ -203,9 +296,9 @@ export default function ProductDetail({
 
             <div className="pdp__accordions">
               {[
-                { title: "Product Details", body: product.description || "" },
+                { title: "Product Details", body: `${product.description || ""}${product.size_cm ? `\nDimensions: ${product.size_cm}` : ""}${product.sku ? `\nSKU: ${product.sku}` : ""}` },
                 { title: "Materials & Care", body: `${product.material || "Quality materials"}. Wipe clean with a soft, dry cloth. Avoid harsh chemicals and prolonged direct sunlight.` },
-                { title: "Shipping & Returns", body: "Free delivery across Egypt on orders over EGP 3,000. Easy returns within 14 days of delivery, provided the item is unused and in its original packaging." },
+                { title: "Shipping & Returns", body: "Delivery across Egypt with standard or express shipping, priced by governorate at checkout. Easy returns within 14 days of delivery, provided the item is unused and in its original packaging." },
               ].map((acc, i) => (
                 <div className="acc" key={i}>
                   <button type="button" className="acc__head" aria-expanded={openAcc === i} onClick={() => setOpenAcc(openAcc === i ? null : i)}>
@@ -213,7 +306,7 @@ export default function ProductDetail({
                     <span className="acc__plus" aria-hidden="true"><svg viewBox="0 0 16 16"><line x1="8" y1="2" x2="8" y2="14"></line><line x1="2" y1="8" x2="14" y2="8"></line></svg></span>
                   </button>
                   <div className="acc__body" style={{ maxHeight: openAcc === i ? "400px" : "0px" }}>
-                    <p>{acc.body}</p>
+                    <p style={{ whiteSpace: "pre-line" }}>{acc.body}</p>
                   </div>
                 </div>
               ))}
