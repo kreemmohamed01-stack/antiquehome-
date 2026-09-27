@@ -533,3 +533,24 @@
   .admin__ordersTable{ display:block; overflow-x:auto; }
   .admin__ordersCards{ display:none; }
 }
+
+/* dashboard: donut on desktop, horizontal bar list on mobile */
+.admin__donutOnly{ display:none; }
+.admin__barList{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:14px; }
+.admin__barRow-top{
+  display:flex; align-items:center; justify-content:space-between;
+  font-size:12px; color: var(--a-text); margin-bottom:6px;
+}
+.admin__barRow-top .pct{ color: var(--a-text-dim); font-variant-numeric: tabular-nums; }
+.admin__barTrack{
+  height:7px; border-radius:99px; background: rgba(255,255,255,.06);
+  overflow:hidden;
+}
+.admin__barFill{
+  height:100%; border-radius:99px;
+  transition: width .6s var(--ease);
+}
+@media (min-width: 700px){
+  .admin__donutOnly{ display:block; }
+  .admin__barList{ display:none; }
+}

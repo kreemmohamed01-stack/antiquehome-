@@ -226,22 +226,42 @@ export default async function AdminDashboardPage() {
           <div className="admin__panel-head">
             <h2 className="admin__panel-title">Sales by Category</h2>
           </div>
-          <CategoryDonut data={donutSlices} total={categoryTotal} />
+          <div className="admin__donutOnly">
+            <CategoryDonut data={donutSlices} total={categoryTotal} />
+            {donutSlices.length > 0 ? (
+              <ul className="admin__legend" style={{ marginTop: 12 }}>
+                {donutSlices.map((s, i) => (
+                  <li key={s.name}>
+                    <span className="dot" style={{ background: donutColors[i % donutColors.length] }}></span>
+                    <span className="name">{s.name}</span>
+                    <span className="pct">{s.pct}%</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p style={{ color: "var(--a-text-dim)", fontSize: 11.5, marginTop: 12, textAlign: "center" }}>
+                No category sales yet.
+              </p>
+            )}
+          </div>
           {donutSlices.length > 0 ? (
-            <ul className="admin__legend" style={{ marginTop: 12 }}>
+            <ul className="admin__barList">
               {donutSlices.map((s, i) => (
-                <li key={s.name}>
-                  <span className="dot" style={{ background: donutColors[i % donutColors.length] }}></span>
-                  <span className="name">{s.name}</span>
-                  <span className="pct">{s.pct}%</span>
+                <li key={s.name} className="admin__barRow">
+                  <div className="admin__barRow-top">
+                    <span className="name">{s.name}</span>
+                    <span className="pct">{s.pct}%</span>
+                  </div>
+                  <div className="admin__barTrack">
+                    <div
+                      className="admin__barFill"
+                      style={{ width: `${s.pct}%`, background: donutColors[i % donutColors.length] }}
+                    ></div>
+                  </div>
                 </li>
               ))}
             </ul>
-          ) : (
-            <p style={{ color: "var(--a-text-dim)", fontSize: 11.5, marginTop: 12, textAlign: "center" }}>
-              No category sales yet.
-            </p>
-          )}
+          ) : null}
         </div>
       </div>
 
