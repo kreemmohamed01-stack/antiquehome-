@@ -266,7 +266,7 @@
       <article class="pcard" data-name="${p.name}" data-price="${p.price}" data-size="${p.size_cm || ""}" data-material="${(p.material || "").toLowerCase()}" data-color="${(p.colors || []).join(",")}">
         <a class="pcard__media" href="/product.html?slug=${encodeURIComponent(p.slug)}">
           ${badge}
-          <img src="${cldUrl(img, 480)}" alt="${p.name}" loading="lazy" style="object-position:${splitFocal(img).position}" />
+          <img src="${cldUrl(img, 480)}" alt="${p.name}" loading="lazy" style="object-position:${splitFocal(img).position};--zoom:${splitFocal(img).zoom}" />
           <button class="fav" type="button" aria-label="Save ${p.name}" aria-pressed="false" onclick="event.preventDefault()">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.4 4.6 13.2a4.6 4.6 0 1 1 7.4-5.3 4.6 4.6 0 1 1 7.4 5.3Z"></path></svg>
           </button>

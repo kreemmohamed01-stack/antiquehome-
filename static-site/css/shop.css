@@ -801,10 +801,12 @@
 .pcard__media img{
   width:100%; height:100%;
   object-fit:contain;
+  --zoom: 1;
+  transform: scale(var(--zoom));
   transition: transform .7s var(--ease);
 }
 @media (hover:hover){
-  .pcard:hover .pcard__media img{ transform: scale(1.07); }
+  .pcard:hover .pcard__media img{ transform: scale(calc(var(--zoom) * 1.07)); }
 }
 
 .pcard .fav{

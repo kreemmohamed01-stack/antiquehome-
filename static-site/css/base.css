@@ -1488,10 +1488,12 @@ a{ color:inherit; text-decoration:none; }
 .feat__media img{
   width:100%; height:100%;
   object-fit:contain;
+  --zoom: 1;
+  transform: scale(var(--zoom));
   transition: transform 1.4s var(--ease);
 }
 @media (hover:hover){
-  .feat:hover .feat__media img{ transform: scale(1.06); }
+  .feat:hover .feat__media img{ transform: scale(calc(var(--zoom) * 1.06)); }
 }
 
 /* ---------- product rail ----------
@@ -1535,10 +1537,12 @@ a{ color:inherit; text-decoration:none; }
 .card__media img{
   width:100%; height:100%;
   object-fit:contain;
+  --zoom: 1;
+  transform: scale(var(--zoom));
   transition: transform 1.2s var(--ease);
 }
 @media (hover:hover){
-  .card:hover .card__media img{ transform: scale(1.07); }
+  .card:hover .card__media img{ transform: scale(calc(var(--zoom) * 1.07)); }
 }
 
 .card__no{

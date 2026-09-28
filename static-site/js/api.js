@@ -59,17 +59,25 @@ function priceWithSale(price, salePercent) {
   return Math.round(base * (1 - salePercent / 100) * 100) / 100;
 }
 
-// Strips an admin-set focal point ("...jpg#62,40") off a stored image URL.
-// Returns { src, position } where position is a ready-to-use CSS
-// object-position value (defaults to centered).
+// Strips an admin-set focal point + zoom ("...jpg#62,40,1.35") off a
+// stored image URL. Returns { src, position, zoom } — position is a
+// ready-to-use CSS object-position value, zoom a scale() factor (both
+// default to centered / 1 = no zoom) — so every product photo can be
+// visually normalized to the same on-page scale regardless of how
+// tightly it was originally cropped.
 function splitFocal(url) {
-  if (!url) return { src: url || "", position: "50% 50%" };
+  if (!url) return { src: url || "", position: "50% 50%", zoom: 1 };
   const i = url.lastIndexOf("#");
-  if (i === -1) return { src: url, position: "50% 50%" };
-  const [x, y] = url.slice(i + 1).split(",").map(Number);
+  if (i === -1) return { src: url, position: "50% 50%", zoom: 1 };
+  const parts = url.slice(i + 1).split(",").map(Number);
+  const [x, y, zoom] = parts;
   const src = url.slice(0, i);
-  if (!isFinite(x) || !isFinite(y)) return { src, position: "50% 50%" };
-  return { src, position: `${x}% ${y}%` };
+  if (!isFinite(x) || !isFinite(y)) return { src, position: "50% 50%", zoom: 1 };
+  return {
+    src,
+    position: `${x}% ${y}%`,
+    zoom: isFinite(zoom) && zoom > 0 ? zoom : 1,
+  };
 }
 
 function cldUrl(url, width) {

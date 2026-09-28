@@ -178,13 +178,24 @@
     let variants = (p.variants || []).map((v) => ({ label: v.label, price: v.price, stock: v.stock, imageUrls: v.imageUrls || [] }));
     let categoryIds = (p.category_ids && p.category_ids.length ? p.category_ids : (p.category_id ? [p.category_id] : []));
 
+    // Focal point + zoom, both encoded in the stored URL's fragment as
+    // "#x,y,zoom" (x/y percentages, zoom a 1.0-2.5 scale factor) — no DB
+    // schema change, image_urls stays a plain string array.
     function splitFocal(url) {
       const i = url.lastIndexOf("#");
-      if (i === -1) return { src: url, x: 50, y: 50 };
-      const [x, y] = url.slice(i + 1).split(",").map(Number);
-      return { src: url.slice(0, i), x: isFinite(x) ? x : 50, y: isFinite(y) ? y : 50 };
+      if (i === -1) return { src: url, x: 50, y: 50, zoom: 1 };
+      const parts = url.slice(i + 1).split(",").map(Number);
+      const [x, y, zoom] = parts;
+      return {
+        src: url.slice(0, i),
+        x: isFinite(x) ? x : 50,
+        y: isFinite(y) ? y : 50,
+        zoom: isFinite(zoom) && zoom > 0 ? zoom : 1,
+      };
     }
-    function joinFocal(src, x, y) { return `${src}#${Math.round(x)},${Math.round(y)}`; }
+    function joinFocal(src, x, y, zoom) {
+      return `${src}#${Math.round(x)},${Math.round(y)},${(zoom || 1).toFixed(2)}`;
+    }
 
     document.getElementById("productModalBody").innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
@@ -317,13 +328,19 @@
     function renderMedia() {
       const grid = document.getElementById("mediaGrid");
       grid.innerHTML = media.map((url, i) => {
-        const { src, x, y } = splitFocal(url);
+        const { src, x, y, zoom } = splitFocal(url);
         return `
           <div class="admin__mediaTile" draggable="true" data-idx="${i}">
             ${i === 0 ? `<span class="admin__mediaHero">MAIN</span>` : ""}
-            <img src="${cldUrl(src, 220)}" data-focal-img="${i}" style="object-position:${x}% ${y}%">
-            <span class="admin__mediaDot" style="left:${x}%;top:${y}%"></span>
+            <div class="admin__mediaCrop">
+              <img src="${cldUrl(src, 220)}" data-focal-img="${i}" style="object-position:${x}% ${y}%;transform:scale(${zoom})">
+              <span class="admin__mediaDot" style="left:${x}%;top:${y}%"></span>
+            </div>
             <button type="button" class="admin__mediaRemove" data-remove="${i}">×</button>
+            <label class="admin__mediaZoom">
+              <span>Zoom</span>
+              <input type="range" min="1" max="2.5" step="0.05" value="${zoom}" data-zoom="${i}">
+            </label>
           </div>`;
       }).join("") + `<button type="button" class="admin__mediaAdd" id="mediaAddTile"><span>+</span><small>Add</small></button>`;
 
@@ -333,10 +350,24 @@
           const rect = img.getBoundingClientRect();
           const x = ((e.clientX - rect.left) / rect.width) * 100;
           const y = ((e.clientY - rect.top) / rect.height) * 100;
-          const { src } = splitFocal(media[i]);
-          media[i] = joinFocal(src, x, y);
+          const { src, zoom } = splitFocal(media[i]);
+          media[i] = joinFocal(src, x, y, zoom);
           if (i !== 0) { const [m] = media.splice(i, 1); media.unshift(m); }
           renderMedia();
+        });
+      });
+      grid.querySelectorAll("[data-zoom]").forEach((slider) => {
+        // live-update the preview scale while dragging, commit to `media`
+        // (and reorder to HERO if needed) only on release, so re-render
+        // doesn't fight the slider mid-drag.
+        const i = Number(slider.dataset.zoom);
+        const img = grid.querySelector(`[data-focal-img="${i}"]`);
+        slider.addEventListener("input", () => {
+          if (img) img.style.transform = `scale(${slider.value})`;
+        });
+        slider.addEventListener("change", () => {
+          const { src, x, y } = splitFocal(media[i]);
+          media[i] = joinFocal(src, x, y, Number(slider.value));
         });
       });
       grid.querySelectorAll("[data-remove]").forEach((btn) => {
