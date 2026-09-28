@@ -172,7 +172,7 @@ function ahBeacon(path, payload) {
 // Fired best-effort; a failure here never blocks the cart/checkout flow.
 function trackEvent(event, productSlug) {
   try {
-    ahBeacon("/api/track-event", {
+    ahBeacon("/api/track", {
       visitorId: ahIdFrom(localStorage, "ah_vid"),
       sessionId: ahIdFrom(sessionStorage, "ah_sid"),
       event,

@@ -95,7 +95,7 @@
 
     let data;
     try {
-      data = await API.get("/api/dashboard-data");
+      data = await API.get("/api/analytics?mode=dashboard");
     } catch {
       data = { totals: { sales: 0, orders: 0, customers: 0 }, recentOrders: [], topProducts: [], lowStock: [], demoCount: 0, visitors: {} };
     }
