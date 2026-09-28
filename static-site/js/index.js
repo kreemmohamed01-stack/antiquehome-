@@ -6,37 +6,66 @@
     else fn();
   }
 
-  function renderSaleBanner(sale) {
-    const slot = document.getElementById("saleBannerSlot");
-    if (!slot) return;
-    if (!sale || !sale.active || sale.percent <= 0) {
-      slot.innerHTML = "";
-      return;
-    }
-    const label = (sale.label && sale.label.trim()) || "Limited Offer";
-    slot.innerHTML = `
+  function getAppliedCoupon() {
+    try { return JSON.parse(sessionStorage.getItem("ah_coupon") || "null"); } catch { return null; }
+  }
+
+  function bannerMarkup({ eyebrow, pct, btnLabel, btnHref }) {
+    return `
       <div class="sale-banner">
         <div class="sale-banner__inner">
           <div>
             <p class="sale-banner__eyebrow">
               <span class="sale-banner__rule" aria-hidden="true"></span>
-              ${label}
+              ${eyebrow}
               <span class="sale-banner__rule" aria-hidden="true"></span>
             </p>
             <div class="sale-banner__row">
               <span class="sale-banner__diamond" aria-hidden="true"></span>
               <span class="sale-banner__line" aria-hidden="true"></span>
-              <span class="sale-banner__pct">UP TO <b>${sale.percent}%</b> OFF</span>
+              <span class="sale-banner__pct">${pct}</span>
               <span class="sale-banner__line" aria-hidden="true"></span>
               <span class="sale-banner__diamond" aria-hidden="true"></span>
             </div>
           </div>
-          <a href="/shop.html?category=sale" class="sale-banner__btn">
-            <span>Shop Sale</span>
+          <a href="${btnHref}" class="sale-banner__btn">
+            <span>${btnLabel}</span>
             <svg viewBox="0 0 26 12" aria-hidden="true"><line x1="0" y1="6" x2="22" y2="6"></line><polyline points="17.4,1.6 22.4,6 17.4,10.4"></polyline></svg>
           </a>
         </div>
       </div>`;
+  }
+
+  // Renders, in priority order: an applied promo code (from the cart
+  // drawer or checkout — shared via sessionStorage) over the site-wide
+  // sale banner over nothing. Re-run on cart:changed so applying/removing
+  // a code while already on the homepage updates the banner live.
+  function renderSaleBanner(sale) {
+    const slot = document.getElementById("saleBannerSlot");
+    if (!slot) return;
+
+    const coupon = getAppliedCoupon();
+    if (coupon && coupon.code && coupon.percent) {
+      slot.innerHTML = bannerMarkup({
+        eyebrow: "Promo Code Applied",
+        pct: `<b>${coupon.percent}%</b> OFF WITH "${coupon.code}"`,
+        btnLabel: "Shop Now",
+        btnHref: "/shop.html",
+      });
+      return;
+    }
+
+    if (!sale || !sale.active || sale.percent <= 0) {
+      slot.innerHTML = "";
+      return;
+    }
+    const label = (sale.label && sale.label.trim()) || "Limited Offer";
+    slot.innerHTML = bannerMarkup({
+      eyebrow: label,
+      pct: `UP TO <b>${sale.percent}%</b> OFF`,
+      btnLabel: "Shop Sale",
+      btnHref: "/shop.html?category=sale",
+    });
   }
 
   function featuredCard(p) {
@@ -117,11 +146,13 @@
     if (rail) rail.innerHTML = rest.map((p, i) => railCard(p, i)).join("");
   }
 
+  let currentSale = null;
   async function loadSale() {
     try {
-      const sale = await API.get("/api/sale");
-      renderSaleBanner(sale);
+      currentSale = await API.get("/api/sale");
+      renderSaleBanner(currentSale);
     } catch {
+      currentSale = null;
       renderSaleBanner(null);
     }
   }
@@ -129,5 +160,11 @@
   ready(function () {
     loadArrivals();
     loadSale();
+    // re-render if a promo code is applied/removed while on this page
+    // (cart drawer) or in another tab (storage event covers checkout).
+    document.addEventListener("cart:changed", () => renderSaleBanner(currentSale));
+    window.addEventListener("storage", (e) => {
+      if (e.key === "ah_coupon") renderSaleBanner(currentSale);
+    });
   });
 })();

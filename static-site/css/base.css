@@ -1252,8 +1252,9 @@ a{ color:inherit; text-decoration:none; }
 .sale-banner__pct{
   font-family: var(--serif);
   font-weight:600;
-  font-size:26px;
+  font-size: clamp(15px, 4.6vw, 26px);
   letter-spacing:.01em;
+  white-space:nowrap;
 }
 .sale-banner__pct b{
   color:#D9AE63;
@@ -1290,7 +1291,7 @@ a{ color:inherit; text-decoration:none; }
 
 @media (min-width: 700px){
   .sale-banner{ padding:28px var(--gutter) 32px; gap:14px; }
-  .sale-banner__pct{ font-size:34px; }
+  .sale-banner__pct{ font-size: clamp(20px, 2.8vw, 34px); }
   .sale-banner__row{ gap:22px; }
   .sale-banner__line{ width:64px; }
 }

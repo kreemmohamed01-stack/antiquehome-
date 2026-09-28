@@ -211,6 +211,9 @@
         if (coupon) sessionStorage.setItem("ah_coupon", JSON.stringify(coupon));
         else sessionStorage.removeItem("ah_coupon");
       } catch {}
+      // reuse cart:changed so anything listening for cart state (e.g. the
+      // homepage sale banner) also updates when a promo code is applied.
+      document.dispatchEvent(new CustomEvent("cart:changed"));
     }
 
     function renderCart() {
