@@ -200,6 +200,19 @@
     const FREE_SHIPPING_AT = 15000;
     const SHIPPING_FEE = 150;
 
+    // Cart-drawer promo code — shares its result with the checkout page
+    // via sessionStorage under "ah_coupon", so a code applied here is
+    // already filled in at checkout instead of being asked for twice.
+    function getAppliedCoupon() {
+      try { return JSON.parse(sessionStorage.getItem("ah_coupon") || "null"); } catch { return null; }
+    }
+    function setAppliedCoupon(coupon) {
+      try {
+        if (coupon) sessionStorage.setItem("ah_coupon", JSON.stringify(coupon));
+        else sessionStorage.removeItem("ah_coupon");
+      } catch {}
+    }
+
     function renderCart() {
       const lines = Cart.read();
       const list = document.getElementById("cartItems");
@@ -267,9 +280,34 @@
       }
 
       const shippingFee = qualifies || lines.length === 0 ? 0 : SHIPPING_FEE;
+      const coupon = getAppliedCoupon();
+      const discount = coupon ? Math.round(subtotal * (coupon.percent / 100) * 100) / 100 : 0;
       if (sumSub) sumSub.textContent = money(subtotal);
       if (sumShip) sumShip.textContent = shippingFee === 0 ? "Free" : money(shippingFee);
-      if (sumTotal) sumTotal.textContent = money(subtotal + shippingFee);
+      if (sumTotal) sumTotal.textContent = money(Math.max(0, subtotal - discount) + shippingFee);
+
+      // discount row — inserted right before the shipping row so it's
+      // visible whenever a coupon is applied, removed when it isn't
+      const summaryEl = document.querySelector(".summary");
+      if (summaryEl) {
+        let discountRow = summaryEl.querySelector(".summary__row--discount");
+        if (coupon) {
+          if (!discountRow) {
+            discountRow = document.createElement("div");
+            discountRow.className = "summary__row summary__row--discount";
+            summaryEl.insertBefore(discountRow, summaryEl.querySelector(".summary__total"));
+          }
+          discountRow.innerHTML = `<span>Discount (${coupon.code})</span><span>-${money(discount)}</span>`;
+        } else if (discountRow) {
+          discountRow.remove();
+        }
+      }
+
+      // promo box state: show the applied code, or the entry form
+      const promoRow = document.getElementById("promoToggle");
+      const promoLabel = promoRow && promoRow.querySelector(".promo__label");
+      if (promoLabel) promoLabel.textContent = coupon ? `Code "${coupon.code}" applied — ${coupon.percent}% off` : "Add Promo Code";
+      if (promoRow) promoRow.classList.toggle("is-applied", Boolean(coupon));
     }
 
     function onCartListClick(e) {
@@ -294,6 +332,44 @@
 
     document.addEventListener("cart:changed", renderCart);
     renderCart();
+
+    // ---- cart drawer promo code ----
+    const promoToggleBtn = document.getElementById("promoToggle");
+    const promoBodyEl = document.getElementById("promoBody");
+    const promoFormEl = document.getElementById("promoForm");
+    const promoInputEl = document.getElementById("promoInput");
+    const promoNoteEl = document.getElementById("promoNote");
+
+    if (promoToggleBtn && promoBodyEl) {
+      promoToggleBtn.addEventListener("click", () => {
+        const open = promoToggleBtn.getAttribute("aria-expanded") === "true";
+        promoToggleBtn.setAttribute("aria-expanded", open ? "false" : "true");
+        promoBodyEl.classList.toggle("is-open", !open);
+        if (!open) {
+          const applied = getAppliedCoupon();
+          if (applied && promoInputEl) promoInputEl.value = applied.code;
+        }
+      });
+    }
+
+    if (promoFormEl) {
+      promoFormEl.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const code = (promoInputEl && promoInputEl.value.trim()) || "";
+        if (!code) return;
+        if (promoNoteEl) { promoNoteEl.textContent = "Checking…"; promoNoteEl.className = "promo__note"; }
+        try {
+          const data = await API.post("/api/coupons", { code });
+          setAppliedCoupon({ code: data.code, percent: data.percent });
+          if (promoNoteEl) { promoNoteEl.textContent = `Applied — ${data.percent}% off`; promoNoteEl.className = "promo__note"; }
+          renderCart();
+        } catch (err) {
+          setAppliedCoupon(null);
+          if (promoNoteEl) { promoNoteEl.textContent = (err.data && err.data.error) || "This code isn't valid."; promoNoteEl.className = "promo__note err"; }
+          renderCart();
+        }
+      });
+    }
 
     // ---- search filter ----
     const searchForm = document.getElementById("searchForm");

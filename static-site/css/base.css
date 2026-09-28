@@ -1486,7 +1486,7 @@ a{ color:inherit; text-decoration:none; }
 }
 .feat__media img{
   width:100%; height:100%;
-  object-fit:cover;
+  object-fit:contain;
   transition: transform 1.4s var(--ease);
 }
 @media (hover:hover){
@@ -1533,7 +1533,7 @@ a{ color:inherit; text-decoration:none; }
 }
 .card__media img{
   width:100%; height:100%;
-  object-fit:cover;
+  object-fit:contain;
   transition: transform 1.2s var(--ease);
 }
 @media (hover:hover){
@@ -4173,6 +4173,8 @@ a{ color:inherit; text-decoration:none; }
   overflow:hidden;
   transition: max-height .45s var(--ease);
 }
+.promo__wrap.is-open{ max-height:120px; }
+.promo__row.is-applied .promo__label{ color: var(--gold-deep); }
 .promo__form{
   display:flex;
   gap:0;

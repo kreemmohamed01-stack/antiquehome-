@@ -547,6 +547,8 @@
   overflow:hidden;
   transition: max-height .45s var(--ease);
 }
+.promo__wrap.is-open{ max-height:120px; }
+.promo__row.is-applied .promo__label{ color: var(--gold-deep); }
 .promo__form{
   display:flex;
   gap:0;

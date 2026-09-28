@@ -363,6 +363,7 @@
       couponRemoveBtn.addEventListener("click", () => {
         state.coupon = null;
         state.couponError = "";
+        try { sessionStorage.removeItem("ah_coupon"); } catch {}
         render();
       });
 
@@ -380,6 +381,7 @@
       const data = await API.post("/api/coupons", { code });
       state.coupon = { code: data.code, percent: data.percent };
       state.couponInput = "";
+      try { sessionStorage.setItem("ah_coupon", JSON.stringify(state.coupon)); } catch {}
     } catch (err) {
       state.coupon = null;
       state.couponError = (err && err.message) || "Invalid coupon code.";
@@ -449,6 +451,14 @@
   async function init() {
     syncCart();
     document.addEventListener("cart:changed", syncCart);
+
+    // pick up a coupon already applied in the cart drawer (site-chrome.js
+    // stores it under this same key) so the customer isn't asked twice.
+    try {
+      const saved = JSON.parse(sessionStorage.getItem("ah_coupon") || "null");
+      if (saved && saved.code && saved.percent) state.coupon = saved;
+    } catch {}
+
     try {
       const d = await API.get("/api/shipping");
       state.rates = d.rates || [];
