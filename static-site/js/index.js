@@ -32,14 +32,11 @@
       </div>`;
   }
 
-  // Renders, in priority order: the site-wide sale (set from the admin
-  // Discounts page) over the first active coupon code (also set from the
-  // same page) over nothing. This banner reflects the dashboard's own
-  // toggles only — it is not tied to whatever a shopper has typed into
-  // their own cart/checkout promo box. Turning either off in the
-  // dashboard removes it here too; turning one on adds it; if both are
-  // off the whole section disappears.
-  function renderSaleBanner(sale, coupon) {
+  // The section under the hero is the sale's permanent home: it shows the
+  // site-wide sale (set from the admin Discounts page) when active, and
+  // disappears when it's off. The coupon has its own separate home — the
+  // cart drawer (see site-chrome.js) — so it no longer appears here at all.
+  function renderSaleBanner(sale) {
     const slot = document.getElementById("saleBannerSlot");
     if (!slot) return;
 
@@ -50,16 +47,6 @@
         pct: `UP TO <b>${sale.percent}%</b> OFF`,
         btnLabel: "Shop Sale",
         btnHref: "/shop.html?category=sale",
-      });
-      return;
-    }
-
-    if (coupon && coupon.code && coupon.percent > 0) {
-      slot.innerHTML = bannerMarkup({
-        eyebrow: "Promo Code",
-        pct: `<b>${coupon.percent}%</b> OFF WITH "${coupon.code}"`,
-        btnLabel: "Shop Now",
-        btnHref: "/shop.html",
       });
       return;
     }
@@ -147,18 +134,12 @@
 
   async function loadSaleBanner() {
     let sale = null;
-    let coupon = null;
     try {
       sale = await API.get("/api/settings?key=site_sale");
     } catch {
       sale = null;
     }
-    try {
-      coupon = await API.get("/api/coupons?featured=1");
-    } catch {
-      coupon = null;
-    }
-    renderSaleBanner(sale, coupon);
+    renderSaleBanner(sale);
   }
 
   // Overrides the hardcoded hero copy with admin-edited text from the

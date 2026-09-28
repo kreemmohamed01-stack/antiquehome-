@@ -220,6 +220,14 @@
     // Cart-drawer promo code — shares its result with the checkout page
     // via sessionStorage under "ah_coupon", so a code applied here is
     // already filled in at checkout instead of being asked for twice.
+    //
+    // The cart is the coupon's permanent home: the coupon turned on from
+    // the admin Discounts page shows up here automatically (isAuto: true)
+    // with no typing required, and disappears the moment it's turned off
+    // there — mirroring how the sale banner works for the homepage. A
+    // customer can still type a different code by hand in the promo box;
+    // that manual choice (isAuto missing/false) is never overwritten by
+    // the dashboard sync below.
     function getAppliedCoupon() {
       try { return JSON.parse(sessionStorage.getItem("ah_coupon") || "null"); } catch { return null; }
     }
@@ -228,9 +236,25 @@
         if (coupon) sessionStorage.setItem("ah_coupon", JSON.stringify(coupon));
         else sessionStorage.removeItem("ah_coupon");
       } catch {}
-      // reuse cart:changed so anything listening for cart state (e.g. the
-      // homepage sale banner) also updates when a promo code is applied.
+      // reuse cart:changed so anything listening for cart state also
+      // updates when a promo code is applied.
       document.dispatchEvent(new CustomEvent("cart:changed"));
+    }
+
+    async function syncFeaturedCoupon() {
+      let featured = null;
+      try { featured = await API.get("/api/coupons?featured=1"); } catch { featured = null; }
+      const current = getAppliedCoupon();
+      // Never touch a coupon the customer typed in themselves.
+      if (current && !current.isAuto) return;
+
+      if (featured && featured.code && featured.percent > 0) {
+        if (!current || current.code !== featured.code || current.percent !== featured.percent) {
+          setAppliedCoupon({ code: featured.code, percent: featured.percent, isAuto: true });
+        }
+      } else if (current && current.isAuto) {
+        setAppliedCoupon(null);
+      }
     }
 
     function renderCart() {
@@ -352,6 +376,11 @@
 
     document.addEventListener("cart:changed", renderCart);
     renderCart();
+    // Pick up the dashboard's featured coupon on load, and keep checking
+    // periodically so turning it on/off in the admin shows up live in an
+    // already-open cart drawer without needing a page refresh.
+    syncFeaturedCoupon().then(renderCart);
+    setInterval(() => { syncFeaturedCoupon().then(renderCart); }, 20000);
 
     // ---- cart drawer promo code ----
     const promoToggleBtn = document.getElementById("promoToggle");
