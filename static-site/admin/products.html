@@ -196,6 +196,13 @@
           <option value="archived" ${p.status === "archived" ? "selected" : ""}>Archived</option>
         </select>
       </div>
+      <div class="admin__field">
+        <label>Photos</label>
+        <p style="font-size:11px;color:var(--a-text-dim);margin:-2px 0 10px">Click anywhere on a photo to pick the part that stays in view when it's cropped into a square on the site (the crosshair marks the current spot). Drag the ⠿ handle to reorder.</p>
+        <div id="mediaGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:10px"></div>
+        <input type="file" id="mediaFileInput" accept="image/*" multiple style="display:none">
+        <button type="button" class="admin__btn" id="mediaAddBtn">+ Add Photos</button>
+      </div>
       <div style="display:flex;gap:10px;margin-top:20px">
         <button type="button" class="admin__btn admin__btn--gold" id="saveProductBtn">Save</button>
         <button type="button" class="admin__btn" id="cancelProductBtn">Cancel</button>
@@ -211,6 +218,93 @@
       }
     });
 
+    // ---- Photos: upload, reorder, focal-point picker ----
+    // Each entry is the raw URL plus an optional "#x,y" focal point suffix
+    // (percentages) — no DB schema change needed, image_urls stays a plain
+    // string array, we just read/write that suffix on the string itself.
+    let media = (p.image_urls || []).slice();
+
+    function splitFocal(url) {
+      const i = url.lastIndexOf("#");
+      if (i === -1) return { src: url, x: 50, y: 50 };
+      const [x, y] = url.slice(i + 1).split(",").map(Number);
+      return { src: url.slice(0, i), x: isFinite(x) ? x : 50, y: isFinite(y) ? y : 50 };
+    }
+    function joinFocal(src, x, y) {
+      return `${src}#${Math.round(x)},${Math.round(y)}`;
+    }
+
+    function renderMedia() {
+      const grid = document.getElementById("mediaGrid");
+      grid.innerHTML = media.map((url, i) => {
+        const { src, x, y } = splitFocal(url);
+        return `
+          <div class="admin__mediaTile" draggable="true" data-idx="${i}" style="position:relative;border-radius:8px;overflow:hidden;aspect-ratio:1;cursor:grab;border:1px solid var(--a-border)">
+            ${i === 0 ? `<span style="position:absolute;top:4px;left:4px;z-index:2;background:var(--a-gold);color:#1C1611;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px">HERO</span>` : ""}
+            <img src="${cldUrl(src, 220)}" data-focal-img="${i}" style="width:100%;height:100%;object-fit:cover;object-position:${x}% ${y}%;display:block;cursor:crosshair">
+            <span data-crosshair="${i}" style="position:absolute;left:${x}%;top:${y}%;width:14px;height:14px;margin:-7px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.5);pointer-events:none"></span>
+            <button type="button" data-remove="${i}" style="position:absolute;top:4px;right:4px;z-index:2;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:0;cursor:pointer;font-size:12px;line-height:1">×</button>
+          </div>`;
+      }).join("");
+
+      grid.querySelectorAll("[data-focal-img]").forEach((img) => {
+        img.addEventListener("click", (e) => {
+          const i = Number(img.dataset.focalImg);
+          const rect = img.getBoundingClientRect();
+          const x = ((e.clientX - rect.left) / rect.width) * 100;
+          const y = ((e.clientY - rect.top) / rect.height) * 100;
+          const { src } = splitFocal(media[i]);
+          media[i] = joinFocal(src, x, y);
+          renderMedia();
+        });
+      });
+      grid.querySelectorAll("[data-remove]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          media.splice(Number(btn.dataset.remove), 1);
+          renderMedia();
+        });
+      });
+
+      // drag-to-reorder
+      let dragIdx = null;
+      grid.querySelectorAll(".admin__mediaTile").forEach((tile) => {
+        tile.addEventListener("dragstart", () => { dragIdx = Number(tile.dataset.idx); });
+        tile.addEventListener("dragover", (e) => e.preventDefault());
+        tile.addEventListener("drop", () => {
+          const dropIdx = Number(tile.dataset.idx);
+          if (dragIdx === null || dragIdx === dropIdx) return;
+          const [moved] = media.splice(dragIdx, 1);
+          media.splice(dropIdx, 0, moved);
+          dragIdx = null;
+          renderMedia();
+        });
+      });
+    }
+    renderMedia();
+
+    document.getElementById("mediaAddBtn").addEventListener("click", () => {
+      document.getElementById("mediaFileInput").click();
+    });
+    document.getElementById("mediaFileInput").addEventListener("change", async (e) => {
+      const files = Array.from(e.target.files || []);
+      for (const file of files) {
+        const dataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        try {
+          const { url } = await API.post("/api/upload", { dataUrl });
+          media.push(url);
+          renderMedia();
+        } catch {
+          alert("Failed to upload " + file.name);
+        }
+      }
+      e.target.value = "";
+    });
+
     document.getElementById("saveProductBtn").addEventListener("click", async () => {
       const body = {
         name: document.getElementById("f_name").value.trim(),
@@ -222,7 +316,7 @@
         sku: document.getElementById("f_sku").value,
         status: document.getElementById("f_status").value,
         categoryIds: document.getElementById("f_category").value ? [Number(document.getElementById("f_category").value)] : [],
-        imageUrls: p.image_urls || [],
+        imageUrls: media,
         colors: p.colors || [],
         colorOptions: p.color_options || [],
         variants: p.variants || [],

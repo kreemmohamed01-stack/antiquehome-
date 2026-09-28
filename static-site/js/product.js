@@ -325,7 +325,7 @@
           (colorOptions[state.colorIdx] ? "::" + colorOptions[state.colorIdx].name : "");
         const variantLabel = [colorOptions[state.colorIdx] && colorOptions[state.colorIdx].name, selectedVariant && selectedVariant.label].filter(Boolean).join(" · ") || undefined;
 
-        Cart.add({ id, name: product.name, price, image: imgs[0], variant: variantLabel }, state.qty);
+        Cart.add({ id, name: product.name, price, image: splitFocal(imgs[0]).src, variant: variantLabel }, state.qty);
         state.added = true;
         render();
         setTimeout(() => {

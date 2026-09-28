@@ -13,15 +13,30 @@
       slot.innerHTML = "";
       return;
     }
-    const label = (sale.label && sale.label.trim()) || `Sale ${sale.percent}% Off Everything`;
+    const label = (sale.label && sale.label.trim()) || "Limited Offer";
     slot.innerHTML = `
-      <a href="/shop.html" class="sale-banner">
-        <span class="sale-banner__pct">${sale.percent}% OFF</span>
-        <span class="sale-banner__text">${label}</span>
-        <span class="sale-banner__arrow" aria-hidden="true">
-          <svg viewBox="0 0 26 12"><line x1="0" y1="6" x2="22" y2="6"></line><polyline points="17.4,1.6 22.4,6 17.4,10.4"></polyline></svg>
-        </span>
-      </a>`;
+      <div class="sale-banner">
+        <div class="sale-banner__inner">
+          <div>
+            <p class="sale-banner__eyebrow">
+              <span class="sale-banner__rule" aria-hidden="true"></span>
+              ${label}
+              <span class="sale-banner__rule" aria-hidden="true"></span>
+            </p>
+            <div class="sale-banner__row">
+              <span class="sale-banner__diamond" aria-hidden="true"></span>
+              <span class="sale-banner__line" aria-hidden="true"></span>
+              <span class="sale-banner__pct">UP TO <b>${sale.percent}%</b> OFF</span>
+              <span class="sale-banner__line" aria-hidden="true"></span>
+              <span class="sale-banner__diamond" aria-hidden="true"></span>
+            </div>
+          </div>
+          <a href="/shop.html?category=sale" class="sale-banner__btn">
+            <span>Shop Sale</span>
+            <svg viewBox="0 0 26 12" aria-hidden="true"><line x1="0" y1="6" x2="22" y2="6"></line><polyline points="17.4,1.6 22.4,6 17.4,10.4"></polyline></svg>
+          </a>
+        </div>
+      </div>`;
   }
 
   function featuredCard(p) {
@@ -37,7 +52,7 @@
           <p class="feat__desc">${p.description || ""}</p>
           <p class="feat__price">EGP ${Number(p.price).toLocaleString("en-US")}</p>
           <div class="feat__actions">
-            <button class="btn-gold" type="button" data-add="${p.name}" data-add-id="${p.slug}" data-add-price="${p.price}" data-add-image="${img}">
+            <button class="btn-gold" type="button" data-add="${p.name}" data-add-id="${p.slug}" data-add-price="${p.price}" data-add-image="${splitFocal(img).src}">
               Add to Cart
             </button>
             <button class="fav" type="button" aria-label="Save ${p.name}" aria-pressed="false">
@@ -46,7 +61,7 @@
           </div>
         </div>
         <figure class="feat__media">
-          <img src="${cldUrl(img, 900)}" alt="${p.name}" loading="lazy" />
+          <img src="${cldUrl(img, 900)}" alt="${p.name}" loading="lazy" style="object-position:${splitFocal(img).position}" />
         </figure>
       </article>`;
   }
@@ -56,7 +71,7 @@
     return `
       <article class="card" data-href="/product.html?slug=${encodeURIComponent(p.slug)}">
         <figure class="card__media">
-          <img src="${cldUrl(img, 480)}" alt="${p.name}" loading="lazy" />
+          <img src="${cldUrl(img, 480)}" alt="${p.name}" loading="lazy" style="object-position:${splitFocal(img).position}" />
           <span class="card__no">${String(i + 2).padStart(2, "0")}</span>
           <button class="fav fav--sm" type="button" aria-label="Save ${p.name}" aria-pressed="false">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.4 4.6 13.2a4.6 4.6 0 1 1 7.4-5.3 4.6 4.6 0 1 1 7.4 5.3Z"></path></svg>
@@ -66,7 +81,7 @@
           <h3 class="card__name">${p.name}</h3>
           <p class="card__cat">Decor</p>
           <p class="card__price">EGP ${Number(p.price).toLocaleString("en-US")}</p>
-          <button class="add" type="button" data-add="${p.name}" data-add-id="${p.slug}" data-add-price="${p.price}" data-add-image="${img}" aria-label="Add ${p.name} to cart">
+          <button class="add" type="button" data-add="${p.name}" data-add-id="${p.slug}" data-add-price="${p.price}" data-add-image="${splitFocal(img).src}" aria-label="Add ${p.name} to cart">
             <svg viewBox="0 0 20 20" aria-hidden="true"><line x1="10" y1="4.4" x2="10" y2="15.6"></line><line x1="4.4" y1="10" x2="15.6" y2="10"></line></svg>
           </button>
         </div>

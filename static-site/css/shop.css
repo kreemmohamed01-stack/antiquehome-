@@ -746,7 +746,7 @@
 }
 .pcard__media img{
   width:100%; height:100%;
-  object-fit:cover;
+  object-fit:contain;
   transition: transform .7s var(--ease);
 }
 @media (hover:hover){

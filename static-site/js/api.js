@@ -59,13 +59,27 @@ function priceWithSale(price, salePercent) {
   return Math.round(base * (1 - salePercent / 100) * 100) / 100;
 }
 
+// Strips an admin-set focal point ("...jpg#62,40") off a stored image URL.
+// Returns { src, position } where position is a ready-to-use CSS
+// object-position value (defaults to centered).
+function splitFocal(url) {
+  if (!url) return { src: url || "", position: "50% 50%" };
+  const i = url.lastIndexOf("#");
+  if (i === -1) return { src: url, position: "50% 50%" };
+  const [x, y] = url.slice(i + 1).split(",").map(Number);
+  const src = url.slice(0, i);
+  if (!isFinite(x) || !isFinite(y)) return { src, position: "50% 50%" };
+  return { src, position: `${x}% ${y}%` };
+}
+
 function cldUrl(url, width) {
-  if (!url) return url || "";
+  const { src } = splitFocal(url);
+  if (!src) return "";
   const marker = "/upload/";
-  const i = url.indexOf(marker);
-  if (!url.includes("res.cloudinary.com") || i === -1) return url;
+  const i = src.indexOf(marker);
+  if (!src.includes("res.cloudinary.com") || i === -1) return src;
   const transform = width ? `f_auto,q_auto,w_${width}` : "f_auto,q_auto";
-  return url.slice(0, i + marker.length) + transform + "/" + url.slice(i + marker.length);
+  return src.slice(0, i + marker.length) + transform + "/" + src.slice(i + marker.length);
 }
 
 // Cart, stored client-side same as before.
