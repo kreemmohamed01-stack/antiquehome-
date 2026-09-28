@@ -2328,8 +2328,19 @@ a{ color:inherit; text-decoration:none; }
   .feat .fav svg{ width:12px; height:12px; }
 
   /* ---- product cards ----
-     2 columns instead of the base 3 so cards read bigger on phones. */
-  .rail{ grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
+     2 columns instead of the base 3 so cards read bigger on phones.
+     grid-auto-flow must switch to row here: the base rail uses
+     column-flow + grid-auto-columns to lay 6 cards into 2 explicit rows,
+     which auto-generates a 3rd (implicit) equal-width column regardless
+     of grid-template-columns — so column-flow can't be shrunk to 2 wide
+     without also fixing the flow direction. */
+  .rail{
+    grid-auto-flow: row;
+    grid-template-rows: none;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    grid-auto-rows: auto;
+    gap:12px;
+  }
   .card__body{ padding: 9px 9px 10px; }
   .card__name{ font-size:11px; line-height:1.25; margin-bottom:4px; }
   .card__cat{ font-size:7px; letter-spacing:.12em; margin-bottom:4px; }
