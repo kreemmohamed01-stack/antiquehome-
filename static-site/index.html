@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Antique Home — Vase &amp; Decor</title>
+<meta name="description" content="Curated vases, antiques and distinctive home décor pieces designed to bring timeless character to your space." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/styles.css" />
+<link rel="stylesheet" href="/css/promo-bar.css" />
+<link rel="stylesheet" href="/css/sections.css" />
+<link rel="stylesheet" href="/css/footer.css" />
+<link rel="stylesheet" href="/css/sidemenu.css" />
+<link rel="stylesheet" href="/css/drawers.css" />
+<link rel="stylesheet" href="/css/music-player.css" />
+</head>
+<body>
+
+<section class="hero" id="hero">
+  <div class="hero__media">
+    <video class="hero__video" id="heroVideo" src="/hero video mop.mp4" autoplay loop muted playsinline preload="auto" disablepictureinpicture aria-hidden="true" tabindex="-1"></video>
+    <div class="hero__tint" aria-hidden="true"></div>
+    <div class="hero__vignette" aria-hidden="true"></div>
+  </div>
+
+  <div class="promo-bar" role="note">
+    <p class="promo-bar__text">
+      <span>Spend <strong class="promo-bar__num">EGP 5,000</strong> &amp; Get <strong class="promo-bar__num">EGP 1,000</strong> Gift Free</span>
+      <span aria-hidden="true">Spend <strong class="promo-bar__num">EGP 5,000</strong> &amp; Get <strong class="promo-bar__num">EGP 1,000</strong> Gift Free</span>
+    </p>
+  </div>
+
+  <header class="header">
+    <a class="brand" href="#hero" aria-label="Antique Home — Vase &amp; Decor">
+      <img class="brand__logo" src="/logo hero.png" alt="Antique Home — Vase &amp; Decor" />
+      <span class="brand__shine" aria-hidden="true"></span>
+    </a>
+
+    <button class="icon-btn menu-btn" type="button" id="menuBtn" aria-haspopup="true" aria-expanded="false" aria-controls="sideMenu" aria-label="Open menu">
+      <span class="menu-btn__lines" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span class="menu-btn__label">Menu</span>
+    </button>
+
+    <nav class="header__actions" aria-label="Utilities">
+      <button class="icon-btn" type="button" id="searchBtn" aria-haspopup="true" aria-expanded="false" aria-controls="searchDrawer" aria-label="Search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.4"></circle><line x1="15.7" y1="15.7" x2="20.2" y2="20.2"></line></svg>
+      </button>
+      <button class="icon-btn cart-btn" type="button" id="cartBtn" aria-haspopup="true" aria-expanded="false" aria-controls="cartDrawer" aria-label="Shopping bag">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 7.8h12.8l1 12.4H4.6z"></path><path d="M8.9 9.6V6.6a3.1 3.1 0 0 1 6.2 0v3"></path></svg>
+        <span class="cart-btn__count">0</span>
+      </button>
+    </nav>
+  </header>
+
+  <div class="hero__inner">
+    <div class="hero__copy">
+      <p class="eyebrow reveal" style="--d:.15s">
+        <span class="eyebrow__rule" aria-hidden="true"></span>
+        Timeless Heritage
+        <span class="eyebrow__rule" aria-hidden="true"></span>
+      </p>
+
+      <h1 class="headline">
+        <span class="reveal" style="--d:.28s">Timeless pieces.</span>
+        <span class="reveal headline__accent" style="--d:.4s">Endless beauty.</span>
+      </h1>
+
+      <p class="hero__text reveal" style="--d:.56s">
+        Curated antiques and timeless pieces, crafted to bring
+        character into every space.
+      </p>
+
+      <a class="cta reveal" href="/shop.html" style="--d:.7s">
+        <span class="cta__sheen" aria-hidden="true"></span>
+        <span class="cta__label">Shop Now</span>
+        <span class="cta__arrow" aria-hidden="true">
+          <svg viewBox="0 0 30 12"><line x1="0" y1="6" x2="26" y2="6"></line><polyline points="21,1.4 26.4,6 21,10.6"></polyline></svg>
+        </span>
+      </a>
+    </div>
+  </div>
+
+  <a class="hero__scroll reveal" href="#collection" style="--d:.9s">
+    <span class="hero__scroll-label">Scroll to Discover</span>
+    <svg class="hero__scroll-arrow" viewBox="0 0 16 26" aria-hidden="true">
+      <line x1="8" y1="0" x2="8" y2="20"></line>
+      <polyline points="1.6,14 8,22 14.4,14"></polyline>
+    </svg>
+  </a>
+</section>
+
+<div id="saleBannerSlot"></div>
+
+<section class="arrivals" id="collection">
+  <header class="arrivals__head">
+    <p class="kicker kicker--center rv" data-rv>New Arrivals</p>
+    <span class="ornament rv" data-rv aria-hidden="true"><i></i><b></b><i></i></span>
+    <div class="arrivals__bar">
+      <h2 class="arrivals__title rv rv--up" data-rv>Handpicked For You</h2>
+      <div class="rail-nav rv" data-rv style="--rd:.12s">
+        <button class="rail-btn" type="button" data-rail="prev" aria-label="Previous products">
+          <svg viewBox="0 0 20 14" aria-hidden="true"><line x1="19" y1="7" x2="2" y2="7"></line><polyline points="7.4,1.6 1.6,7 7.4,12.4"></polyline></svg>
+        </button>
+        <button class="rail-btn" type="button" data-rail="next" aria-label="Next products">
+          <svg viewBox="0 0 20 14" aria-hidden="true"><line x1="1" y1="7" x2="18" y2="7"></line><polyline points="12.6,1.6 18.4,7 12.6,12.4"></polyline></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div id="featuredSlot">
+    <div class="feat rv rv--up empty-state" data-rv>
+      <p style="padding:40px;opacity:.7">Loading new arrivals&hellip;</p>
+    </div>
+  </div>
+
+  <div class="rail" id="productRail"></div>
+</section>
+
+<section class="cats" id="categories">
+  <div class="cats__head">
+    <div class="cats__bg" aria-hidden="true">
+      <img src="/sec 3/main sec 3.jpeg" alt="" loading="lazy" />
+    </div>
+    <div class="cats__headInner">
+      <p class="kicker kicker--center kicker--gold rv" data-rv>Explore by Category</p>
+      <span class="ornament ornament--dark rv" data-rv aria-hidden="true"><i></i><b></b><i></i></span>
+      <h2 class="cats__title">
+        <span class="rv rv--up" data-rv>Step Into</span>
+        <span class="rv rv--up cats__title-accent" data-rv style="--rd:.09s">Timeless Beauty.</span>
+      </h2>
+      <p class="cats__text rv rv--up" data-rv style="--rd:.18s">
+        Handpicked pieces for every corner of your story.
+      </p>
+      <span class="ornament ornament--dark rv" data-rv style="--rd:.26s" aria-hidden="true"><i></i><b></b><i></i></span>
+    </div>
+  </div>
+
+  <div class="cats__rows">
+    <div class="cats__row cats__row--5">
+      <a class="cat rv rv--up" href="/shop.html?category=bleu-blanc" data-rv>
+        <span class="cat__no">01</span><span class="cat__name">Bleu Blanc</span>
+        <span class="cat__media"><img src="/sec 3/category 1.png" alt="Bleu Blanc porcelain" loading="lazy" /></span>
+        <span class="cat__go" aria-hidden="true"><svg viewBox="0 0 18 12"><line x1="0" y1="6" x2="14" y2="6"></line><polyline points="10,2 14,6 10,10"></polyline></svg></span>
+      </a>
+      <a class="cat rv rv--up" href="/shop.html?category=lighting" data-rv style="--rd:.06s">
+        <span class="cat__no">02</span><span class="cat__name">Lighting</span>
+        <span class="cat__media"><img src="/sec 3/category 2.png" alt="Crystal chandelier" loading="lazy" /></span>
+        <span class="cat__go" aria-hidden="true"><svg viewBox="0 0 18 12"><line x1="0" y1="6" x2="14" y2="6"></line><polyline points="10,2 14,6 10,10"></polyline></svg></span>
+      </a>
+      <a class="cat rv rv--up" href="/shop.html?category=accessories" data-rv style="--rd:.12s">
+        <span class="cat__no">03</span><span class="cat__name">Accessories</span>
+        <span class="cat__media"><img src="/sec 3/category 3.png" alt="Marble bust" loading="lazy" /></span>
+        <span class="cat__go" aria-hidden="true"><svg viewBox="0 0 18 12"><line x1="0" y1="6" x2="14" y2="6"></line><polyline points="10,2 14,6 10,10"></polyline></svg></span>
+      </a>
+      <a class="cat rv rv--up" href="/shop.html?category=antiques" data-rv style="--rd:.18s">
+        <span class="cat__no">04</span><span class="cat__name">Antiques</span>
+        <span class="cat__media"><img src="/sec 3/category 4.png" alt="Gilded mantle clock" loading="lazy" /></span>
+        <span class="cat__go" aria-hidden="true"><svg viewBox="0 0 18 12"><line x1="0" y1="6" x2="14" y2="6"></line><polyline points="10,2 14,6 10,10"></polyline></svg></span>
+      </a>
+      <a class="cat rv rv--up" href="/shop.html?category=artificial-plants-garden-stool" data-rv style="--rd:.24s">
+        <span class="cat__no">05</span><span class="cat__name">Artificial Plants<small>&amp; Garden Stool</small></span>
+        <span class="cat__media"><img src="/sec 3/category 5.png" alt="Planted urn and garden stool" loading="lazy" /></span>
+        <span class="cat__go" aria-hidden="true"><svg viewBox="0 0 18 12"><line x1="0" y1="6" x2="14" y2="6"></line><polyline points="10,2 14,6 10,10"></polyline></svg></span>
+      </a>
+    </div>
+
+    <div class="cats__row cats__row--4">
+      <a class="cat rv rv--up" href="/shop.html?category=wall-art-plates" data-rv>
+        <span class="cat__no">06</span><span class="cat__name">Wall Art<small>&amp; Plates</small></span>
+        <span class="cat__media"><img src="/sec 3/category 6.png" alt="Framed art and decorative plates" loading="lazy" /></span>
+        <span class="cat__go" aria-hidden="true"><svg viewBox="0 0 18 12"><line x1="0" y1="6" x2="14" y2="6"></line><polyline points="10,2 14,6 10,10"></polyline></svg></span>
+      </a>
+      <a class="cat rv rv--up" href="/shop.html?category=murano-glass" data-rv style="--rd:.06s">
+        <span class="cat__no">07</span><span class="cat__name">Murano Glass</span>
+        <span class="cat__media"><img src="/sec 3/category 7.png" alt="Murano glass vase" loading="lazy" /></span>
+        <span class="cat__go" aria-hidden="true"><svg viewBox="0 0 18 12"><line x1="0" y1="6" x2="14" y2="6"></line><polyline points="10,2 14,6 10,10"></polyline></svg></span>
+      </a>
+      <a class="cat rv rv--up" href="/shop.html?category=furniture" data-rv style="--rd:.12s">
+        <span class="cat__no">08</span><span class="cat__name">Furniture</span>
+        <span class="cat__media"><img src="/sec 3/category 8.png" alt="Gilt-wood armchair" loading="lazy" /></span>
+        <span class="cat__go" aria-hidden="true"><svg viewBox="0 0 18 12"><line x1="0" y1="6" x2="14" y2="6"></line><polyline points="10,2 14,6 10,10"></polyline></svg></span>
+      </a>
+      <a class="cat rv rv--up" href="/shop.html?category=sale" data-rv style="--rd:.18s">
+        <span class="cat__no">09</span><span class="cat__name">Sale</span>
+        <span class="cat__media"><img src="/sec 3/category 9.jpeg" alt="Sale" loading="lazy" /></span>
+        <span class="cat__go" aria-hidden="true"><svg viewBox="0 0 18 12"><line x1="0" y1="6" x2="14" y2="6"></line><polyline points="10,2 14,6 10,10"></polyline></svg></span>
+      </a>
+    </div>
+  </div>
+
+  <aside class="help rv rv--up" data-rv>
+    <div class="help__bg" aria-hidden="true"><img src="/sec 3/get in touch.jpeg" alt="" loading="lazy" /></div>
+    <span class="monogram" aria-hidden="true">
+      <svg viewBox="0 0 100 100">
+        <path d="M50 6 76 24 94 50 76 76 50 94 24 76 6 50 24 24Z"></path>
+        <path d="M50 13 71 28 87 50 71 72 50 87 29 72 13 50 29 28Z"></path>
+      </svg>
+      <em>AH</em>
+    </span>
+    <div class="help__copy">
+      <h3 class="help__title">Can&apos;t find<br />what you&apos;re looking for?</h3>
+      <p class="help__text">We&apos;re here to help you discover<br />the perfect piece.</p>
+    </div>
+    <a class="btn-outline" href="https://wa.me/201125470009" target="_blank" rel="noopener noreferrer">
+      <span>Get in Touch</span>
+      <svg viewBox="0 0 26 12" aria-hidden="true"><line x1="0" y1="6" x2="22" y2="6"></line><polyline points="17.4,1.6 22.4,6 17.4,10.4"></polyline></svg>
+    </a>
+  </aside>
+</section>
+
+<section class="story" id="story">
+  <picture class="story__bg">
+    <source media="(min-width: 900px)" srcset="/sec%204/background%20sec%204%20desk%20.jpeg" />
+    <img src="/sec 4/background sec 4 mopil .jpeg" alt="A sunlit salon with a marble fireplace, gilt armchair and a hand-glazed urn" loading="lazy" />
+  </picture>
+
+  <div class="story__panel">
+    <span class="story__mark rv" data-rv aria-hidden="true">
+      <svg viewBox="0 0 48 48">
+        <path d="M24 4c3.6 6.4 9.6 12.4 16 16-6.4 3.6-12.4 9.6-16 16-3.6-6.4-9.6-12.4-16-16C14.4 16.4 20.4 10.4 24 4Z"></path>
+        <circle cx="24" cy="20" r="5.4"></circle>
+      </svg>
+    </span>
+    <p class="kicker kicker--center kicker--story rv" data-rv>Our Story</p>
+    <span class="rule-sm rv" data-rv aria-hidden="true"></span>
+    <h2 class="story__title">
+      <span class="rv rv--up" data-rv>The Art of</span>
+      <span class="rv rv--up story__title-xl" data-rv style="--rd:.09s">Living</span>
+      <span class="rv rv--up story__title-accent" data-rv style="--rd:.18s">Beautifully</span>
+    </h2>
+    <span class="ornament ornament--story rv" data-rv style="--rd:.24s" aria-hidden="true"><i></i><b></b><i></i></span>
+    <p class="story__text rv rv--up" data-rv style="--rd:.3s">
+      Timeless pieces, thoughtfully curated to bring character, history, and elegance into your everyday life.
+    </p>
+    <a class="btn-solid rv rv--up" href="/about.html" data-rv style="--rd:.38s">
+      <span>Discover Our Story</span>
+      <svg viewBox="0 0 26 12" aria-hidden="true"><line x1="0" y1="6" x2="22" y2="6"></line><polyline points="17.4,1.6 22.4,6 17.4,10.4"></polyline></svg>
+    </a>
+  </div>
+</section>
+
+<section class="journey" id="journey">
+  <div class="journey__top">
+    <div class="journey__copy">
+      <p class="kicker kicker--gold rv" data-rv>
+        <span>Follow Our Journey</span>
+        <i class="kicker__rule" aria-hidden="true"></i>
+      </p>
+      <h2 class="journey__title">
+        <span class="rv rv--up" data-rv>Timeless</span>
+        <span class="rv rv--up" data-rv style="--rd:.08s">pieces.</span>
+        <span class="rv rv--up journey__title-accent" data-rv style="--rd:.16s">Real stories.</span>
+      </h2>
+      <p class="journey__text rv rv--up" data-rv style="--rd:.24s">
+        Behind the scenes, styling ideas,<br />
+        and timeless pieces.<br />
+        Find daily inspiration on Instagram.
+      </p>
+      <a class="ig-handle rv rv--up" data-rv style="--rd:.32s" href="https://www.instagram.com/antique_home111?igsi=MXQ1eWdvbGRsb2pvaA==" target="_blank" rel="noopener noreferrer">
+        <span class="ig-handle__badge" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <defs><radialGradient id="igGrad" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#FDF497" /><stop offset="5%" stop-color="#FDF497" /><stop offset="45%" stop-color="#FD5949" /><stop offset="60%" stop-color="#D6249F" /><stop offset="90%" stop-color="#285AEB" /></radialGradient></defs>
+            <rect x="2" y="2" width="20" height="20" rx="5.6" fill="url(#igGrad)" />
+            <rect x="5.6" y="5.6" width="12.8" height="12.8" rx="3.9" fill="none" stroke="#fff" stroke-width="1.5" />
+            <circle cx="12" cy="12" r="3.3" fill="none" stroke="#fff" stroke-width="1.5" />
+            <circle cx="17.1" cy="6.9" r="1.15" fill="#fff" />
+          </svg>
+        </span>
+        <span class="ig-handle__name">@antique_home111</span>
+        <svg class="ig-handle__arrow" viewBox="0 0 26 12" aria-hidden="true"><line x1="0" y1="6" x2="22" y2="6"></line><polyline points="17.4,1.6 22.4,6 17.4,10.4"></polyline></svg>
+      </a>
+    </div>
+
+    <figure class="journey__video rv rv--zoom" data-rv>
+      <video id="journeyVideo" src="/sec 5/سكشن 5 فيديو.mp4" autoplay loop muted playsinline preload="auto" disablepictureinpicture aria-label="Styling film from the Antique Home studio"></video>
+    </figure>
+  </div>
+
+  <div class="ig">
+    <div class="ig__head">
+      <p class="kicker kicker--gold rv" data-rv><span>On Instagram</span><i class="kicker__rule" aria-hidden="true"></i></p>
+      <a class="link-arrow link-arrow--gold rv" data-rv href="https://www.instagram.com/antique_home111?igsi=MXQ1eWdvbGRsb2pvaA==" target="_blank" rel="noopener noreferrer">
+        <span>View all</span>
+        <svg viewBox="0 0 26 12" aria-hidden="true"><line x1="0" y1="6" x2="22" y2="6"></line><polyline points="17.4,1.6 22.4,6 17.4,10.4"></polyline></svg>
+      </a>
+    </div>
+    <div class="ig__grid">
+      <a class="ig__tile rv rv--zoom" data-rv href="https://www.instagram.com/antique_home111?igsi=MXQ1eWdvbGRsb2pvaA==" target="_blank" rel="noopener noreferrer"><img src="/sec 5/insta 1.png" alt="Pierced porcelain lanterns glowing on a marble table" loading="lazy" /></a>
+      <a class="ig__tile rv rv--zoom" data-rv style="--rd:.07s" href="https://www.instagram.com/antique_home111?igsi=MXQ1eWdvbGRsb2pvaA==" target="_blank" rel="noopener noreferrer"><img src="/sec 5/insta 2.png" alt="An antique urn styled with books on a console" loading="lazy" /></a>
+      <a class="ig__tile rv rv--zoom" data-rv style="--rd:.14s" href="https://www.instagram.com/antique_home111?igsi=MXQ1eWdvbGRsb2pvaA==" target="_blank" rel="noopener noreferrer"><img src="/sec 5/insta 3 .png" alt="A shelf lined with collected vessels" loading="lazy" /></a>
+      <a class="ig__tile rv rv--zoom" data-rv style="--rd:.21s" href="https://www.instagram.com/antique_home111?igsi=MXQ1eWdvbGRsb2pvaA==" target="_blank" rel="noopener noreferrer"><img src="/sec 5/insta 4.png" alt="Candlelight beside a speckled vase" loading="lazy" /></a>
+    </div>
+  </div>
+
+  <ul class="trust">
+    <li class="trust__item rv rv--up" data-rv>
+      <span class="trust__icon" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 3.4 27 7.6v8.2c0 6.6-4.5 11-11 13.2C9.5 26.8 5 22.4 5 15.8V7.6Z"></path><polyline points="11.4,16.2 14.8,19.6 21,12.6"></polyline></svg></span>
+      <h3 class="trust__title">Authentic<br />Quality</h3>
+      <p class="trust__text">Carefully selected<br />pieces that last<br />for generations.</p>
+    </li>
+    <li class="trust__item rv rv--up" data-rv style="--rd:.08s">
+      <span class="trust__icon" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M2.6 8.4h14v12.8h-14z"></path><path d="M16.6 12.4h6.6l4.2 4.2v4.6h-10.8z"></path><circle cx="9.2" cy="24" r="2.6"></circle><circle cx="22.6" cy="24" r="2.6"></circle></svg></span>
+      <h3 class="trust__title">Fast &amp; Secure<br />Delivery</h3>
+      <p class="trust__text">Safe packaging.<br />Delivered to<br />your doorstep.</p>
+    </li>
+    <li class="trust__item rv rv--up" data-rv style="--rd:.16s">
+      <span class="trust__icon" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 3.6 28 9.8v12.4L16 28.4 4 22.2V9.8Z"></path><polyline points="4,9.8 16,16 28,9.8"></polyline><line x1="16" y1="16" x2="16" y2="28.4"></line></svg></span>
+      <h3 class="trust__title">Easy Returns<br />Within 14 Days</h3>
+      <p class="trust__text">Not in love?<br />Return it easily.<br />No worries.</p>
+    </li>
+    <li class="trust__item rv rv--up" data-rv style="--rd:.24s">
+      <span class="trust__icon" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="6.4" y="14" width="19.2" height="14" rx="2.4"></rect><path d="M10.8 14V10a5.2 5.2 0 0 1 10.4 0v4"></path><circle cx="16" cy="21" r="1.6"></circle></svg></span>
+      <h3 class="trust__title">100% Secure<br />Payment</h3>
+      <p class="trust__text">Your payment<br />information is<br />always protected.</p>
+    </li>
+  </ul>
+
+  <aside class="inspire rv rv--up" data-rv>
+    <div class="inspire__bg" aria-hidden="true"><img src="/sec 5/stay inspired background.jpeg" alt="" loading="lazy" /></div>
+    <div class="inspire__copy">
+      <h3 class="inspire__title">Stay Inspired</h3>
+      <p class="inspire__text">New arrivals, styling ideas<br />&amp; exclusive offers.</p>
+      <form class="inspire__form" id="inspireForm">
+        <span class="inspire__field">
+          <svg class="inspire__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.4 3.6H6.2A2.4 2.4 0 0 0 3.8 6c0 8 6.2 14.2 14.2 14.2a2.4 2.4 0 0 0 2.4-2.4v-2.2l-4.4-1.6-2 2a13.6 13.6 0 0 1-5.6-5.6l2-2Z"></path></svg>
+          <input id="inspirePhone" type="tel" name="phone" inputmode="tel" autocomplete="tel" placeholder="Enter your phone number" aria-label="Your phone number" required />
+        </span>
+        <button class="inspire__submit" type="submit">Join the List</button>
+      </form>
+      <p class="inspire__note" id="inspireNote" role="status" aria-live="polite"></p>
+    </div>
+  </aside>
+</section>
+
+<div id="chromeSlot"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/chrome-partials.js"></script>
+<script src="/js/site-chrome.js"></script>
+<script src="/js/index.js"></script>
+</body>
+</html>

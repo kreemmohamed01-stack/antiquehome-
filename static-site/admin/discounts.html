@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Discounts — Antique Home Admin</title>
+<link rel="stylesheet" href="/css/admin.css">
+<link rel="stylesheet" href="/css/admin-v3.css">
+</head>
+<body>
+<div class="admin" id="admin-root">
+  <div class="admin__pageHead">
+    <div class="admin__pageHead-body">
+      <p class="admin__crumb"><a href="/admin/index.html">Dashboard</a><span>Discounts</span></p>
+      <h1 class="admin__pageTitle">Discounts</h1>
+      <p class="admin__pageSub">Site-wide sale and coupon codes.</p>
+    </div>
+  </div>
+
+  <div class="admin__panel" style="margin-bottom:18px">
+    <div class="admin__panel-head"><h2 class="admin__panel-title">Site-Wide Sale</h2></div>
+    <div class="admin__field">
+      <label><input type="checkbox" id="saleActive"> Sale active</label>
+    </div>
+    <div class="admin__field2">
+      <div class="admin__field"><label>Percent off</label><input type="number" id="salePercent" min="0" max="90"></div>
+      <div class="admin__field"><label>Label</label><input type="text" id="saleLabel" placeholder="e.g. Autumn Sale"></div>
+    </div>
+    <button type="button" class="admin__btn admin__btn--gold" id="saveSaleBtn">Save Sale Settings</button>
+  </div>
+
+  <div class="admin__panel">
+    <div class="admin__panel-head"><h2 class="admin__panel-title">Coupon Codes</h2></div>
+    <div class="admin__field2" style="margin-bottom:16px">
+      <div class="admin__field"><label>Code</label><input type="text" id="newCode" placeholder="SAVE10"></div>
+      <div class="admin__field"><label>Percent Off</label><input type="number" id="newPercent" min="0" max="90"></div>
+    </div>
+    <button type="button" class="admin__btn admin__btn--gold" id="addCouponBtn" style="margin-bottom:16px">Add Coupon</button>
+    <div id="couponList"></div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/admin-shell.js"></script>
+<script>
+  async function loadCoupons() {
+    const coupons = await API.get("/api/coupons");
+    document.getElementById("couponList").innerHTML = coupons.map((c) => `
+      <div class="admin__prow">
+        <div class="admin__prow-main"><div class="admin__prow-name">${c.code}</div><div class="admin__prow-sku">${c.percent}% off</div></div>
+        <label style="display:flex;align-items:center;gap:6px"><input type="checkbox" data-toggle="${c.id}" ${c.active ? "checked" : ""}> Active</label>
+        <button type="button" class="admin__iconAct admin__iconAct--danger" data-del="${c.id}">Delete</button>
+      </div>
+    `).join("") || `<p style="color:var(--a-text-dim);padding:20px;text-align:center">No coupons yet.</p>`;
+
+    document.querySelectorAll("[data-toggle]").forEach((cb) => {
+      cb.addEventListener("change", async () => {
+        await API.patch(`/api/coupons?id=${cb.dataset.toggle}`, { active: cb.checked });
+      });
+    });
+    document.querySelectorAll("[data-del]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        if (!confirm("Delete this coupon?")) return;
+        await API.del(`/api/coupons?id=${btn.dataset.del}`);
+        await loadCoupons();
+      });
+    });
+  }
+
+  (async () => {
+    const session = await AdminShell.init({ active: "discounts" });
+    if (!session) return;
+
+    const sale = await API.get("/api/sale");
+    document.getElementById("saleActive").checked = !!sale.active;
+    document.getElementById("salePercent").value = sale.percent || 0;
+    document.getElementById("saleLabel").value = sale.label || "";
+
+    document.getElementById("saveSaleBtn").addEventListener("click", async () => {
+      try {
+        await API.post("/api/sale", {
+          active: document.getElementById("saleActive").checked,
+          percent: Number(document.getElementById("salePercent").value) || 0,
+          label: document.getElementById("saleLabel").value,
+        });
+        alert("Saved.");
+      } catch { alert("Failed to save."); }
+    });
+
+    await loadCoupons();
+
+    document.getElementById("addCouponBtn").addEventListener("click", async () => {
+      const code = document.getElementById("newCode").value.trim();
+      const percent = Number(document.getElementById("newPercent").value) || 0;
+      if (!code) return;
+      try {
+        await API.post("/api/coupons?admin=1", { code, percent });
+        document.getElementById("newCode").value = "";
+        document.getElementById("newPercent").value = "";
+        await loadCoupons();
+      } catch (err) { alert(err.message || "Failed to add coupon."); }
+    });
+  })();
+</script>
+</body>
+</html>

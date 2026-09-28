@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Products — Antique Home Admin</title>
+<link rel="stylesheet" href="/css/admin.css">
+<link rel="stylesheet" href="/css/admin-v3.css">
+</head>
+<body>
+<div class="admin" id="admin-root">
+  <div class="admin__pageHead">
+    <img src="/sec 2/main sec 2.jpeg" alt="">
+    <div class="admin__pageHead-body">
+      <p class="admin__crumb"><a href="/admin/index.html">Dashboard</a><span>Products</span></p>
+      <h1 class="admin__pageTitle">Products</h1>
+      <p class="admin__pageSub">Manage your products, inventory, and collections.</p>
+    </div>
+    <div class="admin__pageHead-actions">
+      <button type="button" class="admin__btn admin__btn--gold" id="addProductBtn">Add New Product</button>
+    </div>
+  </div>
+
+  <div class="admin__statStrip admin__statStrip--5" id="statStrip"></div>
+
+  <div class="admin__panel">
+    <div class="admin__tabRow" id="tabRow" style="margin-bottom:14px"></div>
+    <div class="admin__toolbar">
+      <div class="admin__searchInline">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.4"></circle><line x1="15.7" y1="15.7" x2="20.2" y2="20.2"></line></svg>
+        <input type="text" id="searchInput" placeholder="Search products…">
+      </div>
+    </div>
+    <div id="productsList"></div>
+    <div class="admin__pager" id="pager" style="display:none"></div>
+  </div>
+</div>
+
+<!-- Simple modal form for add/edit -->
+<div id="productModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;overflow:auto">
+  <div style="max-width:640px;margin:40px auto;background:var(--a-panel);border-radius:12px;padding:28px" id="productModalBody"></div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/admin-shell.js"></script>
+<script>
+  let ALL_PRODUCTS = [];
+  let CATEGORIES = [];
+  let tab = "all";
+  let query = "";
+  let page = 1;
+  const PAGE_SIZE = 10;
+
+  function fmt(n) { return "EGP " + Math.round(Number(n)).toLocaleString("en-US"); }
+
+  function stockPillHtml(p) {
+    const s = stockState(p);
+    if (s === "out") return `<span class="admin__pill admin__pill--low">Out of Stock</span>`;
+    if (s === "low") return `<span class="admin__pill admin__pill--warn">Low Stock</span>`;
+    return `<span class="admin__pill admin__pill--delivered">Active</span>`;
+  }
+
+  function render() {
+    const counts = {
+      all: ALL_PRODUCTS.length,
+      active: ALL_PRODUCTS.filter((p) => p.status === "active").length,
+      draft: ALL_PRODUCTS.filter((p) => p.status === "draft").length,
+      archived: ALL_PRODUCTS.filter((p) => p.status === "archived").length,
+    };
+    const inStock = ALL_PRODUCTS.filter((p) => stockState(p) === "in").length;
+    const low = ALL_PRODUCTS.filter((p) => stockState(p) === "low").length;
+    const out = ALL_PRODUCTS.filter((p) => stockState(p) === "out").length;
+    const avg = ALL_PRODUCTS.length ? ALL_PRODUCTS.reduce((s, p) => s + Number(p.price), 0) / ALL_PRODUCTS.length : 0;
+
+    document.getElementById("statStrip").innerHTML = `
+      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">Total Products</span></div><div class="admin__stat-value">${ALL_PRODUCTS.length}</div></div>
+      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">In Stock</span></div><div class="admin__stat-value">${inStock}</div></div>
+      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">Low Stock</span></div><div class="admin__stat-value" style="${low ? 'color:var(--a-amber)' : ''}">${low}</div></div>
+      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">Out of Stock</span></div><div class="admin__stat-value" style="${out ? 'color:var(--a-red)' : ''}">${out}</div></div>
+      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">Avg. Price</span></div><div class="admin__stat-value">${fmt(avg)}</div></div>
+    `;
+
+    document.getElementById("tabRow").innerHTML = [
+      ["all", `All Products (${counts.all})`],
+      ["active", `Active (${counts.active})`],
+      ["draft", `Draft (${counts.draft})`],
+      ["archived", `Archived (${counts.archived})`],
+    ].map(([key, label]) => `<button type="button" class="admin__chip${tab === key ? " is-active" : ""}" data-tab="${key}">${label}</button>`).join("");
+
+    document.querySelectorAll("[data-tab]").forEach((btn) => {
+      btn.addEventListener("click", () => { tab = btn.dataset.tab; page = 1; render(); });
+    });
+
+    let list = ALL_PRODUCTS;
+    if (tab !== "all") list = list.filter((p) => p.status === tab);
+    const needle = query.trim().toLowerCase();
+    if (needle) {
+      list = list.filter((p) =>
+        p.name.toLowerCase().includes(needle) ||
+        (p.sku || "").toLowerCase().includes(needle) ||
+        (p.category_name || "").toLowerCase().includes(needle)
+      );
+    }
+
+    const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+    const current = Math.min(page, totalPages);
+    const visible = list.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
+
+    const listEl = document.getElementById("productsList");
+    if (visible.length === 0) {
+      listEl.innerHTML = `<div style="text-align:center;padding:50px 20px;color:var(--a-text-dim)"><p style="margin-bottom:16px">No products match this view.</p></div>`;
+    } else {
+      listEl.innerHTML = visible.map((p) => `
+        <div class="admin__prow">
+          <img src="${cldUrl(p.image_urls?.[0] || "/logo hero.png", 80)}" alt="">
+          <div class="admin__prow-main">
+            <div class="admin__prow-name">${p.name}</div>
+            <div class="admin__prow-sku">SKU: ${p.sku || "—"} · ${p.category_name || "Uncategorised"}</div>
+          </div>
+          <div style="flex:none;text-align:right;min-width:90px">
+            <div style="font-size:12.5px;font-weight:600;color:var(--a-cream)">${fmt(p.price)}</div>
+            <div style="font-size:11px;color:${stockState(p) === "out" ? "var(--a-red)" : stockState(p) === "low" ? "var(--a-amber)" : "var(--a-green)"}">${p.stock_qty} in stock</div>
+          </div>
+          <div style="flex:none">${stockPillHtml(p)}</div>
+          <div class="admin__prow-actions">
+            <button type="button" class="admin__iconAct" data-edit="${p.id}" aria-label="Edit">
+              <svg viewBox="0 0 24 24"><path d="M4 16.4 15.4 5l3.6 3.6L7.6 20H4Z"></path></svg>
+            </button>
+            <a href="/product.html?slug=${p.slug}" class="admin__iconAct" target="_blank" aria-label="View">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.8"></circle></svg>
+            </a>
+            <button type="button" class="admin__iconAct admin__iconAct--danger" data-delete="${p.id}" data-name="${p.name}" aria-label="Delete">
+              <svg viewBox="0 0 24 24"><path d="M5.6 7.2h12.8l-1 12.4H6.6Z"></path></svg>
+            </button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    const pagerEl = document.getElementById("pager");
+    if (totalPages > 1) {
+      pagerEl.style.display = "flex";
+      pagerEl.innerHTML = Array.from({ length: totalPages }).map((_, i) =>
+        `<button type="button" class="${current === i + 1 ? "is-active" : ""}" data-page="${i + 1}">${i + 1}</button>`
+      ).join("");
+      pagerEl.querySelectorAll("[data-page]").forEach((btn) => {
+        btn.addEventListener("click", () => { page = Number(btn.dataset.page); render(); });
+      });
+    } else {
+      pagerEl.style.display = "none";
+    }
+
+    listEl.querySelectorAll("[data-edit]").forEach((btn) => {
+      btn.addEventListener("click", () => openForm(ALL_PRODUCTS.find((p) => p.id === Number(btn.dataset.edit))));
+    });
+    listEl.querySelectorAll("[data-delete]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        if (!confirm(`Delete "${btn.dataset.name}"? This cannot be undone.`)) return;
+        try {
+          await API.del(`/api/products?id=${btn.dataset.delete}`);
+          await load();
+        } catch { alert("Failed to delete product."); }
+      });
+    });
+  }
+
+  function openForm(product) {
+    const p = product || {};
+    const isNew = !product;
+    document.getElementById("productModalBody").innerHTML = `
+      <h2 style="margin-top:0">${isNew ? "Add New Product" : "Edit Product"}</h2>
+      <div class="admin__field"><label>Name</label><input id="f_name" value="${p.name || ""}"></div>
+      <div class="admin__field"><label>Slug</label><input id="f_slug" value="${p.slug || ""}"></div>
+      <div class="admin__field"><label>Description</label><textarea id="f_description" rows="3">${p.description || ""}</textarea></div>
+      <div class="admin__field2">
+        <div class="admin__field"><label>Price (EGP)</label><input id="f_price" type="number" value="${p.price || ""}"></div>
+        <div class="admin__field"><label>Stock Qty</label><input id="f_stock" type="number" value="${p.stock_qty ?? ""}"></div>
+      </div>
+      <div class="admin__field2">
+        <div class="admin__field"><label>SKU</label><input id="f_sku" value="${p.sku || ""}"></div>
+        <div class="admin__field"><label>Low Stock Threshold</label><input id="f_threshold" type="number" value="${p.low_stock_threshold ?? 5}"></div>
+      </div>
+      <div class="admin__field">
+        <label>Category</label>
+        <select id="f_category">
+          <option value="">— None —</option>
+          ${CATEGORIES.map((c) => `<option value="${c.id}" ${p.category_id === c.id ? "selected" : ""}>${c.name}</option>`).join("")}
+        </select>
+      </div>
+      <div class="admin__field">
+        <label>Status</label>
+        <select id="f_status">
+          <option value="active" ${p.status === "active" ? "selected" : ""}>Active</option>
+          <option value="draft" ${p.status === "draft" ? "selected" : ""}>Draft</option>
+          <option value="archived" ${p.status === "archived" ? "selected" : ""}>Archived</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button type="button" class="admin__btn admin__btn--gold" id="saveProductBtn">Save</button>
+        <button type="button" class="admin__btn" id="cancelProductBtn">Cancel</button>
+      </div>
+    `;
+    document.getElementById("productModal").style.display = "block";
+    document.getElementById("cancelProductBtn").addEventListener("click", closeForm);
+
+    document.getElementById("f_name").addEventListener("input", (e) => {
+      if (isNew) {
+        document.getElementById("f_slug").value = e.target.value.toLowerCase().trim()
+          .replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
+      }
+    });
+
+    document.getElementById("saveProductBtn").addEventListener("click", async () => {
+      const body = {
+        name: document.getElementById("f_name").value.trim(),
+        slug: document.getElementById("f_slug").value.trim(),
+        description: document.getElementById("f_description").value,
+        price: Number(document.getElementById("f_price").value) || 0,
+        stockQty: Number(document.getElementById("f_stock").value) || 0,
+        lowStockThreshold: Number(document.getElementById("f_threshold").value) || 5,
+        sku: document.getElementById("f_sku").value,
+        status: document.getElementById("f_status").value,
+        categoryIds: document.getElementById("f_category").value ? [Number(document.getElementById("f_category").value)] : [],
+        imageUrls: p.image_urls || [],
+        colors: p.colors || [],
+        colorOptions: p.color_options || [],
+        variants: p.variants || [],
+      };
+      try {
+        if (isNew) await API.post("/api/products", body);
+        else await API.patch(`/api/products?id=${p.id}`, body);
+        closeForm();
+        await load();
+      } catch (err) {
+        alert(err.message || "Failed to save product.");
+      }
+    });
+  }
+
+  function closeForm() { document.getElementById("productModal").style.display = "none"; }
+
+  async function load() {
+    ALL_PRODUCTS = await API.get("/api/products");
+    render();
+  }
+
+  (async () => {
+    const session = await AdminShell.init({ active: "products" });
+    if (!session) return;
+
+    try { CATEGORIES = await API.get("/api/categories"); } catch { CATEGORIES = []; }
+    await load();
+
+    document.getElementById("addProductBtn").addEventListener("click", () => openForm(null));
+    document.getElementById("searchInput").addEventListener("input", (e) => { query = e.target.value; page = 1; render(); });
+
+    if (new URLSearchParams(location.search).get("new")) openForm(null);
+  })();
+</script>
+</body>
+</html>

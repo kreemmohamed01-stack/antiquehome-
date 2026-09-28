@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analytics — Antique Home Admin</title>
+<link rel="stylesheet" href="/css/admin.css">
+<link rel="stylesheet" href="/css/admin-v3.css">
+</head>
+<body>
+<div class="admin" id="admin-root">
+  <div class="admin__pageHead">
+    <img src="/sec 2/main sec 2.jpeg" alt="">
+    <div class="admin__pageHead-body">
+      <p class="admin__crumb"><a href="/admin/index.html">Dashboard</a><span>Analytics</span></p>
+      <h1 class="admin__pageTitle">Analytics</h1>
+      <p class="admin__pageSub">Real visitor traffic and sales performance.</p>
+    </div>
+  </div>
+
+  <div class="admin__panel-head" style="margin-bottom:8px"><h2 class="admin__panel-title">Visitor Traffic</h2></div>
+  <div class="admin__statStrip admin__statStrip--5" id="visitorStrip" style="margin-bottom:18px"></div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/admin-shell.js"></script>
+<script>
+  (async () => {
+    const session = await AdminShell.init({ active: "analytics" });
+    if (!session) return;
+
+    const data = await API.get("/api/dashboard-data");
+    const v = data.visitors || {};
+    document.getElementById("visitorStrip").innerHTML = `
+      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">Live Now</span></div><div class="admin__stat-value">${v.live || 0}</div></div>
+      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">Today</span></div><div class="admin__stat-value">${v.today_visitors || 0}</div></div>
+      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">This Week</span></div><div class="admin__stat-value">${v.week_visitors || 0}</div></div>
+      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">This Month</span></div><div class="admin__stat-value">${v.month_visitors || 0}</div></div>
+      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">All Time</span></div><div class="admin__stat-value">${v.all_time_visitors || 0}</div></div>
+    `;
+  })();
+</script>
+</body>
+</html>

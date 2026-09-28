@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings — Antique Home Admin</title>
+<link rel="stylesheet" href="/css/admin.css">
+<link rel="stylesheet" href="/css/admin-v3.css">
+</head>
+<body>
+<div class="admin" id="admin-root">
+  <div class="admin__panel">
+    <div class="admin__panel-head"><h2 class="admin__panel-title">Account Settings</h2></div>
+    <p style="font-size:12px;color:var(--a-text-dim);margin-bottom:18px">Update your admin login username and password.</p>
+    <form id="settingsForm" class="admin__form">
+      <div class="admin__loginError" id="settingsError" style="display:none"></div>
+      <div class="admin__loginError" id="settingsSuccess" style="display:none;background:rgba(111,163,107,.15);color:var(--a-green)">Saved.</div>
+      <div class="admin__field"><label>Current Password</label><input type="password" id="currentPassword" required></div>
+      <div class="admin__field"><label>New Username</label><input type="text" id="newUsername" value="" required></div>
+      <div class="admin__field"><label>New Password (leave blank to keep current)</label><input type="password" id="newPassword"></div>
+      <button type="submit" class="admin__btn admin__btn--gold">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/admin-shell.js"></script>
+<script>
+  (async () => {
+    const session = await AdminShell.init({ active: "settings" });
+    if (!session) return;
+    document.getElementById("newUsername").value = session.email;
+
+    document.getElementById("settingsForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const errorBox = document.getElementById("settingsError");
+      const successBox = document.getElementById("settingsSuccess");
+      errorBox.style.display = "none";
+      successBox.style.display = "none";
+      try {
+        await API.post("/api/auth?action=credentials", {
+          currentPassword: document.getElementById("currentPassword").value,
+          newUsername: document.getElementById("newUsername").value,
+          newPassword: document.getElementById("newPassword").value,
+        });
+        successBox.style.display = "block";
+        document.getElementById("currentPassword").value = "";
+        document.getElementById("newPassword").value = "";
+      } catch (err) {
+        errorBox.textContent = err.message || "Failed to update credentials.";
+        errorBox.style.display = "block";
+      }
+    });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orders — Antique Home Admin</title>
+<link rel="stylesheet" href="/css/admin.css">
+<link rel="stylesheet" href="/css/admin-v3.css">
+</head>
+<body>
+<div class="admin" id="admin-root">
+  <div class="admin__pageHead">
+    <img src="/sec 2/main sec 2.jpeg" alt="">
+    <div class="admin__pageHead-body">
+      <p class="admin__crumb"><a href="/admin/index.html">Dashboard</a><span>Orders</span></p>
+      <h1 class="admin__pageTitle">Orders</h1>
+      <p class="admin__pageSub">Track and manage every order.</p>
+    </div>
+  </div>
+
+  <div class="admin__statStrip admin__statStrip--6" id="statStrip"></div>
+
+  <div class="admin__panel">
+    <div class="admin__tabRow" id="tabRow" style="margin-bottom:14px"></div>
+    <div class="admin__toolbar">
+      <div class="admin__searchInline">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.4"></circle><line x1="15.7" y1="15.7" x2="20.2" y2="20.2"></line></svg>
+        <input type="text" id="searchInput" placeholder="Search orders…">
+      </div>
+    </div>
+    <div id="ordersList"></div>
+    <div class="admin__pager" id="pager" style="display:none"></div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/admin-shell.js"></script>
+<script>
+  let ALL_ORDERS = [];
+  let tab = "all";
+  let query = "";
+  let page = 1;
+  const PAGE_SIZE = 10;
+
+  function fmt(n) { return "EGP " + Math.round(Number(n)).toLocaleString("en-US"); }
+  function pillClass(status) {
+    switch (status) {
+      case "delivered": return "admin__pill admin__pill--delivered";
+      case "shipped": return "admin__pill admin__pill--shipped";
+      case "processing": return "admin__pill admin__pill--processing";
+      case "cancelled": return "admin__pill admin__pill--low";
+      default: return "admin__pill admin__pill--pending";
+    }
+  }
+
+  function render() {
+    const counts = { all: ALL_ORDERS.length };
+    ["pending", "processing", "shipped", "delivered", "cancelled"].forEach((s) => {
+      counts[s] = ALL_ORDERS.filter((o) => o.status === s).length;
+    });
+    const total = ALL_ORDERS.reduce((s, o) => s + parseFloat(o.total), 0);
+
+    document.getElementById("statStrip").innerHTML = `
+      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">Total</span></div><div class="admin__stat-value">${counts.all}</div></div>
+      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">Pending</span></div><div class="admin__stat-value">${counts.pending}</div></div>
+      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">Processing</span></div><div class="admin__stat-value">${counts.processing}</div></div>
+      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">Shipped</span></div><div class="admin__stat-value">${counts.shipped}</div></div>
+      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">Delivered</span></div><div class="admin__stat-value">${counts.delivered}</div></div>
+      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">Cancelled</span></div><div class="admin__stat-value">${counts.cancelled}</div></div>
+    `;
+
+    document.getElementById("tabRow").innerHTML = [
+      ["all", `All (${counts.all})`], ["pending", `Pending (${counts.pending})`],
+      ["processing", `Processing (${counts.processing})`], ["shipped", `Shipped (${counts.shipped})`],
+      ["delivered", `Delivered (${counts.delivered})`], ["cancelled", `Cancelled (${counts.cancelled})`],
+    ].map(([key, label]) => `<button type="button" class="admin__chip${tab === key ? " is-active" : ""}" data-tab="${key}">${label}</button>`).join("");
+    document.querySelectorAll("[data-tab]").forEach((btn) => btn.addEventListener("click", () => { tab = btn.dataset.tab; page = 1; render(); }));
+
+    let list = ALL_ORDERS;
+    if (tab !== "all") list = list.filter((o) => o.status === tab);
+    const needle = query.trim().toLowerCase();
+    if (needle) list = list.filter((o) => o.order_number.toLowerCase().includes(needle) || o.customer_name.toLowerCase().includes(needle) || o.email.toLowerCase().includes(needle));
+
+    const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+    const current = Math.min(page, totalPages);
+    const visible = list.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
+
+    const listEl = document.getElementById("ordersList");
+    if (visible.length === 0) {
+      listEl.innerHTML = `<p style="text-align:center;padding:40px;color:var(--a-text-dim)">No orders match this view.</p>`;
+    } else {
+      listEl.innerHTML = `
+        <table class="admin__ordersTable admin__table">
+          <thead><tr><th># Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th></th></tr></thead>
+          <tbody>
+            ${visible.map((o) => `
+              <tr>
+                <td>${o.order_number}</td>
+                <td>${o.customer_name}<br><span style="color:var(--a-text-dim);font-size:11px">${o.email}</span></td>
+                <td>${o.item_count} items</td>
+                <td>${fmt(o.total)}</td>
+                <td><span class="${pillClass(o.status)}">${o.status.charAt(0).toUpperCase() + o.status.slice(1)}</span></td>
+                <td>${new Date(o.created_at).toLocaleDateString("en-US")}</td>
+                <td><a href="/admin/order-detail.html?id=${o.id}" class="admin__iconAct">View</a></td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+        <div class="admin__ordersCards">
+          ${visible.map((o) => `
+            <a href="/admin/order-detail.html?id=${o.id}" class="admin__ocard">
+              <div style="display:flex;justify-content:space-between"><strong>${o.order_number}</strong><span class="${pillClass(o.status)}">${o.status}</span></div>
+              <div style="color:var(--a-text-dim);font-size:12px">${o.customer_name} · ${o.item_count} items</div>
+              <div style="font-weight:600">${fmt(o.total)}</div>
+            </a>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    const pagerEl = document.getElementById("pager");
+    if (totalPages > 1) {
+      pagerEl.style.display = "flex";
+      pagerEl.innerHTML = Array.from({ length: totalPages }).map((_, i) => `<button type="button" class="${current === i + 1 ? "is-active" : ""}" data-page="${i + 1}">${i + 1}</button>`).join("");
+      pagerEl.querySelectorAll("[data-page]").forEach((btn) => btn.addEventListener("click", () => { page = Number(btn.dataset.page); render(); }));
+    } else {
+      pagerEl.style.display = "none";
+    }
+  }
+
+  (async () => {
+    const session = await AdminShell.init({ active: "orders" });
+    if (!session) return;
+    ALL_ORDERS = await API.get("/api/orders");
+    render();
+    document.getElementById("searchInput").addEventListener("input", (e) => { query = e.target.value; page = 1; render(); });
+  })();
+</script>
+</body>
+</html>

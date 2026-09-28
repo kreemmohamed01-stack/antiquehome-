@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Content — Antique Home Admin</title>
+<link rel="stylesheet" href="/css/admin.css">
+<link rel="stylesheet" href="/css/admin-v3.css">
+</head>
+<body>
+<div class="admin" id="admin-root">
+  <div class="admin__pageHead">
+    <div class="admin__pageHead-body">
+      <p class="admin__crumb"><a href="/admin/index.html">Dashboard</a><span>Content</span></p>
+      <h1 class="admin__pageTitle">Content</h1>
+    </div>
+  </div>
+  <div class="admin__panel">
+    <p style="color:var(--a-text-dim);text-align:center;padding:40px">This section is coming soon.</p>
+  </div>
+</div>
+<script src="/js/api.js"></script>
+<script src="/js/admin-shell.js"></script>
+<script>
+  (async () => { await AdminShell.init({ active: "content" }); })();
+</script>
+</body>
+</html>

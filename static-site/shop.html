@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>All Products — Antique Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/styles.css" />
+<link rel="stylesheet" href="/css/promo-bar.css" />
+<link rel="stylesheet" href="/css/sections.css" />
+<link rel="stylesheet" href="/css/footer.css" />
+<link rel="stylesheet" href="/css/sidemenu.css" />
+<link rel="stylesheet" href="/css/drawers.css" />
+<link rel="stylesheet" href="/css/music-player.css" />
+<link rel="stylesheet" href="/css/shop.css" />
+</head>
+<body>
+
+<div id="shopHeroSlot"></div>
+
+<div id="catRailSlot"></div>
+
+<div class="shop">
+  <div class="shop-toolbar">
+    <div class="shop-toolbar__row">
+      <button class="tool-btn tool-btn--filter" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"></line><circle cx="9" cy="7" r="2.2"></circle><line x1="4" y1="17" x2="20" y2="17"></line><circle cx="15" cy="17" r="2.2"></circle></svg>
+        Filter
+      </button>
+    </div>
+    <div class="shop-toolbar__meta">
+      <span id="shopCount">0 Products</span>
+      <div class="sort-pop" id="sortPop" data-open="false">
+        <button class="tool-btn tool-btn--sort" type="button" id="sortToggle" aria-expanded="false">
+          <span class="js-sort-label" id="sortLabel">Sort By: Newest</span>
+          <svg class="tool-btn__chev" viewBox="0 0 12 8" aria-hidden="true"><polyline points="1,1.5 6,6.5 11,1.5"></polyline></svg>
+        </button>
+        <div class="sort-pop__list" id="sortList">
+          <button type="button" data-sort="newest" class="is-active">Newest</button>
+          <button type="button" data-sort="price-asc">Price: Low to High</button>
+          <button type="button" data-sort="price-desc">Price: High to Low</button>
+          <button type="button" data-sort="name-asc">Name: A&ndash;Z</button>
+        </div>
+      </div>
+      <div class="view-toggle" id="viewToggle">
+        <button type="button" class="is-active" data-view="grid" aria-label="Grid view">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8"></rect><rect x="13" y="3" width="8" height="8"></rect><rect x="3" y="13" width="8" height="8"></rect><rect x="13" y="13" width="8" height="8"></rect></svg>
+        </button>
+        <button type="button" data-view="list" aria-label="List view">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="shop-body">
+    <aside class="filters" aria-label="Filters">
+      <div class="filters__group">
+        <h3 class="filters__title">Category</h3>
+        <ul class="filters__cats" id="filterCats"></ul>
+      </div>
+
+      <div class="filters__group filters__price">
+        <h3 class="filters__title">Price</h3>
+        <input type="range" class="filters__range" id="priceRange" min="500" max="20000" step="100" value="20000" aria-label="Maximum price" />
+        <div class="filters__price-labels">
+          <span>EGP 0</span>
+          <span class="js-price-max" id="priceMaxLabel">EGP 20,000+</span>
+        </div>
+      </div>
+
+      <div class="filters__group">
+        <h3 class="filters__title">Color</h3>
+        <div class="filters__swatches" id="colorSwatches">
+          <button type="button" class="filters__swatch" style="background:#D9C8AC" aria-pressed="false" aria-label="beige" data-color="beige"></button>
+          <button type="button" class="filters__swatch" style="background:#6B4A32" aria-pressed="false" aria-label="brown" data-color="brown"></button>
+          <button type="button" class="filters__swatch" style="background:#1C1611" aria-pressed="false" aria-label="black" data-color="black"></button>
+          <button type="button" class="filters__swatch" style="background:#5C6B4A" aria-pressed="false" aria-label="green" data-color="green"></button>
+          <button type="button" class="filters__swatch" style="background:#F6F1E8" aria-pressed="false" aria-label="white" data-color="white"></button>
+        </div>
+      </div>
+
+      <div class="filters__group">
+        <h3 class="filters__title">Material</h3>
+        <div class="filters__check" id="materialChecks">
+          <label><input type="checkbox" value="ceramic" />Ceramic</label>
+          <label><input type="checkbox" value="glass" />Glass</label>
+          <label><input type="checkbox" value="metal" />Metal</label>
+          <label><input type="checkbox" value="wood" />Wood</label>
+          <label><input type="checkbox" value="marble" />Marble</label>
+          <label><input type="checkbox" value="stone" />Stone</label>
+          <label><input type="checkbox" value="fabric" />Fabric</label>
+        </div>
+      </div>
+
+      <button type="button" class="filters__clear js-clear-filters" id="clearFilters">Clear Filters</button>
+    </aside>
+
+    <div>
+      <div class="shop-grid" id="shopGrid">
+        <p style="padding:40px 0;opacity:.7;grid-column:1/-1">Loading products&hellip;</p>
+      </div>
+
+      <nav class="pager" id="pager" aria-label="Pagination" style="display:none"></nav>
+    </div>
+  </div>
+</div>
+
+<div id="chromeSlot"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/chrome-partials.js"></script>
+<script src="/js/site-chrome.js"></script>
+<script src="/js/shop.js"></script>
+</body>
+</html>

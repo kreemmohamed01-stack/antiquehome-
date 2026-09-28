@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shipping — Antique Home Admin</title>
+<link rel="stylesheet" href="/css/admin.css">
+<link rel="stylesheet" href="/css/admin-v3.css">
+</head>
+<body>
+<div class="admin" id="admin-root">
+  <div class="admin__pageHead">
+    <div class="admin__pageHead-body">
+      <p class="admin__crumb"><a href="/admin/index.html">Dashboard</a><span>Shipping</span></p>
+      <h1 class="admin__pageTitle">Shipping Rates</h1>
+      <p class="admin__pageSub">Standard and express prices per governorate.</p>
+    </div>
+  </div>
+  <div class="admin__panel">
+    <table class="admin__table">
+      <thead><tr><th>Governorate</th><th>Standard (EGP)</th><th>Express (EGP)</th><th></th></tr></thead>
+      <tbody id="rateRows"></tbody>
+    </table>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/admin-shell.js"></script>
+<script>
+  (async () => {
+    const session = await AdminShell.init({ active: "shipping" });
+    if (!session) return;
+
+    const { rates } = await API.get("/api/shipping");
+    document.getElementById("rateRows").innerHTML = rates.map((r) => `
+      <tr>
+        <td>${r.governorate}</td>
+        <td><input type="number" data-std="${r.id}" value="${r.standard_price}" style="width:90px"></td>
+        <td><input type="number" data-exp="${r.id}" value="${r.express_price}" style="width:90px"></td>
+        <td><button type="button" class="admin__iconAct" data-save="${r.id}">Save</button></td>
+      </tr>
+    `).join("");
+
+    document.querySelectorAll("[data-save]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.save;
+        const standardPrice = document.querySelector(`[data-std="${id}"]`).value;
+        const expressPrice = document.querySelector(`[data-exp="${id}"]`).value;
+        try {
+          await API.patch(`/api/shipping?id=${id}`, { standardPrice, expressPrice });
+          btn.textContent = "Saved ✓";
+          setTimeout(() => { btn.textContent = "Save"; }, 1500);
+        } catch { alert("Failed to save."); }
+      });
+    });
+  })();
+</script>
+</body>
+</html>

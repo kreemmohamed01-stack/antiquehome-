@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Customers — Antique Home Admin</title>
+<link rel="stylesheet" href="/css/admin.css">
+<link rel="stylesheet" href="/css/admin-v3.css">
+</head>
+<body>
+<div class="admin" id="admin-root">
+  <div class="admin__pageHead">
+    <div class="admin__pageHead-body">
+      <p class="admin__crumb"><a href="/admin/index.html">Dashboard</a><span>Customers</span></p>
+      <h1 class="admin__pageTitle">Customers</h1>
+      <p class="admin__pageSub">Everyone who has placed an order.</p>
+    </div>
+  </div>
+  <div class="admin__panel">
+    <table class="admin__table">
+      <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Orders</th><th>Total Spent</th><th>Last Order</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/admin-shell.js"></script>
+<script>
+  (async () => {
+    const session = await AdminShell.init({ active: "customers" });
+    if (!session) return;
+    const customers = await API.get("/api/customers");
+    document.getElementById("rows").innerHTML = customers.map((c) => `
+      <tr>
+        <td>${c.name || "—"}</td><td>${c.email}</td><td>${c.phone || "—"}</td>
+        <td>${c.order_count}</td><td>${fmtMoney(c.total_spent)}</td>
+        <td>${new Date(c.last_order).toLocaleDateString("en-US")}</td>
+      </tr>
+    `).join("") || `<tr><td colspan="6" style="text-align:center;color:var(--a-text-dim);padding:20px">No customers yet.</td></tr>`;
+  })();
+</script>
+</body>
+</html>

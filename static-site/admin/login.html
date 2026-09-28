@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin Login — Antique Home</title>
+<link rel="stylesheet" href="/css/admin.css">
+<link rel="stylesheet" href="/css/admin-v3.css">
+</head>
+<body>
+<div class="admin">
+  <div class="admin__loginWrap">
+    <div class="admin__loginCard">
+      <div class="admin__logo">
+        <span class="admin__logo-name">ANTIQUE HOME</span>
+        <span class="admin__logo-sub">Timeless Living</span>
+      </div>
+      <h1>Admin Sign In</h1>
+      <p>Manage your store, orders and products.</p>
+      <form class="admin__form" id="loginForm">
+        <div class="admin__loginError" id="loginError" style="display:none"></div>
+        <div class="admin__field">
+          <label for="email">Username</label>
+          <input id="email" type="text" autocomplete="username" required>
+        </div>
+        <div class="admin__field">
+          <label for="password">Password</label>
+          <input id="password" type="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="admin__btn admin__btn--gold" id="loginBtn">Sign In</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById("loginForm");
+  const errorBox = document.getElementById("loginError");
+  const btn = document.getElementById("loginBtn");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errorBox.style.display = "none";
+    btn.disabled = true;
+    btn.textContent = "Signing in…";
+
+    try {
+      const res = await fetch("/api/auth?action=login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: document.getElementById("email").value,
+          password: document.getElementById("password").value,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        errorBox.textContent = data.error || "Sign in failed.";
+        errorBox.style.display = "block";
+        btn.disabled = false;
+        btn.textContent = "Sign In";
+        return;
+      }
+      location.href = "/admin/index.html";
+    } catch {
+      errorBox.textContent = "Something went wrong. Please try again.";
+      errorBox.style.display = "block";
+      btn.disabled = false;
+      btn.textContent = "Sign In";
+    }
+  });
+</script>
+</body>
+</html>
