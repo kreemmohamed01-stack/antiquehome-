@@ -36,9 +36,10 @@
   </div>
 </div>
 
-<!-- Simple modal form for add/edit -->
-<div id="productModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;overflow:auto">
-  <div style="max-width:640px;margin:40px auto;background:var(--a-panel);border-radius:12px;padding:28px" id="productModalBody"></div>
+<!-- Simple modal form for add/edit — "admin" class added so it can see
+     the --a-* color tokens, which are scoped to .admin in admin.css. -->
+<div class="admin" id="productModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9999;overflow:auto">
+  <div style="max-width:640px;margin:40px auto;background:var(--a-panel);border:1px solid var(--a-border);border-radius:12px;padding:28px;color:var(--a-text)" id="productModalBody"></div>
 </div>
 
 <script src="/js/api.js"></script>
