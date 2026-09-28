@@ -6,10 +6,6 @@
     else fn();
   }
 
-  function getAppliedCoupon() {
-    try { return JSON.parse(sessionStorage.getItem("ah_coupon") || "null"); } catch { return null; }
-  }
-
   function bannerMarkup({ eyebrow, pct, btnLabel, btnHref }) {
     return `
       <div class="sale-banner">
@@ -36,18 +32,31 @@
       </div>`;
   }
 
-  // Renders, in priority order: an applied promo code (from the cart
-  // drawer or checkout — shared via sessionStorage) over the site-wide
-  // sale banner over nothing. Re-run on cart:changed so applying/removing
-  // a code while already on the homepage updates the banner live.
-  function renderSaleBanner(sale) {
+  // Renders, in priority order: the site-wide sale (set from the admin
+  // Discounts page) over the first active coupon code (also set from the
+  // same page) over nothing. This banner reflects the dashboard's own
+  // toggles only — it is not tied to whatever a shopper has typed into
+  // their own cart/checkout promo box. Turning either off in the
+  // dashboard removes it here too; turning one on adds it; if both are
+  // off the whole section disappears.
+  function renderSaleBanner(sale, coupon) {
     const slot = document.getElementById("saleBannerSlot");
     if (!slot) return;
 
-    const coupon = getAppliedCoupon();
-    if (coupon && coupon.code && coupon.percent) {
+    if (sale && sale.active && sale.percent > 0) {
+      const label = (sale.label && sale.label.trim()) || "Limited Offer";
       slot.innerHTML = bannerMarkup({
-        eyebrow: "Promo Code Applied",
+        eyebrow: label,
+        pct: `UP TO <b>${sale.percent}%</b> OFF`,
+        btnLabel: "Shop Sale",
+        btnHref: "/shop.html?category=sale",
+      });
+      return;
+    }
+
+    if (coupon && coupon.code && coupon.percent > 0) {
+      slot.innerHTML = bannerMarkup({
+        eyebrow: "Promo Code",
         pct: `<b>${coupon.percent}%</b> OFF WITH "${coupon.code}"`,
         btnLabel: "Shop Now",
         btnHref: "/shop.html",
@@ -55,17 +64,7 @@
       return;
     }
 
-    if (!sale || !sale.active || sale.percent <= 0) {
-      slot.innerHTML = "";
-      return;
-    }
-    const label = (sale.label && sale.label.trim()) || "Limited Offer";
-    slot.innerHTML = bannerMarkup({
-      eyebrow: label,
-      pct: `UP TO <b>${sale.percent}%</b> OFF`,
-      btnLabel: "Shop Sale",
-      btnHref: "/shop.html?category=sale",
-    });
+    slot.innerHTML = "";
   }
 
   function featuredCard(p) {
@@ -146,25 +145,24 @@
     if (rail) rail.innerHTML = rest.map((p, i) => railCard(p, i)).join("");
   }
 
-  let currentSale = null;
-  async function loadSale() {
+  async function loadSaleBanner() {
+    let sale = null;
+    let coupon = null;
     try {
-      currentSale = await API.get("/api/sale");
-      renderSaleBanner(currentSale);
+      sale = await API.get("/api/sale");
     } catch {
-      currentSale = null;
-      renderSaleBanner(null);
+      sale = null;
     }
+    try {
+      coupon = await API.get("/api/coupons?featured=1");
+    } catch {
+      coupon = null;
+    }
+    renderSaleBanner(sale, coupon);
   }
 
   ready(function () {
     loadArrivals();
-    loadSale();
-    // re-render if a promo code is applied/removed while on this page
-    // (cart drawer) or in another tab (storage event covers checkout).
-    document.addEventListener("cart:changed", () => renderSaleBanner(currentSale));
-    window.addEventListener("storage", (e) => {
-      if (e.key === "ah_coupon") renderSaleBanner(currentSale);
-    });
+    loadSaleBanner();
   });
 })();

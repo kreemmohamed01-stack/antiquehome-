@@ -20,6 +20,16 @@ module.exports = async (req, res) => {
       return;
     }
 
+    // GET /api/coupons?featured=1 -> public, returns the coupon the
+    // homepage sale banner should show (the most recently created active
+    // one), or null. Kept separate from the admin listing below so the
+    // storefront never needs a session just to render the banner.
+    if (req.method === "GET" && req.query.featured) {
+      const rows = await sql`SELECT code, percent FROM coupons WHERE active = true ORDER BY created_at DESC LIMIT 1`;
+      res.status(200).json(rows.length ? { code: rows[0].code, percent: parseFloat(rows[0].percent) } : null);
+      return;
+    }
+
     const session = getSession(req);
     if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
 
