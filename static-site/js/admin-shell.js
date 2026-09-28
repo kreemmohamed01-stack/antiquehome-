@@ -97,7 +97,7 @@ const AdminShell = {
         </aside>
         <div class="admin__main">
           <header class="admin__topbar">
-            <button type="button" class="admin__mobileMenuBtn" id="mobileMenuBtn" aria-label="Menu">
+            <button type="button" class="admin__hamburger" id="mobileMenuBtn" aria-label="Menu">
               <svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="17" x2="20" y2="17"></line></svg>
             </button>
             <a href="/admin/index.html" class="admin__mobileLogo">ANTIQUE HOME<span>TIMELESS LIVING</span></a>

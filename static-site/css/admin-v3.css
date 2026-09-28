@@ -543,7 +543,7 @@
 }
 .admin__barRow-top .pct{ color: var(--a-text-dim); font-variant-numeric: tabular-nums; }
 .admin__barTrack{
-  height:7px; border-radius:0; background: rgba(255,255,255,.06);
+  height:7px; border-radius:0; background: rgba(20,17,12,.08);
   overflow:hidden;
 }
 .admin__barFill{
