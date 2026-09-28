@@ -1,0 +1,224 @@
+/* =========================================================
+   ANALYTICS PAGE — widgets specific to /admin/analytics.html.
+   Loaded after admin.css + admin-v3.css, inherits all --a-* tokens.
+   ========================================================= */
+
+.an__head{
+  display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between;
+  gap:16px; margin-bottom:20px;
+}
+.an__headBody{ min-width:0; }
+.an__title{ font-family: var(--serif); font-weight:500; font-size: clamp(26px,3vw,34px); margin:0 0 4px; color: var(--a-text); }
+.an__sub{ margin:0; font-size:12.5px; color: var(--a-text-dim); }
+
+.an__toolbar{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+.an__rangeBtns{
+  display:flex; border:1px solid var(--a-border); background: var(--a-panel);
+}
+.an__rangeBtns button{
+  appearance:none; border:0; background:none; cursor:pointer;
+  padding:8px 14px; font-family: var(--sans); font-size:11.5px; font-weight:500;
+  color: var(--a-text-dim); border-right:1px solid var(--a-border);
+  transition: background .2s var(--ease), color .2s var(--ease);
+}
+.an__rangeBtns button:last-child{ border-right:0; }
+.an__rangeBtns button.is-active{ background: var(--a-red); color:#fff; }
+@media (hover:hover){
+  .an__rangeBtns button:not(.is-active):hover{ background: var(--a-panel-2); color: var(--a-text); }
+}
+
+.an__liveDot{
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:11px; font-weight:600; color: var(--a-red);
+  padding:8px 12px; border:1px solid var(--a-border); background: var(--a-panel);
+}
+.an__liveDot::before{
+  content:""; width:7px; height:7px; border-radius:50%; background: var(--a-red);
+  animation: anPulse 1.6s ease-in-out infinite;
+}
+@keyframes anPulse{
+  0%, 100%{ opacity:1; transform:scale(1); }
+  50%{ opacity:.4; transform:scale(1.3); }
+}
+
+/* ---- KPI grid ---- */
+.an__kpiGrid{
+  display:grid; grid-template-columns: repeat(2, 1fr); gap:1px;
+  background: var(--a-border); border:1px solid var(--a-border);
+  margin-bottom:1px;
+}
+.an__kpi{
+  background: var(--a-panel);
+  padding:18px 20px;
+  display:flex; flex-direction:column; gap:10px;
+  min-width:0;
+}
+.an__kpiTop{ display:flex; align-items:center; gap:10px; }
+.an__kpiIcon{
+  width:34px; height:34px; flex:none; display:flex; align-items:center; justify-content:center;
+  background: var(--a-panel-2); color: var(--a-text-dim);
+}
+.an__kpiIcon svg{ width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.an__kpiLabel{ font-size:11.5px; color: var(--a-text-dim); }
+.an__kpiValue{ font-family: var(--mono); font-size: clamp(20px,2.4vw,26px); font-weight:600; color: var(--a-text); font-variant-numeric: tabular-nums; }
+.an__kpiDelta{ font-size:11px; font-weight:600; display:inline-flex; align-items:center; gap:4px; }
+.an__kpiDelta.up{ color: var(--a-green); }
+.an__kpiDelta.down{ color: var(--a-red); }
+.an__kpiSpark{ height:30px; margin-top:-4px; }
+.an__kpiSpark svg{ width:100%; height:100%; display:block; overflow:visible; }
+
+@media (min-width: 700px){ .an__kpiGrid{ grid-template-columns: repeat(4, 1fr); } }
+
+/* ---- generic row/grid layout ---- */
+.an__row{ display:grid; grid-template-columns: 1fr; gap:16px; margin-bottom:16px; }
+.an__row--main{ grid-template-columns: 1fr; }
+@media (min-width: 1100px){
+  .an__row--main{ grid-template-columns: 2fr 1fr 1fr; }
+  .an__row--3{ grid-template-columns: repeat(3, 1fr); }
+  .an__row--2{ grid-template-columns: repeat(2, 1fr); }
+}
+
+.an__panel{
+  background: var(--a-panel); border:1px solid var(--a-border); padding:18px;
+  min-width:0;
+}
+.an__panelHead{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+.an__panelTitle{ margin:0; font-family: var(--serif); font-weight:500; font-size:17px; color: var(--a-text); display:flex; align-items:center; gap:8px; }
+.an__panelTitle svg{ width:16px; height:16px; fill:none; stroke: var(--a-text-dim); stroke-width:1.6; }
+.an__panelLink{ font-size:11px; font-weight:600; color: var(--a-text-dim); text-decoration:none; display:inline-flex; align-items:center; gap:4px; }
+@media (hover:hover){ .an__panelLink:hover{ color: var(--a-red); } }
+
+/* ---- revenue chart tabs ---- */
+.an__chartTabs{ display:flex; gap:2px; }
+.an__chartTabs button{
+  appearance:none; border:1px solid var(--a-border); background: var(--a-panel);
+  padding:6px 12px; font-size:10.5px; font-weight:500; color: var(--a-text-dim); cursor:pointer;
+}
+.an__chartTabs button.is-active{ background: var(--a-cream); color:#fff; border-color: var(--a-cream); }
+
+.an__chartWrap{ position:relative; }
+.an__chartWrap svg{ width:100%; height:auto; display:block; overflow:visible; }
+.an__chartTooltip{
+  position:absolute; pointer-events:none; z-index:5;
+  background: var(--a-cream); color:#fff; padding:10px 14px;
+  font-size:11px; line-height:1.6; white-space:nowrap;
+  box-shadow: 0 10px 24px rgba(0,0,0,.25);
+  transform: translate(-50%, -110%);
+  opacity:0; transition: opacity .15s var(--ease);
+}
+.an__chartTooltip.is-visible{ opacity:1; }
+.an__chartTooltip b{ font-family: var(--mono); }
+.an__chartLegend{ display:flex; flex-wrap:wrap; gap:14px; margin-top:10px; font-size:11px; color: var(--a-text-dim); }
+.an__chartLegend span{ display:inline-flex; align-items:center; gap:6px; }
+.an__chartLegend i{ width:12px; height:2px; display:inline-block; }
+
+/* ---- live visitors list ---- */
+.an__liveNum{ font-family: var(--mono); font-size:34px; font-weight:700; color: var(--a-text); line-height:1; }
+.an__liveLabel{ font-size:11px; color: var(--a-text-dim); margin:4px 0 16px; }
+.an__pageRow{ display:flex; align-items:center; gap:10px; font-size:12px; color: var(--a-text); padding:6px 0; }
+.an__pageRow-bar{ flex:1; height:6px; background: var(--a-panel-2); position:relative; overflow:hidden; }
+.an__pageRow-bar i{ position:absolute; inset:0; width:0; background: var(--a-red); transition: width .6s var(--ease); }
+.an__pageRow-name{ flex:1 1 90px; min-width:0; }
+.an__pageRow-val{ font-family: var(--mono); font-weight:600; width:30px; text-align:right; flex:none; }
+
+/* ---- world/location list (no map asset — a clean ranked bar list reads
+   the real per-country numbers more honestly than a decorative SVG map
+   with only a handful of resolved countries so far) ---- */
+.an__geoRow{ display:flex; align-items:center; gap:10px; font-size:12px; padding:7px 0; }
+.an__geoDot{ width:8px; height:8px; border-radius:50%; flex:none; }
+.an__geoName{ flex:1 1 auto; min-width:0; color: var(--a-text); }
+.an__geoPct{ font-family: var(--mono); font-weight:600; color: var(--a-text-dim); width:34px; text-align:right; }
+
+/* ---- small stat trio (best day / best hour / growth) ---- */
+.an__trio{ display:grid; grid-template-columns: repeat(3,1fr); gap:1px; background: var(--a-border); border:1px solid var(--a-border); }
+.an__trioItem{ background: var(--a-panel); padding:16px; display:flex; flex-direction:column; gap:6px; }
+.an__trioTop{ display:flex; align-items:center; gap:8px; font-size:11px; color: var(--a-text-dim); }
+.an__trioTop svg{ width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.6; }
+.an__trioMain{ font-family: var(--mono); font-size:16px; font-weight:600; color: var(--a-text); }
+.an__trioSub{ font-size:11px; color: var(--a-text-dim); }
+.an__trioSub.up{ color: var(--a-green); font-weight:600; }
+
+/* ---- funnel ---- */
+.an__funnel{ display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; }
+.an__funnelStep{
+  flex:1 1 130px; min-width:110px; background: var(--a-panel-2);
+  padding:14px 16px; position:relative;
+}
+.an__funnelStep::after{
+  content:""; position:absolute; right:-14px; top:50%; transform:translateY(-50%);
+  width:0; height:0; border-top:8px solid transparent; border-bottom:8px solid transparent;
+  border-left:8px solid var(--a-text-dim); opacity:.4; z-index:1;
+}
+.an__funnelStep:last-child::after{ display:none; }
+.an__funnelLabel{ font-size:10.5px; color: var(--a-text-dim); margin-bottom:6px; text-transform:uppercase; letter-spacing:.06em; }
+.an__funnelValue{ font-family: var(--mono); font-size:20px; font-weight:700; color: var(--a-text); }
+.an__funnelPct{ font-size:11px; color: var(--a-red); font-weight:600; margin-top:2px; }
+
+/* ---- top products table ---- */
+.an__ptable{ width:100%; border-collapse:collapse; font-size:12px; }
+.an__ptable th{ text-align:left; font-weight:500; color: var(--a-text-dim); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; padding:0 8px 10px; border-bottom:1px solid var(--a-border); }
+.an__ptable td{ padding:10px 8px; border-bottom:1px solid var(--a-border); color: var(--a-text); vertical-align:middle; }
+.an__ptable tr:last-child td{ border-bottom:0; }
+.an__ptable img{ width:34px; height:34px; object-fit:cover; flex:none; background: var(--a-panel-2); }
+.an__ptRow{ display:flex; align-items:center; gap:10px; min-width:180px; }
+.an__ptName{ font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px; }
+.an__convUp{ color: var(--a-green); }
+.an__convDown{ color: var(--a-red); }
+.an__tableScroll{ overflow-x:auto; }
+
+/* ---- donut chart ---- */
+.an__donutWrap{ display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+.an__donut{ position:relative; flex:none; width:150px; height:150px; }
+.an__donut svg{ width:100%; height:100%; transform:rotate(-90deg); }
+.an__donutCenter{
+  position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center;
+}
+.an__donutPct{ font-family: var(--mono); font-size:22px; font-weight:700; color: var(--a-text); line-height:1; }
+.an__donutLabel{ font-size:10px; color: var(--a-text-dim); margin-top:3px; }
+.an__donutLegend{ flex:1 1 140px; display:flex; flex-direction:column; gap:8px; font-size:12px; min-width:120px; }
+.an__donutLegend-row{ display:flex; align-items:center; gap:8px; }
+.an__donutLegend-dot{ width:9px; height:9px; border-radius:50%; flex:none; }
+.an__donutLegend-name{ flex:1; color: var(--a-text); }
+.an__donutLegend-pct{ font-family: var(--mono); font-weight:600; color: var(--a-text-dim); }
+
+/* ---- bar chart (customer analytics) ---- */
+.an__barChart{ display:flex; align-items:flex-end; gap:10px; height:150px; padding-top:10px; }
+.an__barGroup{ flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; height:100%; justify-content:flex-end; }
+.an__barPair{ display:flex; align-items:flex-end; gap:3px; width:100%; justify-content:center; height:100%; }
+.an__bar{ width:12px; background: var(--a-panel-2); transition: height .6s var(--ease); }
+.an__bar.new{ background: var(--a-red); }
+.an__bar.returning{ background: var(--a-gold-deep); opacity:.35; }
+.an__barGroupLabel{ font-size:10px; color: var(--a-text-dim); }
+
+.an__miniStats{ display:grid; grid-template-columns:1fr 1fr; gap:1px; background: var(--a-border); border-top:1px solid var(--a-border); margin-top:14px; }
+.an__miniStat{ background: var(--a-panel); padding:12px 4px 2px; text-align:center; }
+.an__miniStat-label{ font-size:10.5px; color: var(--a-text-dim); }
+.an__miniStat-value{ font-family: var(--mono); font-size:16px; font-weight:700; color: var(--a-text); margin-top:2px; }
+.an__miniStat-delta{ font-size:10.5px; font-weight:600; color: var(--a-green); }
+
+/* ---- cart analytics ---- */
+.an__cartGrid{ display:grid; grid-template-columns: repeat(2,1fr); gap:1px; background: var(--a-border); border:1px solid var(--a-border); }
+.an__cartItem{ background: var(--a-panel); padding:14px; }
+.an__cartLabel{ font-size:11px; color: var(--a-text-dim); }
+.an__cartValue{ font-family: var(--mono); font-size:19px; font-weight:700; color: var(--a-text); margin:4px 0 2px; }
+.an__cartDelta{ font-size:10.5px; font-weight:600; }
+.an__cartDelta.up{ color: var(--a-green); }
+.an__cartDelta.down{ color: var(--a-red); }
+
+/* ---- device analytics ---- */
+.an__deviceList{ display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+.an__deviceRow{ display:flex; align-items:center; gap:10px; font-size:12px; }
+.an__deviceRow svg{ width:15px; height:15px; fill:none; stroke: var(--a-text-dim); stroke-width:1.6; flex:none; }
+.an__deviceName{ flex:1; color: var(--a-text); }
+.an__devicePct{ font-family: var(--mono); font-weight:600; }
+
+.an__empty{ color: var(--a-text-dim); font-size:12px; text-align:center; padding:30px 0; }
+
+@media (max-width: 699px){
+  .an__toolbar{ width:100%; }
+  .an__rangeBtns{ flex:1; }
+  .an__rangeBtns button{ flex:1; padding:8px 6px; font-size:10px; }
+  .an__panel{ padding:14px; }
+  .an__ptName{ max-width:120px; }
+}

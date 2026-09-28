@@ -451,6 +451,7 @@
   async function init() {
     syncCart();
     document.addEventListener("cart:changed", syncCart);
+    if (state.lines.length) trackEvent("checkout_started");
 
     // pick up a coupon already applied in the cart drawer (site-chrome.js
     // stores it under this same key) so the customer isn't asked twice.

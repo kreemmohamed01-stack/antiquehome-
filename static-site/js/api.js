@@ -132,6 +132,7 @@ const Cart = {
     else items.push({ ...item, qty });
     this.write(items);
     showAddedToCartToast(item.name);
+    trackEvent("add_to_cart", item.id);
   },
   remove(id) {
     this.write(this.read().filter((i) => i.id !== id));
@@ -147,28 +148,48 @@ const Cart = {
   total() { return this.read().reduce((s, i) => s + i.qty * i.price, 0); },
 };
 
+function ahIdFrom(storage, key) {
+  let v = storage.getItem(key);
+  if (!v) {
+    v = (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now());
+    storage.setItem(key, v);
+  }
+  return v;
+}
+
+function ahBeacon(path, payload) {
+  const body = JSON.stringify(payload);
+  try {
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(path, new Blob([body], { type: "application/json" }));
+    } else {
+      fetch(path, { method: "POST", body, headers: { "Content-Type": "application/json" }, keepalive: true }).catch(() => {});
+    }
+  } catch {}
+}
+
+// Funnel events beyond page views — add_to_cart / checkout_started.
+// Fired best-effort; a failure here never blocks the cart/checkout flow.
+function trackEvent(event, productSlug) {
+  try {
+    ahBeacon("/api/track-event", {
+      visitorId: ahIdFrom(localStorage, "ah_vid"),
+      sessionId: ahIdFrom(sessionStorage, "ah_sid"),
+      event,
+      productSlug: productSlug || null,
+    });
+  } catch {}
+}
+
 // Visitor tracking beacon — fires on every page's load.
 (function track() {
   try {
-    function idFrom(storage, key) {
-      let v = storage.getItem(key);
-      if (!v) {
-        v = (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now());
-        storage.setItem(key, v);
-      }
-      return v;
-    }
-    const visitorId = idFrom(localStorage, "ah_vid");
-    const sessionId = idFrom(sessionStorage, "ah_sid");
-    const payload = JSON.stringify({
+    const visitorId = ahIdFrom(localStorage, "ah_vid");
+    const sessionId = ahIdFrom(sessionStorage, "ah_sid");
+    ahBeacon("/api/track", {
       visitorId, sessionId,
       path: location.pathname + location.search,
       referrer: document.referrer || null,
     });
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon("/api/track", new Blob([payload], { type: "application/json" }));
-    } else {
-      fetch("/api/track", { method: "POST", body: payload, headers: { "Content-Type": "application/json" }, keepalive: true }).catch(() => {});
-    }
   } catch {}
 })();

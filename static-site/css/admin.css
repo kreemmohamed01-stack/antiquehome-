@@ -484,18 +484,25 @@
   color:#fff;
 }
 .admin__hero-text{ margin:0 0 16px; font-size:12.5px; color: rgba(255,255,255,.75); max-width:34ch; }
+/* Sits on a dark photo overlay, so it keeps its own light gold treatment
+   rather than the global --a-gold token (near-black, right for buttons on
+   the cream page background) — black-on-black here was unreadable. */
 .admin__hero-btn{
   display:inline-flex;
   align-items:center;
   gap:8px;
   padding:11px 20px;
   border-radius:0;
-  background: var(--a-gold);
-  color:#FFFFFF;
+  background: #D9AE63;
+  color:#14110C;
   font-size:11.5px;
   font-weight:600;
+  transition: background .2s var(--ease), transform .2s var(--ease);
 }
 .admin__hero-btn svg{ width:16px; height:9px; fill:none; stroke:currentColor; stroke-width:1.8; }
+@media (hover:hover){
+  .admin__hero-btn:hover{ background:#E8C283; transform: translateY(-1px); }
+}
 
 .admin__hero-quote{
   position:relative;
