@@ -327,7 +327,7 @@
   background: var(--a-gold);
   box-shadow: 0 0 0 4px rgba(217,174,99,.16);
 }
-.admin__tdot svg{ width:10px; height:8px; fill:none; stroke:#1C1611; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; opacity:0; }
+.admin__tdot svg{ width:10px; height:8px; fill:none; stroke:#FFFFFF; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; opacity:0; }
 .admin__tstep.is-done .admin__tdot svg{ opacity:1; }
 .admin__tstep span{ font-size:10.5px; color: var(--a-text-dim); }
 .admin__tstep.is-done span{ color: var(--a-cream); }
@@ -395,7 +395,7 @@
 .admin__mediaHeroTag{
   position:absolute; left:6px; bottom:6px;
   padding:2px 8px; border-radius:0;
-  background: var(--a-gold); color:#1C1611;
+  background: var(--a-gold); color:#FFFFFF;
   font-size:9px; font-weight:700;
 }
 
@@ -412,7 +412,7 @@
   font-size:11.5px; cursor:pointer;
 }
 .admin__pill.is-active{
-  background: var(--a-gold); color:#1C1611; border-color: var(--a-gold);
+  background: var(--a-gold); color:#FFFFFF; border-color: var(--a-gold);
   font-weight:600;
 }
 .admin__swatch{
@@ -517,7 +517,7 @@
   font-size:12px; cursor:pointer;
 }
 .admin__pager button.is-active{
-  background: var(--a-gold); color:#1C1611; border-color: var(--a-gold); font-weight:600;
+  background: var(--a-gold); color:#FFFFFF; border-color: var(--a-gold); font-weight:600;
 }
 .admin__pager button:disabled{ opacity:.4; cursor:not-allowed; }
 
