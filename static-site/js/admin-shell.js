@@ -62,7 +62,13 @@ const AdminShell = {
 
     root.innerHTML = `
       <div class="admin__shell">
-        <aside class="admin__sidebar">
+        <div class="admin__sidebarScrim" id="sidebarScrim"></div>
+        <aside class="admin__sidebar" id="adminSidebar">
+          <div class="admin__sidebarClose">
+            <button type="button" id="sidebarCloseBtn" aria-label="Close menu">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4.6" y1="4.6" x2="19.4" y2="19.4"></line><line x1="19.4" y1="4.6" x2="4.6" y2="19.4"></line></svg>
+            </button>
+          </div>
           <div class="admin__logo">
             <span class="admin__logo-name">ANTIQUE HOME</span>
             <span class="admin__logo-sub">Timeless Living</span>
@@ -116,6 +122,15 @@ const AdminShell = {
       await fetch("/api/auth?action=logout", { method: "POST", credentials: "same-origin" }).catch(() => {});
       location.href = "/admin/login.html";
     });
+
+    // mobile sidebar drawer
+    const sidebar = document.getElementById("adminSidebar");
+    const scrim = document.getElementById("sidebarScrim");
+    function openSidebar() { sidebar.classList.add("is-open"); scrim.classList.add("is-open"); document.body.style.overflow = "hidden"; }
+    function closeSidebar() { sidebar.classList.remove("is-open"); scrim.classList.remove("is-open"); document.body.style.overflow = ""; }
+    document.getElementById("mobileMenuBtn").addEventListener("click", openSidebar);
+    document.getElementById("sidebarCloseBtn").addEventListener("click", closeSidebar);
+    scrim.addEventListener("click", closeSidebar);
 
     return { email, orderCount };
   },

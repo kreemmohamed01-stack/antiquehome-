@@ -71,6 +71,54 @@
   display:none;
 }
 
+/* mobile: the sidebar becomes a slide-in drawer, toggled by
+   #mobileMenuBtn in the topbar. */
+.admin__sidebarScrim{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:399;
+  background:rgba(20,17,12,.5);
+  opacity:0;
+  transition:opacity .35s ease;
+}
+.admin__sidebarScrim.is-open{ display:block; opacity:1; }
+
+@media (max-width: 1023.98px){
+  .admin__sidebar.is-open{
+    display:flex;
+    flex-direction:column;
+    position:fixed;
+    top:0; left:0; bottom:0;
+    z-index:400;
+    width:min(84vw, 280px);
+    background: var(--a-panel);
+    padding: 22px 16px;
+    overflow-y:auto;
+    box-shadow: 20px 0 50px rgba(0,0,0,.25);
+    animation: adminSidebarSlideIn .35s ease;
+  }
+  @keyframes adminSidebarSlideIn{
+    from{ transform:translateX(-100%); }
+    to{ transform:translateX(0); }
+  }
+  .admin__sidebarClose{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    margin-bottom:6px;
+  }
+  .admin__sidebarClose button{
+    background:none;
+    border:0;
+    width:32px;height:32px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    color: var(--a-text);
+  }
+  .admin__sidebarClose svg{ width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6; }
+}
+
 @media (min-width: 1024px){
   .admin__sidebar{
     display:flex;

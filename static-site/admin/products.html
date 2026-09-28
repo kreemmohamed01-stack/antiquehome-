@@ -39,7 +39,7 @@
 <!-- Simple modal form for add/edit — "admin" class added so it can see
      the --a-* color tokens, which are scoped to .admin in admin.css. -->
 <div class="admin" id="productModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9999;overflow:auto">
-  <div style="max-width:640px;margin:40px auto;background:var(--a-panel);border:1px solid var(--a-border);border-radius:12px;padding:28px;color:var(--a-text)" id="productModalBody"></div>
+  <div style="max-width:720px;margin:20px auto 60px;background:var(--a-panel);border:1px solid var(--a-border);border-radius:0;padding:28px;color:var(--a-text)" id="productModalBody"></div>
 </div>
 
 <script src="/js/api.js"></script>
@@ -168,47 +168,139 @@
   function openForm(product) {
     const p = product || {};
     const isNew = !product;
+
+    // ---- local editable state, seeded from the product ----
+    let media = (p.image_urls || []).slice();
+    let colorOptions = (p.color_options || []).map((c) => ({ name: c.name, hex: c.hex, imageUrls: c.imageUrls || [] }));
+    let variants = (p.variants || []).map((v) => ({ label: v.label, price: v.price, stock: v.stock, imageUrls: v.imageUrls || [] }));
+    let categoryIds = (p.category_ids && p.category_ids.length ? p.category_ids : (p.category_id ? [p.category_id] : []));
+
+    function splitFocal(url) {
+      const i = url.lastIndexOf("#");
+      if (i === -1) return { src: url, x: 50, y: 50 };
+      const [x, y] = url.slice(i + 1).split(",").map(Number);
+      return { src: url.slice(0, i), x: isFinite(x) ? x : 50, y: isFinite(y) ? y : 50 };
+    }
+    function joinFocal(src, x, y) { return `${src}#${Math.round(x)},${Math.round(y)}`; }
+
     document.getElementById("productModalBody").innerHTML = `
-      <h2 style="margin-top:0">${isNew ? "Add New Product" : "Edit Product"}</h2>
-      <div class="admin__field"><label>Name</label><input id="f_name" value="${p.name || ""}"></div>
-      <div class="admin__field"><label>Slug</label><input id="f_slug" value="${p.slug || ""}"></div>
-      <div class="admin__field"><label>Description</label><textarea id="f_description" rows="3">${p.description || ""}</textarea></div>
-      <div class="admin__field2">
-        <div class="admin__field"><label>Price (EGP)</label><input id="f_price" type="number" value="${p.price || ""}"></div>
-        <div class="admin__field"><label>Stock Qty</label><input id="f_stock" type="number" value="${p.stock_qty ?? ""}"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+        <h2 style="margin:0;font-family:var(--serif)">${isNew ? "Add New Product" : "Edit Product"}</h2>
+        <button type="button" id="cancelProductBtn" class="admin__iconAct" aria-label="Close" style="border-radius:50%">
+          <svg viewBox="0 0 24 24"><line x1="4.6" y1="4.6" x2="19.4" y2="19.4"></line><line x1="19.4" y1="4.6" x2="4.6" y2="19.4"></line></svg>
+        </button>
       </div>
-      <div class="admin__field2">
-        <div class="admin__field"><label>SKU</label><input id="f_sku" value="${p.sku || ""}"></div>
-        <div class="admin__field"><label>Low Stock Threshold</label><input id="f_threshold" type="number" value="${p.low_stock_threshold ?? 5}"></div>
-      </div>
-      <div class="admin__field">
-        <label>Category</label>
-        <select id="f_category">
-          <option value="">— None —</option>
-          ${CATEGORIES.map((c) => `<option value="${c.id}" ${p.category_id === c.id ? "selected" : ""}>${c.name}</option>`).join("")}
-        </select>
-      </div>
-      <div class="admin__field">
-        <label>Status</label>
-        <select id="f_status">
-          <option value="active" ${p.status === "active" ? "selected" : ""}>Active</option>
-          <option value="draft" ${p.status === "draft" ? "selected" : ""}>Draft</option>
-          <option value="archived" ${p.status === "archived" ? "selected" : ""}>Archived</option>
-        </select>
-      </div>
-      <div class="admin__field">
-        <label>Photos</label>
-        <p style="font-size:11px;color:var(--a-text-dim);margin:-2px 0 10px">Click anywhere on a photo to pick the part that stays in view when it's cropped into a square on the site (the crosshair marks the current spot). Drag the ⠿ handle to reorder.</p>
-        <div id="mediaGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:10px"></div>
+
+      <div class="admin__formSection">
+        <h3>Product Images</h3>
+        <div id="mediaGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-bottom:10px"></div>
         <input type="file" id="mediaFileInput" accept="image/*" multiple style="display:none">
         <button type="button" class="admin__btn" id="mediaAddBtn">+ Add Photos</button>
+        <p class="admin__hint">Select as many photos as you want at once. Click a photo to make it the main one shown on cards — images are auto-resized. Click anywhere on a photo to set the part that stays in view when it's cropped (the white dot marks it).</p>
       </div>
-      <div style="display:flex;gap:10px;margin-top:20px">
-        <button type="button" class="admin__btn admin__btn--gold" id="saveProductBtn">Save</button>
-        <button type="button" class="admin__btn" id="cancelProductBtn">Cancel</button>
+
+      <div class="admin__formSection">
+        <h3>Color Options <span class="admin__hint-inline">(optional)</span></h3>
+        <div id="colorList"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <button type="button" class="admin__btn admin__btn--outline" id="addColorBtn">+ Add Color</button>
+        </div>
+        <p class="admin__hint">Give a piece color choices — e.g. "Beige" and "White" — each with its own swatch color, photos (picked from the photos above) and stock count. Leave empty for a product with no color choice.</p>
       </div>
+
+      <div class="admin__formSection">
+        <div class="admin__field"><label>Name</label><input id="f_name" value="${p.name || ""}"></div>
+      </div>
+
+      <div class="admin__formSection">
+        <div class="admin__field2">
+          <div class="admin__field">
+            <label>Category</label>
+            <select id="f_category">
+              <option value="">— None —</option>
+              ${CATEGORIES.map((c) => `<option value="${c.id}" ${categoryIds[0] === c.id ? "selected" : ""}>${c.name}</option>`).join("")}
+            </select>
+          </div>
+          <div class="admin__field"><label>Slug</label><input id="f_slug" value="${p.slug || ""}"></div>
+        </div>
+        <label style="display:block;margin:14px 0 8px;font-size:12px;color:var(--a-text-dim)">Also Show In — extra categories (optional)</label>
+        <div class="admin__checkGrid" id="alsoShowIn">
+          ${CATEGORIES.map((c) => `
+            <label class="admin__checkRow">
+              <input type="checkbox" value="${c.id}" ${categoryIds.includes(c.id) ? "checked" : ""}>
+              ${c.name}
+            </label>
+          `).join("")}
+        </div>
+        <p class="admin__hint">Tick any other category this piece should ALSO appear in — a product can stay listed under several categories at once. The Category above stays the main one.</p>
+      </div>
+
+      <div class="admin__formSection">
+        <div class="admin__field2">
+          <div class="admin__field"><label>Price (EGP)</label><input id="f_price" type="number" value="${p.price || ""}"></div>
+          <div class="admin__field"><label>Sale Price (EGP, optional)</label><input id="f_salePrice" type="number" value="${p.compare_at_price && p.sale_percent ? "" : ""}" placeholder=""></div>
+        </div>
+        <div class="admin__field2">
+          <div class="admin__field"><label>Discount %</label><input id="f_salePercent" type="number" min="0" max="90" value="${p.sale_percent || ""}" placeholder="e.g. 20"></div>
+          <div class="admin__field"><label>Discount Label (optional)</label><input id="f_saleLabel" value="${p.sale_label || ""}" placeholder="e.g. Autumn Sale"></div>
+        </div>
+        <label class="admin__toggleRow">
+          <input type="checkbox" id="f_onSale" ${p.sale_percent ? "checked" : ""}>
+          <span>Put this specific product on sale</span>
+        </label>
+        <p class="admin__hint">Turn this on and set a discount % to put JUST this product on sale — the discount shows on its card, the product page and in the cart automatically, with no code needed.</p>
+      </div>
+
+      <div class="admin__formSection">
+        <h3>Size Options <span class="admin__hint-inline">(optional)</span></h3>
+        <div id="sizeList"></div>
+        <button type="button" class="admin__btn admin__btn--outline" id="addSizeBtn">+ Add Size</button>
+        <p class="admin__hint">Add as many sizes as you like — each shows as a button on the product page with its own price and stock. Leave empty to sell as one size only.</p>
+      </div>
+
+      <div class="admin__formSection">
+        <div class="admin__field2">
+          <div class="admin__field"><label>Material</label><input id="f_material" value="${p.material || ""}" placeholder="e.g. Porcelain"></div>
+          <div class="admin__field"><label>Dimensions</label><input id="f_sizeCm" value="${p.size_cm || ""}" placeholder='e.g. 40 x 120 cm'></div>
+        </div>
+        <div class="admin__field2">
+          <div class="admin__field"><label>SKU (optional)</label><input id="f_sku" value="${p.sku || ""}"></div>
+          <div class="admin__field"><label>Weight (kg, optional)</label><input id="f_weight" type="number" step="0.1" value="${p.weight_kg || ""}" placeholder="e.g. 2.5"></div>
+        </div>
+        <p class="admin__hint">Weight adds a per-kg shipping surcharge on top of each governorate's base shipping price — set the per-kg rate in Shipping settings. Leave empty for no surcharge on this item.</p>
+      </div>
+
+      <div class="admin__formSection">
+        <div class="admin__field2">
+          <div class="admin__field"><label>Stock Quantity</label><input id="f_stock" type="number" value="${p.stock_qty ?? ""}"></div>
+          <div class="admin__field"><label>Low Stock Alert Threshold</label><input id="f_threshold" type="number" value="${p.low_stock_threshold ?? 5}"></div>
+        </div>
+        <div class="admin__field"><label>Status</label>
+          <select id="f_status">
+            <option value="active" ${p.status === "active" ? "selected" : ""}>Active</option>
+            <option value="draft" ${p.status === "draft" ? "selected" : ""}>Draft</option>
+            <option value="archived" ${p.status === "archived" ? "selected" : ""}>Archived</option>
+          </select>
+        </div>
+        <p class="admin__hint">If Color Options above have their own stock counts, this number is added up from them automatically.</p>
+      </div>
+
+      <div class="admin__formSection">
+        <div class="admin__field"><label>Description</label><textarea id="f_description" rows="4">${p.description || ""}</textarea></div>
+      </div>
+
+      <div class="admin__formSection">
+        <label class="admin__toggleRow"><input type="checkbox" id="f_newArrival" ${p.is_new_arrival ? "checked" : ""}><span>Mark as New Arrival</span></label>
+        <label class="admin__toggleRow"><input type="checkbox" id="f_topSeller" ${p.is_top_seller ? "checked" : ""}><span>Feature in homepage Top Sellers</span></label>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:10px">
+        <button type="button" class="admin__btn admin__btn--gold" id="saveProductBtn" style="flex:1">Save Changes</button>
+      </div>
+      ${!isNew ? `<button type="button" class="admin__btn admin__btn--danger" id="deleteProductBtn" style="width:100%;margin-top:10px">Delete This Product</button>` : ""}
     `;
     document.getElementById("productModal").style.display = "block";
+    document.getElementById("productModal").scrollTop = 0;
     document.getElementById("cancelProductBtn").addEventListener("click", closeForm);
 
     document.getElementById("f_name").addEventListener("input", (e) => {
@@ -218,34 +310,19 @@
       }
     });
 
-    // ---- Photos: upload, reorder, focal-point picker ----
-    // Each entry is the raw URL plus an optional "#x,y" focal point suffix
-    // (percentages) — no DB schema change needed, image_urls stays a plain
-    // string array, we just read/write that suffix on the string itself.
-    let media = (p.image_urls || []).slice();
-
-    function splitFocal(url) {
-      const i = url.lastIndexOf("#");
-      if (i === -1) return { src: url, x: 50, y: 50 };
-      const [x, y] = url.slice(i + 1).split(",").map(Number);
-      return { src: url.slice(0, i), x: isFinite(x) ? x : 50, y: isFinite(y) ? y : 50 };
-    }
-    function joinFocal(src, x, y) {
-      return `${src}#${Math.round(x)},${Math.round(y)}`;
-    }
-
+    // ---- Photos ----
     function renderMedia() {
       const grid = document.getElementById("mediaGrid");
       grid.innerHTML = media.map((url, i) => {
         const { src, x, y } = splitFocal(url);
         return `
-          <div class="admin__mediaTile" draggable="true" data-idx="${i}" style="position:relative;border-radius:8px;overflow:hidden;aspect-ratio:1;cursor:grab;border:1px solid var(--a-border)">
-            ${i === 0 ? `<span style="position:absolute;top:4px;left:4px;z-index:2;background:var(--a-gold);color:#1C1611;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px">HERO</span>` : ""}
-            <img src="${cldUrl(src, 220)}" data-focal-img="${i}" style="width:100%;height:100%;object-fit:cover;object-position:${x}% ${y}%;display:block;cursor:crosshair">
-            <span data-crosshair="${i}" style="position:absolute;left:${x}%;top:${y}%;width:14px;height:14px;margin:-7px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.5);pointer-events:none"></span>
-            <button type="button" data-remove="${i}" style="position:absolute;top:4px;right:4px;z-index:2;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:0;cursor:pointer;font-size:12px;line-height:1">×</button>
+          <div class="admin__mediaTile" draggable="true" data-idx="${i}">
+            ${i === 0 ? `<span class="admin__mediaHero">MAIN</span>` : ""}
+            <img src="${cldUrl(src, 220)}" data-focal-img="${i}" style="object-position:${x}% ${y}%">
+            <span class="admin__mediaDot" style="left:${x}%;top:${y}%"></span>
+            <button type="button" class="admin__mediaRemove" data-remove="${i}">×</button>
           </div>`;
-      }).join("");
+      }).join("") + `<button type="button" class="admin__mediaAdd" id="mediaAddTile"><span>+</span><small>Add</small></button>`;
 
       grid.querySelectorAll("[data-focal-img]").forEach((img) => {
         img.addEventListener("click", (e) => {
@@ -255,17 +332,16 @@
           const y = ((e.clientY - rect.top) / rect.height) * 100;
           const { src } = splitFocal(media[i]);
           media[i] = joinFocal(src, x, y);
+          if (i !== 0) { const [m] = media.splice(i, 1); media.unshift(m); }
           renderMedia();
         });
       });
       grid.querySelectorAll("[data-remove]").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          media.splice(Number(btn.dataset.remove), 1);
-          renderMedia();
-        });
+        btn.addEventListener("click", () => { media.splice(Number(btn.dataset.remove), 1); renderMedia(); });
       });
+      const addTile = document.getElementById("mediaAddTile");
+      addTile && addTile.addEventListener("click", () => document.getElementById("mediaFileInput").click());
 
-      // drag-to-reorder
       let dragIdx = null;
       grid.querySelectorAll(".admin__mediaTile").forEach((tile) => {
         tile.addEventListener("dragstart", () => { dragIdx = Number(tile.dataset.idx); });
@@ -279,12 +355,11 @@
           renderMedia();
         });
       });
+      renderColorPhotoPickers();
     }
     renderMedia();
 
-    document.getElementById("mediaAddBtn").addEventListener("click", () => {
-      document.getElementById("mediaFileInput").click();
-    });
+    document.getElementById("mediaAddBtn").addEventListener("click", () => document.getElementById("mediaFileInput").click());
     document.getElementById("mediaFileInput").addEventListener("change", async (e) => {
       const files = Array.from(e.target.files || []);
       for (const file of files) {
@@ -298,28 +373,118 @@
           const { url } = await API.post("/api/upload", { dataUrl });
           media.push(url);
           renderMedia();
-        } catch {
-          alert("Failed to upload " + file.name);
-        }
+        } catch { alert("Failed to upload " + file.name); }
       }
       e.target.value = "";
     });
 
+    // ---- Color Options ----
+    function renderColors() {
+      const list = document.getElementById("colorList");
+      if (!colorOptions.length) {
+        list.innerHTML = `<p class="admin__hint" style="margin-top:0">No color options — this product will show one set of photos with no color choice.</p>`;
+        return;
+      }
+      list.innerHTML = colorOptions.map((c, i) => `
+        <div class="admin__optCard">
+          <div class="admin__field2">
+            <div class="admin__field"><label>Color name</label><input data-color-name="${i}" value="${c.name}" placeholder="e.g. Beige"></div>
+            <div class="admin__field"><label>Swatch</label><input type="color" data-color-hex="${i}" value="${c.hex || "#C9A227"}" style="height:40px;padding:4px"></div>
+          </div>
+          <div class="admin__colorPhotoPicker" data-color-photos="${i}"></div>
+          <button type="button" class="admin__btn admin__btn--outline admin__btn--sm" data-remove-color="${i}">Remove Color</button>
+        </div>
+      `).join("");
+
+      list.querySelectorAll("[data-color-name]").forEach((inp) => inp.addEventListener("input", (e) => { colorOptions[Number(inp.dataset.colorName)].name = e.target.value; }));
+      list.querySelectorAll("[data-color-hex]").forEach((inp) => inp.addEventListener("input", (e) => { colorOptions[Number(inp.dataset.colorHex)].hex = e.target.value; }));
+      list.querySelectorAll("[data-remove-color]").forEach((btn) => btn.addEventListener("click", () => { colorOptions.splice(Number(btn.dataset.removeColor), 1); renderColors(); }));
+      renderColorPhotoPickers();
+    }
+    function renderColorPhotoPickers() {
+      document.querySelectorAll("[data-color-photos]").forEach((wrap) => {
+        const ci = Number(wrap.dataset.colorPhotos);
+        const c = colorOptions[ci];
+        if (!c) return;
+        wrap.innerHTML = media.map((url) => {
+          const { src } = splitFocal(url);
+          const checked = (c.imageUrls || []).some((u) => splitFocal(u).src === src);
+          return `<label class="admin__photoPick"><input type="checkbox" data-pick-color="${ci}" data-pick-url="${encodeURIComponent(url)}" ${checked ? "checked" : ""}><img src="${cldUrl(src, 100)}"></label>`;
+        }).join("");
+        wrap.querySelectorAll("[data-pick-color]").forEach((cb) => {
+          cb.addEventListener("change", () => {
+            const idx = Number(cb.dataset.pickColor);
+            const url = decodeURIComponent(cb.dataset.pickUrl);
+            const imgs = colorOptions[idx].imageUrls || (colorOptions[idx].imageUrls = []);
+            if (cb.checked) { if (!imgs.includes(url)) imgs.push(url); }
+            else { colorOptions[idx].imageUrls = imgs.filter((u) => u !== url); }
+          });
+        });
+      });
+    }
+    renderColors();
+    document.getElementById("addColorBtn").addEventListener("click", () => {
+      colorOptions.push({ name: "", hex: "#C9A227", imageUrls: [] });
+      renderColors();
+    });
+
+    // ---- Size Options ----
+    function renderSizes() {
+      const list = document.getElementById("sizeList");
+      if (!variants.length) {
+        list.innerHTML = `<p class="admin__hint" style="margin-top:0">No size options — this product sells as one size.</p>`;
+      } else {
+        list.innerHTML = variants.map((v, i) => `
+          <div class="admin__optCard">
+            <div class="admin__field2">
+              <div class="admin__field"><label>Size label</label><input data-size-label="${i}" value="${v.label}" placeholder="e.g. Large"></div>
+              <div class="admin__field"><label>Price (EGP)</label><input data-size-price="${i}" type="number" value="${v.price}"></div>
+            </div>
+            <div class="admin__field"><label>Stock</label><input data-size-stock="${i}" type="number" value="${v.stock}"></div>
+            <button type="button" class="admin__btn admin__btn--outline admin__btn--sm" data-remove-size="${i}">Remove Size</button>
+          </div>
+        `).join("");
+        list.querySelectorAll("[data-size-label]").forEach((inp) => inp.addEventListener("input", (e) => { variants[Number(inp.dataset.sizeLabel)].label = e.target.value; }));
+        list.querySelectorAll("[data-size-price]").forEach((inp) => inp.addEventListener("input", (e) => { variants[Number(inp.dataset.sizePrice)].price = Number(e.target.value) || 0; }));
+        list.querySelectorAll("[data-size-stock]").forEach((inp) => inp.addEventListener("input", (e) => { variants[Number(inp.dataset.sizeStock)].stock = Number(e.target.value) || 0; }));
+        list.querySelectorAll("[data-remove-size]").forEach((btn) => btn.addEventListener("click", () => { variants.splice(Number(btn.dataset.removeSize), 1); renderSizes(); }));
+      }
+    }
+    renderSizes();
+    document.getElementById("addSizeBtn").addEventListener("click", () => {
+      variants.push({ label: "", price: Number(document.getElementById("f_price").value) || 0, stock: 0, imageUrls: [] });
+      renderSizes();
+    });
+
+    // ---- Save / Delete ----
     document.getElementById("saveProductBtn").addEventListener("click", async () => {
+      const alsoIds = Array.from(document.querySelectorAll("#alsoShowIn input:checked")).map((cb) => Number(cb.value));
+      const primaryId = Number(document.getElementById("f_category").value) || null;
+      const allCategoryIds = primaryId ? [primaryId, ...alsoIds.filter((id) => id !== primaryId)] : alsoIds;
+
+      const onSale = document.getElementById("f_onSale").checked;
+      const salePercent = onSale ? (Number(document.getElementById("f_salePercent").value) || 0) : null;
+
       const body = {
         name: document.getElementById("f_name").value.trim(),
         slug: document.getElementById("f_slug").value.trim(),
         description: document.getElementById("f_description").value,
         price: Number(document.getElementById("f_price").value) || 0,
+        salePercent,
+        saleLabel: document.getElementById("f_saleLabel").value,
         stockQty: Number(document.getElementById("f_stock").value) || 0,
         lowStockThreshold: Number(document.getElementById("f_threshold").value) || 5,
         sku: document.getElementById("f_sku").value,
+        material: document.getElementById("f_material").value,
+        sizeCm: document.getElementById("f_sizeCm").value,
+        weightKg: document.getElementById("f_weight").value || null,
         status: document.getElementById("f_status").value,
-        categoryIds: document.getElementById("f_category").value ? [Number(document.getElementById("f_category").value)] : [],
+        isNewArrival: document.getElementById("f_newArrival").checked,
+        categoryIds: allCategoryIds,
         imageUrls: media,
-        colors: p.colors || [],
-        colorOptions: p.color_options || [],
-        variants: p.variants || [],
+        colors: colorOptions.map((c) => c.name).filter(Boolean),
+        colorOptions: colorOptions.filter((c) => c.name),
+        variants: variants.filter((v) => v.label),
       };
       try {
         if (isNew) await API.post("/api/products", body);
@@ -329,6 +494,16 @@
       } catch (err) {
         alert(err.message || "Failed to save product.");
       }
+    });
+
+    const deleteBtn = document.getElementById("deleteProductBtn");
+    deleteBtn && deleteBtn.addEventListener("click", async () => {
+      if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
+      try {
+        await API.del(`/api/products?id=${p.id}`);
+        closeForm();
+        await load();
+      } catch { alert("Failed to delete product."); }
     });
   }
 

@@ -51,7 +51,12 @@ module.exports = async (req, res) => {
         rows = await sql`SELECT * FROM products WHERE status = ${status} ORDER BY created_at DESC`;
       } else {
         rows = await sql`
-          SELECT p.*, c.name AS category_name FROM products p
+          SELECT p.*, c.name AS category_name,
+            COALESCE(
+              (SELECT array_agg(pc.category_id) FROM product_categories pc WHERE pc.product_id = p.id),
+              ARRAY[]::int[]
+            ) AS category_ids
+          FROM products p
           LEFT JOIN categories c ON c.id = p.category_id
           ORDER BY p.created_at DESC
         `;
@@ -78,7 +83,7 @@ module.exports = async (req, res) => {
           name, slug, description, price, compare_at_price, category_id, material,
           colors, color_options, variants, size_cm, image_urls, badge,
           sale_percent, sale_label, stock_qty, low_stock_threshold,
-          is_new_arrival, status, sku, pricing_mode, price_per_piece, set_size, weight_kg
+          is_new_arrival, status, sku, pricing_mode, price_per_piece, set_size, weight_kg, is_top_seller
         ) VALUES (
           ${name}, ${slug}, ${b.description ? String(b.description) : null},
           ${Number(b.price) || 0}, ${num(b.compareAtPrice)}, ${primaryCategory},
@@ -93,7 +98,7 @@ module.exports = async (req, res) => {
           ${Number(b.stockQty) || 0}, ${Number(b.lowStockThreshold) || 5},
           ${Boolean(b.isNewArrival)}, ${b.status ? String(b.status) : "active"},
           ${b.sku ? String(b.sku) : null}, ${b.pricingMode ? String(b.pricingMode) : "unit"},
-          ${num(b.pricePerPiece)}, ${num(b.setSize)}, ${num(b.weightKg)}
+          ${num(b.pricePerPiece)}, ${num(b.setSize)}, ${num(b.weightKg)}, ${Boolean(b.isTopSeller)}
         ) RETURNING id, slug
       `;
       const id = rows[0].id;
@@ -132,7 +137,8 @@ module.exports = async (req, res) => {
           stock_qty = ${Number(b.stockQty) || 0}, low_stock_threshold = ${Number(b.lowStockThreshold) || 5},
           is_new_arrival = ${Boolean(b.isNewArrival)}, status = ${b.status ? String(b.status) : "active"},
           sku = ${b.sku ? String(b.sku) : null}, pricing_mode = ${b.pricingMode ? String(b.pricingMode) : "unit"},
-          price_per_piece = ${num(b.pricePerPiece)}, set_size = ${num(b.setSize)}, weight_kg = ${num(b.weightKg)}
+          price_per_piece = ${num(b.pricePerPiece)}, set_size = ${num(b.setSize)}, weight_kg = ${num(b.weightKg)},
+          is_top_seller = ${Boolean(b.isTopSeller)}
         WHERE id = ${pid}
       `;
       await sql`DELETE FROM product_categories WHERE product_id = ${pid}`;
