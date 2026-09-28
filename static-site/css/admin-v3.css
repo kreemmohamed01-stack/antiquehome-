@@ -216,8 +216,12 @@
    PRODUCT ROWS / CARDS
    ========================================================= */
 
+/* Mobile-first: the row wraps onto two lines (photo+name on top, price/
+   stock/actions below) instead of forcing everything into one unwrapped
+   flex row, which was overflowing the panel and causing a left/right
+   scrollbar on every product row on narrow screens. */
 .admin__prow{
-  display:flex; align-items:center; gap:12px;
+  display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px;
   padding:12px 0;
   border-bottom:1px solid var(--a-border);
 }
@@ -226,10 +230,21 @@
   width:48px; height:48px; border-radius:0; object-fit:cover; flex:none;
   background: var(--a-panel-2);
 }
-.admin__prow-main{ flex:1; min-width:0; }
+.admin__prow-main{ flex:1 1 auto; min-width:0; }
 .admin__prow-name{ font-size:13px; font-weight:500; color: var(--a-cream); }
 .admin__prow-sku{ font-size:10.5px; color: var(--a-text-dim); margin-top:1px; }
-.admin__prow-actions{ display:flex; gap:6px; flex:none; }
+.admin__prow-actions{ display:flex; gap:6px; flex:none; margin-left:auto; }
+
+@media (max-width: 699px){
+  .admin__prow{ padding:14px 0; }
+  /* price/stock block + stock pill move to their own full-width row under
+     the photo/name, left-aligned instead of the desktop right-alignment,
+     so nothing has to shrink past readability to fit one line. */
+  .admin__prow > div[style*="text-align:right"]{
+    flex:1 1 auto !important; text-align:left !important; min-width:0 !important;
+  }
+  .admin__prow-actions{ margin-left:0; }
+}
 
 .admin__iconAct{
   width:32px; height:32px;
