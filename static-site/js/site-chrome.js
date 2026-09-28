@@ -71,11 +71,28 @@
     document.addEventListener("click", onDocClick);
 
     // ---- product card click-through ----
+    // On touch devices (no real :hover), the Add to Cart bar is hidden by
+    // default (see .is-touched in shop.css/sections.css). The first tap on
+    // a card reveals it instead of navigating; a second tap (or a tap once
+    // it's already revealed) goes to the product page as normal. Tapping
+    // the add-to-cart button itself always adds to cart, never navigates.
+    const isTouchDevice = window.matchMedia && !window.matchMedia("(hover: hover)").matches;
+
     function onCardClick(e) {
       const target = e.target;
       const card = target.closest && target.closest(".pcard, .card, .feat");
       if (!card) return;
       if (target.closest("button, a, input, select, textarea")) return;
+
+      if (isTouchDevice && !card.classList.contains("is-touched")) {
+        e.preventDefault();
+        document.querySelectorAll(".pcard.is-touched, .card.is-touched, .feat.is-touched").forEach((c) => {
+          if (c !== card) c.classList.remove("is-touched");
+        });
+        card.classList.add("is-touched");
+        return;
+      }
+
       const link = card.getAttribute("data-href");
       if (link) window.location.href = link;
     }

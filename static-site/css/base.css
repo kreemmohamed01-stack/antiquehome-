@@ -1613,8 +1613,8 @@ a{ color:inherit; text-decoration:none; }
   font-weight:600;
   letter-spacing:.14em;
   text-transform:uppercase;
-  opacity:1;
-  transform: translateY(0);
+  opacity:0;
+  transform: translateY(100%);
   transition: background .3s var(--ease), opacity .3s var(--ease), transform .3s var(--ease);
   -webkit-tap-highlight-color: transparent;
 }
@@ -1623,8 +1623,10 @@ a{ color:inherit; text-decoration:none; }
   fill:none; stroke:currentColor;
   stroke-width:1.7; stroke-linecap:round;
 }
+/* touch devices: tapping the card once reveals the bar instead of
+   navigating straight to the product; a second tap adds to cart. */
+.card.is-touched .add{ opacity:1; transform: translateY(0); }
 @media (hover:hover){
-  .add{ opacity:0; transform: translateY(100%); }
   .card:hover .add{ opacity:1; transform: translateY(0); }
   .add:hover{ background: rgba(20,15,9,.92); }
 }
@@ -2325,17 +2327,19 @@ a{ color:inherit; text-decoration:none; }
   .feat .fav{ width:26px; height:26px; }
   .feat .fav svg{ width:12px; height:12px; }
 
-  /* ---- product cards ---- */
-  .card__body{ padding: 6px 6px 7px; }
-  .card__name{ font-size:8.6px; line-height:1.2; margin-bottom:3px; }
-  .card__cat{ font-size:5.8px; letter-spacing:.12em; margin-bottom:3px; }
-  .card__price{ font-size:8px; }
-  .card__no{ font-size:9px; top:3px; left:5px; }
-  .card__media .fav{ top:3px; right:3px; }
-  .fav--sm{ width:17px; height:17px; }
-  .fav--sm svg{ width:8.5px; height:8.5px; }
-  .add{ padding:7px 6px; font-size:8.5px; gap:4px; }
-  .add svg{ width:10px; height:10px; }
+  /* ---- product cards ----
+     2 columns instead of the base 3 so cards read bigger on phones. */
+  .rail{ grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
+  .card__body{ padding: 9px 9px 10px; }
+  .card__name{ font-size:11px; line-height:1.25; margin-bottom:4px; }
+  .card__cat{ font-size:7px; letter-spacing:.12em; margin-bottom:4px; }
+  .card__price{ font-size:10px; }
+  .card__no{ font-size:11px; top:4px; left:6px; }
+  .card__media .fav{ top:4px; right:4px; }
+  .fav--sm{ width:22px; height:22px; }
+  .fav--sm svg{ width:10.5px; height:10.5px; }
+  .add{ padding:8px 7px; font-size:9.5px; gap:5px; }
+  .add svg{ width:11px; height:11px; }
 }
 
 /* =========================================================

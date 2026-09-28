@@ -863,16 +863,19 @@
   font-weight:600;
   letter-spacing:.14em;
   text-transform:uppercase;
-  opacity:1;
-  transform: translateY(0);
+  opacity:0;
+  transform: translateY(100%);
   transition: background .3s var(--ease), opacity .3s var(--ease), transform .3s var(--ease);
 }
 .pcard__add svg{ width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; }
 @media (hover:hover){
-  .pcard__add{ opacity:0; transform: translateY(100%); }
   .pcard:hover .pcard__add{ opacity:1; transform: translateY(0); }
   .pcard__add:hover{ background: rgba(20,15,9,.92); }
 }
+/* touch devices: tapping the card once reveals the bar (site-chrome.js
+   toggles this class) instead of navigating straight to the product;
+   a second tap on the bar itself adds to cart. */
+.pcard.is-touched .pcard__add{ opacity:1; transform: translateY(0); }
 .pcard__add.pop{ animation: favPop .4s var(--ease); }
 
 .pcard__body{
