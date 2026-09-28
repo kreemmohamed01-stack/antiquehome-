@@ -402,27 +402,31 @@
     searchForm && searchForm.addEventListener("submit", onSearchSubmit);
 
     // ---- newsletter / inspire forms (client-only, no backend) ----
-    function wireSimpleForm(formId, inputId, noteId, validate, successMsg, errorMsg) {
+    // Newsletter signup forms (the homepage "Stay Inspired" section and
+    // the footer's email field) both post to the real newsletter API —
+    // signups actually land in the DB and show up under Marketing in the
+    // admin dashboard, rather than only showing a client-side thank-you.
+    function wireNewsletterForm(formId, inputId, noteId, errorMsg) {
       const form = document.getElementById(formId);
       if (!form) return;
       const input = document.getElementById(inputId);
       const note = document.getElementById(noteId);
-      form.addEventListener("submit", (e) => {
+      const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+      form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const value = ((input && input.value) || "").trim();
-        if (!validate(value)) {
-          if (note) {
-            note.textContent = errorMsg;
-            note.classList.add("err");
-          }
+        if (!emailRe.test(value)) {
+          if (note) { note.textContent = errorMsg; note.classList.add("err"); }
           input && input.focus();
           return;
         }
-        if (note) {
-          note.textContent = successMsg;
-          note.classList.remove("err");
+        try {
+          await API.post("/api/customers?newsletter=1", { email: value });
+          if (note) { note.textContent = "Thank you — you are on the list."; note.classList.remove("err"); }
+          form.reset();
+        } catch {
+          if (note) { note.textContent = "Something went wrong — please try again."; note.classList.add("err"); }
         }
-        form.reset();
       });
       input &&
         input.addEventListener("input", () => {
@@ -433,8 +437,8 @@
         });
     }
 
-    wireSimpleForm("inspireForm", "inspirePhone", "inspireNote", (v) => v.replace(/[^\d]/g, "").length >= 8, "Thank you — we will be in touch.", "Please enter a valid phone number.");
-    wireSimpleForm("footForm", "footEmail", "footNote", (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v), "Thank you — you are on the list.", "Please enter a valid email address.");
+    wireNewsletterForm("inspireForm", "inspireEmail", "inspireNote", "Please enter a valid email address.");
+    wireNewsletterForm("footForm", "footEmail", "footNote", "Please enter a valid email address.");
 
     // ---- music player ----
     (function musicPlayer() {

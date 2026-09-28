@@ -6,7 +6,6 @@ const NAV_ITEMS = [
   { href: "/admin/index.html", label: "Dashboard", icon: "dashboard", key: "dashboard" },
   { href: "/admin/orders.html", label: "Orders", icon: "orders", key: "orders", badge: true },
   { href: "/admin/products.html", label: "Products", icon: "products", key: "products" },
-  { href: "/admin/collections.html", label: "Collections", icon: "collections", key: "collections" },
   { href: "/admin/categories.html", label: "Categories", icon: "categories", key: "categories" },
   { href: "/admin/customers.html", label: "Customers", icon: "customers", key: "customers" },
   { href: "/admin/content.html", label: "Content", icon: "content", key: "content" },
@@ -14,7 +13,6 @@ const NAV_ITEMS = [
   { href: "/admin/discounts.html", label: "Discounts", icon: "discounts", key: "discounts" },
   { href: "/admin/shipping.html", label: "Shipping", icon: "shipping", key: "shipping" },
   { href: "/admin/analytics.html", label: "Analytics", icon: "analytics", key: "analytics" },
-  { href: "/admin/reviews.html", label: "Reviews", icon: "reviews", key: "reviews" },
   { href: "/admin/settings.html", label: "Settings", icon: "settings", key: "settings" },
 ];
 
@@ -22,14 +20,12 @@ const ICONS = {
   dashboard: '<svg viewBox="0 0 24 24"><rect x="3.4" y="3.4" width="7.4" height="7.4" rx="1.2"></rect><rect x="13.2" y="3.4" width="7.4" height="7.4" rx="1.2"></rect><rect x="3.4" y="13.2" width="7.4" height="7.4" rx="1.2"></rect><rect x="13.2" y="13.2" width="7.4" height="7.4" rx="1.2"></rect></svg>',
   orders: '<svg viewBox="0 0 24 24"><path d="M5.6 7.8h12.8l1 12.4H4.6z"></path><path d="M8.9 9.6V6.6a3.1 3.1 0 0 1 6.2 0v3"></path></svg>',
   products: '<svg viewBox="0 0 24 24"><path d="M4 15.4 16 5.4l12 10"></path><rect x="4" y="10.4" width="16" height="10" rx="1.4"></rect></svg>',
-  collections: '<svg viewBox="0 0 24 24"><rect x="3.6" y="3.6" width="7.2" height="7.2" rx="1"></rect><rect x="13.2" y="3.6" width="7.2" height="7.2" rx="1"></rect><rect x="3.6" y="13.2" width="7.2" height="7.2" rx="1"></rect><rect x="13.2" y="13.2" width="7.2" height="7.2" rx="1"></rect></svg>',
   categories: '<svg viewBox="0 0 24 24"><path d="M4 6.4h16M4 12h16M4 17.6h10"></path></svg>',
   customers: '<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.4"></circle><path d="M2.6 19.4c0-3.4 2.9-5.8 6.4-5.8s6.4 2.4 6.4 5.8"></path><circle cx="17.4" cy="9" r="2.4"></circle><path d="M15.4 13.8c2.6.3 4.6 2.2 4.6 5"></path></svg>',
   content: '<svg viewBox="0 0 24 24"><rect x="3.6" y="3.6" width="16.8" height="16.8" rx="2"></rect><line x1="7.2" y1="9" x2="16.8" y2="9"></line><line x1="7.2" y1="13" x2="16.8" y2="13"></line><line x1="7.2" y1="17" x2="13" y2="17"></line></svg>',
   marketing: '<svg viewBox="0 0 24 24"><path d="M3.4 10.2h4.4l7-5.4v14.4l-7-5.4H3.4Z"></path><path d="M14.8 8.6a4 4 0 0 1 0 6.8"></path></svg>',
   discounts: '<svg viewBox="0 0 24 24"><path d="M4.4 11.6 11.6 4.4h7.2v7.2l-7.2 7.2Z"></path><circle cx="15.4" cy="8.6" r="1.5"></circle></svg>',
   analytics: '<svg viewBox="0 0 24 24"><line x1="5" y1="20" x2="5" y2="13"></line><line x1="12" y1="20" x2="12" y2="8"></line><line x1="19" y1="20" x2="19" y2="4"></line></svg>',
-  reviews: '<svg viewBox="0 0 24 24"><path d="M12 3 14.6 8.6 20.6 9.4 16.3 13.4 17.4 19.4 12 16.5 6.6 19.4 7.7 13.4 3.4 9.4 9.4 8.6Z"></path></svg>',
   shipping: '<svg viewBox="0 0 24 24"><path d="M2.6 8.4h14v12.8h-14z"></path><path d="M16.6 12.4h6.6l4.2 4.2v4.6h-10.8z"></path></svg>',
   settings: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"></circle><path d="M4.6 12h1.6M17.8 12h1.6M12 4.6v1.6M12 17.8v1.6M7 7l1.2 1.2M15.8 15.8 17 17M17 7l-1.2 1.2M8.2 15.8 7 17"></path></svg>',
 };

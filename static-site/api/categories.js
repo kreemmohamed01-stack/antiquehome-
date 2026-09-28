@@ -41,6 +41,35 @@ module.exports = async (req, res) => {
       return;
     }
 
+    if (req.method === "PATCH") {
+      const id = Number(req.query.id);
+      if (!id) { res.status(400).json({ error: "Missing id" }); return; }
+      const b = await readBody(req);
+
+      // ?assign=1 replaces which products belong to this category (the
+      // admin category form's product picker) instead of editing the
+      // category row itself.
+      if (req.query.assign) {
+        const productIds = Array.isArray(b.productIds) ? b.productIds.map(Number).filter(Boolean) : [];
+        await sql`DELETE FROM product_categories WHERE category_id = ${id}`;
+        for (const pid of productIds) {
+          await sql`INSERT INTO product_categories (product_id, category_id) VALUES (${pid}, ${id}) ON CONFLICT DO NOTHING`;
+        }
+        res.status(200).json({ ok: true });
+        return;
+      }
+
+      const name = (b.name || "").trim();
+      if (!name) { res.status(400).json({ error: "Name is required." }); return; }
+      const slug = slugify(name);
+      await sql`
+        UPDATE categories SET name = ${name}, slug = ${slug}, image_url = ${b.imageUrl || null}
+        WHERE id = ${id}
+      `;
+      res.status(200).json({ ok: true });
+      return;
+    }
+
     if (req.method === "DELETE") {
       const id = Number(req.query.id);
       if (!id) { res.status(400).json({ error: "Missing id" }); return; }

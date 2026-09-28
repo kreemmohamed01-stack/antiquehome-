@@ -426,7 +426,7 @@
     wireControls();
 
     try {
-      const [cats, sale] = await Promise.all([API.get("/api/categories"), API.get("/api/sale")]);
+      const [cats, sale] = await Promise.all([API.get("/api/categories"), API.get("/api/settings?key=site_sale")]);
       categories = cats;
       categoryById = new Map(categories.map((c) => [c.id, c]));
       siteSale = sale;

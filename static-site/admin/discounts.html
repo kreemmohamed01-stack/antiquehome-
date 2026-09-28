@@ -74,14 +74,14 @@
     const session = await AdminShell.init({ active: "discounts" });
     if (!session) return;
 
-    const sale = await API.get("/api/sale");
+    const sale = await API.get("/api/settings?key=site_sale");
     document.getElementById("saleActive").checked = !!sale.active;
     document.getElementById("salePercent").value = sale.percent || 0;
     document.getElementById("saleLabel").value = sale.label || "";
 
     document.getElementById("saveSaleBtn").addEventListener("click", async () => {
       try {
-        await API.post("/api/sale", {
+        await API.post("/api/settings?key=site_sale", {
           active: document.getElementById("saleActive").checked,
           percent: Number(document.getElementById("salePercent").value) || 0,
           label: document.getElementById("saleLabel").value,

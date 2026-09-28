@@ -16,16 +16,104 @@
     <div class="admin__pageHead-body">
       <p class="admin__crumb"><a href="/admin/index.html">Dashboard</a><span>Marketing</span></p>
       <h1 class="admin__pageTitle">Marketing</h1>
+      <p class="admin__pageSub">Social links, the announcement bar, and newsletter signups.</p>
     </div>
   </div>
+
+  <div class="admin__panel" style="margin-bottom:18px">
+    <div class="admin__panel-head"><h2 class="admin__panel-title">Social &amp; Contact Links</h2></div>
+    <div class="admin__field"><label>WhatsApp link</label><input id="f_whatsapp" placeholder="https://wa.me/201234567890"></div>
+    <div class="admin__field2">
+      <div class="admin__field"><label>Instagram link</label><input id="f_instagram" placeholder="https://instagram.com/yourpage"></div>
+      <div class="admin__field"><label>Facebook link</label><input id="f_facebook" placeholder="https://facebook.com/yourpage"></div>
+    </div>
+    <p class="admin__hint">Updates every WhatsApp/Instagram/Facebook link across the site — header, side menu, footer, cart drawer, and the floating WhatsApp button.</p>
+    <button type="button" class="admin__btn admin__btn--gold" id="saveSocialBtn">Save Links</button>
+  </div>
+
+  <div class="admin__panel" style="margin-bottom:18px">
+    <div class="admin__panel-head"><h2 class="admin__panel-title">Announcement Bar</h2></div>
+    <label class="admin__toggleRow"><input type="checkbox" id="f_annActive"><span>Show an announcement bar at the very top of the site</span></label>
+    <div class="admin__field"><label>Message</label><input id="f_annText" placeholder="e.g. Free shipping on orders over EGP 3,000"></div>
+    <p class="admin__hint">Shows above the header on every storefront page, above the sale/promo banner on the homepage.</p>
+    <button type="button" class="admin__btn admin__btn--gold" id="saveAnnBtn">Save Announcement</button>
+  </div>
+
   <div class="admin__panel">
-    <p style="color:var(--a-text-dim);text-align:center;padding:40px">This section is coming soon.</p>
+    <div class="admin__panel-head">
+      <h2 class="admin__panel-title">Newsletter Signups</h2>
+      <span id="newsletterCount" style="font-size:12px;color:var(--a-text-dim)"></span>
+    </div>
+    <div id="newsletterList"></div>
   </div>
 </div>
+
 <script src="/js/api.js"></script>
 <script src="/js/admin-shell.js"></script>
 <script>
-  (async () => { await AdminShell.init({ active: "marketing" }); })();
+  function fmtDate(d) { return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); }
+
+  async function loadNewsletter() {
+    let rows = [];
+    try { rows = await API.get("/api/customers?newsletter=1"); } catch { rows = []; }
+    document.getElementById("newsletterCount").textContent = `${rows.length} signup${rows.length === 1 ? "" : "s"}`;
+    document.getElementById("newsletterList").innerHTML = rows.length ? rows.map((r) => `
+      <div class="admin__prow">
+        <div class="admin__prow-main"><div class="admin__prow-name">${r.email}</div><div class="admin__prow-sku">Signed up ${fmtDate(r.created_at)}</div></div>
+        <button type="button" class="admin__iconAct admin__iconAct--danger" data-del="${r.id}" aria-label="Remove">
+          <svg viewBox="0 0 24 24"><path d="M5.6 7.2h12.8l-1 12.4H6.6Z"></path></svg>
+        </button>
+      </div>
+    `).join("") : `<p style="color:var(--a-text-dim);padding:20px;text-align:center">No newsletter signups yet.</p>`;
+
+    document.querySelectorAll("#newsletterList [data-del]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        await API.del(`/api/customers?newsletter=1&id=${btn.dataset.del}`);
+        await loadNewsletter();
+      });
+    });
+  }
+
+  (async () => {
+    const session = await AdminShell.init({ active: "marketing" });
+    if (!session) return;
+
+    try {
+      const social = await API.get("/api/settings?key=site_social");
+      document.getElementById("f_whatsapp").value = social?.whatsapp || "";
+      document.getElementById("f_instagram").value = social?.instagram || "";
+      document.getElementById("f_facebook").value = social?.facebook || "";
+    } catch {}
+
+    try {
+      const ann = await API.get("/api/settings?key=site_announcement");
+      document.getElementById("f_annActive").checked = !!ann?.active;
+      document.getElementById("f_annText").value = ann?.text || "";
+    } catch {}
+
+    document.getElementById("saveSocialBtn").addEventListener("click", async () => {
+      try {
+        await API.post("/api/settings?key=site_social", {
+          whatsapp: document.getElementById("f_whatsapp").value.trim(),
+          instagram: document.getElementById("f_instagram").value.trim(),
+          facebook: document.getElementById("f_facebook").value.trim(),
+        });
+        alert("Saved.");
+      } catch { alert("Failed to save."); }
+    });
+
+    document.getElementById("saveAnnBtn").addEventListener("click", async () => {
+      try {
+        await API.post("/api/settings?key=site_announcement", {
+          active: document.getElementById("f_annActive").checked,
+          text: document.getElementById("f_annText").value.trim(),
+        });
+        alert("Saved.");
+      } catch { alert("Failed to save."); }
+    });
+
+    await loadNewsletter();
+  })();
 </script>
 </body>
 </html>

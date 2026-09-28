@@ -52,16 +52,16 @@
     <div class="hero__copy">
       <p class="eyebrow reveal" style="--d:.15s">
         <span class="eyebrow__rule" aria-hidden="true"></span>
-        Timeless Heritage
+        <span id="heroEyebrow">Timeless Heritage</span>
         <span class="eyebrow__rule" aria-hidden="true"></span>
       </p>
 
       <h1 class="headline">
-        <span class="reveal" style="--d:.28s">Timeless pieces.</span>
-        <span class="reveal headline__accent" style="--d:.4s">Endless beauty.</span>
+        <span class="reveal" id="heroTitle1" style="--d:.28s">Timeless pieces.</span>
+        <span class="reveal headline__accent" id="heroTitle2" style="--d:.4s">Endless beauty.</span>
       </h1>
 
-      <p class="hero__text reveal" style="--d:.56s">
+      <p class="hero__text reveal" id="heroText" style="--d:.56s">
         Curated antiques and timeless pieces, crafted to bring
         character into every space.
       </p>
@@ -319,8 +319,8 @@
       <p class="inspire__text">New arrivals, styling ideas<br />&amp; exclusive offers.</p>
       <form class="inspire__form" id="inspireForm">
         <span class="inspire__field">
-          <svg class="inspire__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.4 3.6H6.2A2.4 2.4 0 0 0 3.8 6c0 8 6.2 14.2 14.2 14.2a2.4 2.4 0 0 0 2.4-2.4v-2.2l-4.4-1.6-2 2a13.6 13.6 0 0 1-5.6-5.6l2-2Z"></path></svg>
-          <input id="inspirePhone" type="tel" name="phone" inputmode="tel" autocomplete="tel" placeholder="Enter your phone number" aria-label="Your phone number" required />
+          <svg class="inspire__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.6h16v12.8H4Z"></path><path d="m4.4 6 7.6 6.4L19.6 6"></path></svg>
+          <input id="inspireEmail" type="email" name="email" autocomplete="email" placeholder="Enter your email address" aria-label="Your email address" required />
         </span>
         <button class="inspire__submit" type="submit">Join the List</button>
       </form>

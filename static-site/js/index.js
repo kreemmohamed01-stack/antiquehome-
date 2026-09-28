@@ -149,7 +149,7 @@
     let sale = null;
     let coupon = null;
     try {
-      sale = await API.get("/api/sale");
+      sale = await API.get("/api/settings?key=site_sale");
     } catch {
       sale = null;
     }
@@ -161,8 +161,28 @@
     renderSaleBanner(sale, coupon);
   }
 
+  // Overrides the hardcoded hero copy with admin-edited text from the
+  // Content page, when set — left untouched (site defaults) otherwise.
+  async function loadHeroContent() {
+    let content = null;
+    try { content = await API.get("/api/settings?key=site_content"); } catch { content = null; }
+    if (!content) return;
+    const map = {
+      heroEyebrow: "heroEyebrow",
+      heroTitle1: "heroTitle1",
+      heroTitle2: "heroTitle2",
+      heroText: "heroText",
+    };
+    for (const [key, elId] of Object.entries(map)) {
+      const val = content[key];
+      const el = document.getElementById(elId);
+      if (val && el) el.textContent = val;
+    }
+  }
+
   ready(function () {
     loadArrivals();
     loadSaleBanner();
+    loadHeroContent();
   });
 })();

@@ -377,7 +377,7 @@
       return;
     }
     try {
-      const [prod, sale] = await Promise.all([API.get("/api/products?slug=" + encodeURIComponent(slug)), API.get("/api/sale")]);
+      const [prod, sale] = await Promise.all([API.get("/api/products?slug=" + encodeURIComponent(slug)), API.get("/api/settings?key=site_sale")]);
       product = prod;
       siteSale = sale;
       document.title = `${product.name} — Antique Home`;

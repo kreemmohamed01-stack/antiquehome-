@@ -16,16 +16,80 @@
     <div class="admin__pageHead-body">
       <p class="admin__crumb"><a href="/admin/index.html">Dashboard</a><span>Content</span></p>
       <h1 class="admin__pageTitle">Content</h1>
+      <p class="admin__pageSub">Edit the storefront's homepage and About page text, and your contact info.</p>
     </div>
   </div>
-  <div class="admin__panel">
-    <p style="color:var(--a-text-dim);text-align:center;padding:40px">This section is coming soon.</p>
+
+  <div class="admin__panel" style="margin-bottom:18px">
+    <div class="admin__panel-head"><h2 class="admin__panel-title">Homepage Hero</h2></div>
+    <div class="admin__field"><label>Eyebrow</label><input id="f_heroEyebrow" placeholder="Timeless Heritage"></div>
+    <div class="admin__field2">
+      <div class="admin__field"><label>Title, line 1</label><input id="f_heroTitle1" placeholder="Timeless pieces."></div>
+      <div class="admin__field"><label>Title, line 2</label><input id="f_heroTitle2" placeholder="Endless beauty."></div>
+    </div>
+    <div class="admin__field"><label>Subtitle</label><textarea id="f_heroText" rows="2" placeholder="Curated antiques and timeless pieces, crafted to bring character into every space."></textarea></div>
+    <p class="admin__hint">Leave any field blank to keep the site's current default text.</p>
   </div>
+
+  <div class="admin__panel" style="margin-bottom:18px">
+    <div class="admin__panel-head"><h2 class="admin__panel-title">About Page</h2></div>
+    <div class="admin__field"><label>Hero text</label><textarea id="f_aboutHeroText" rows="3"></textarea></div>
+    <div class="admin__field"><label>Our Journey text</label><textarea id="f_aboutJourneyText" rows="3"></textarea></div>
+    <div class="admin__field"><label>Our Philosophy text</label><textarea id="f_aboutPhilosophyText" rows="3"></textarea></div>
+    <div class="admin__field"><label>Bottom call-to-action text</label><textarea id="f_aboutCtaText" rows="2"></textarea></div>
+    <p class="admin__hint">Leave any field blank to keep the site's current default text.</p>
+  </div>
+
+  <div class="admin__panel">
+    <div class="admin__panel-head"><h2 class="admin__panel-title">Contact Info</h2></div>
+    <div class="admin__field2">
+      <div class="admin__field"><label>Contact email</label><input id="f_contactEmail" placeholder="hello@antiquehome.com"></div>
+      <div class="admin__field"><label>Contact phone</label><input id="f_contactPhone" placeholder="+20 112 547 0009"></div>
+    </div>
+    <div class="admin__field"><label>Address</label><input id="f_contactAddress" placeholder="Cairo, Egypt"></div>
+  </div>
+
+  <button type="button" class="admin__btn admin__btn--gold" id="saveContentBtn" style="margin-top:18px">Save All Content</button>
 </div>
+
 <script src="/js/api.js"></script>
 <script src="/js/admin-shell.js"></script>
 <script>
-  (async () => { await AdminShell.init({ active: "content" }); })();
+  const FIELDS = {
+    heroEyebrow: "f_heroEyebrow",
+    heroTitle1: "f_heroTitle1",
+    heroTitle2: "f_heroTitle2",
+    heroText: "f_heroText",
+    aboutHeroText: "f_aboutHeroText",
+    aboutJourneyText: "f_aboutJourneyText",
+    aboutPhilosophyText: "f_aboutPhilosophyText",
+    aboutCtaText: "f_aboutCtaText",
+    contactEmail: "f_contactEmail",
+    contactPhone: "f_contactPhone",
+    contactAddress: "f_contactAddress",
+  };
+
+  (async () => {
+    const session = await AdminShell.init({ active: "content" });
+    if (!session) return;
+
+    let content = {};
+    try { content = (await API.get("/api/settings?key=site_content")) || {}; } catch { content = {}; }
+    for (const [key, id] of Object.entries(FIELDS)) {
+      document.getElementById(id).value = content[key] || "";
+    }
+
+    document.getElementById("saveContentBtn").addEventListener("click", async () => {
+      const out = {};
+      for (const [key, id] of Object.entries(FIELDS)) {
+        out[key] = document.getElementById(id).value.trim();
+      }
+      try {
+        await API.post("/api/settings?key=site_content", out);
+        alert("Saved.");
+      } catch { alert("Failed to save."); }
+    });
+  })();
 </script>
 </body>
 </html>

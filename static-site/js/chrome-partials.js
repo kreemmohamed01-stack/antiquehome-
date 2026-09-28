@@ -84,6 +84,11 @@
                 <circle cx="12" cy="12" r="3.3" fill="none" stroke="#fff" stroke-width="1.5"/>
                 <circle cx="17.1" cy="6.9" r="1.15" fill="#fff"/>
               </svg></a></li>
+            <li class="fsocial__fb" style="display:none"><a href="#" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="11" fill="#1877F2"/>
+                <path fill="#fff" d="M15.1 12.7h-2.1V20h-3v-7.3H8.6v-2.6h1.4V8.7c0-1.9 1-3 3.3-3h2v2.6h-1.3c-.9 0-1 .3-1 1v1.2h2.4l-.3 2.6Z"/>
+              </svg></a></li>
             <li><a href="#" aria-label="Email us">
               <svg viewBox="0 0 48 48" aria-hidden="true">
                 <path fill="#4caf50" d="M45 16.2l-5 2.75-5 4.75L35 40h7c1.657 0 3-1.343 3-3V16.2z"/>
@@ -468,8 +473,47 @@
     else fn();
   }
 
+  // Rewrites every hardcoded WhatsApp/Instagram/Facebook link on the page
+  // (chrome + any page-specific ones, e.g. index.html's own CTA buttons)
+  // with the admin-edited links from Marketing, when set. Matches by the
+  // known default hrefs so it only touches actual social links, never an
+  // unrelated wa.me-style URL a future page might add on purpose.
+  const DEFAULT_WHATSAPP = "https://wa.me/201125470009";
+  const DEFAULT_INSTAGRAM = "https://www.instagram.com/antique_home111?igsi=MXQ1eWdvbGRsb2pvaA==";
+
+  async function applySocialLinks() {
+    let social = null;
+    try { social = await fetch("/api/settings?key=site_social", { credentials: "same-origin" }).then((r) => (r.ok ? r.json() : null)); } catch { social = null; }
+    if (!social) return;
+    if (social.whatsapp) {
+      document.querySelectorAll(`a[href="${DEFAULT_WHATSAPP}"]`).forEach((a) => { a.href = social.whatsapp; });
+    }
+    if (social.instagram) {
+      document.querySelectorAll(`a[href="${DEFAULT_INSTAGRAM}"]`).forEach((a) => { a.href = social.instagram; });
+    }
+    if (social.facebook) {
+      document.querySelectorAll('.fsocial__fb').forEach((li) => {
+        li.style.display = "";
+        const a = li.querySelector("a");
+        if (a) a.href = social.facebook;
+      });
+    }
+  }
+
+  // When Marketing's announcement bar is turned on, its text replaces
+  // whatever this page's own .promo-bar ticker says (both looped spans,
+  // so the seamless-scroll effect still works); left alone when it's off.
+  async function applyAnnouncement() {
+    let ann = null;
+    try { ann = await fetch("/api/settings?key=site_announcement", { credentials: "same-origin" }).then((r) => (r.ok ? r.json() : null)); } catch { ann = null; }
+    if (!ann || !ann.active || !ann.text) return;
+    document.querySelectorAll(".promo-bar__text span").forEach((span) => { span.textContent = ann.text; });
+  }
+
   ready(function () {
     const slot = document.getElementById("chromeSlot");
     if (slot) slot.outerHTML = CHROME_HTML;
+    applySocialLinks();
+    applyAnnouncement();
   });
 })();

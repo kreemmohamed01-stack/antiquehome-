@@ -66,7 +66,7 @@
         <span class="rv rv--up" data-rv>The Art of</span><br />
         <span class="rv rv--up" data-rv style="--rd:.08s"><em>Living Beautifully</em></span>
       </h1>
-      <p class="about__heroText rv rv--up" data-rv style="--rd:.18s">
+      <p class="about__heroText rv rv--up" data-rv id="aboutHeroText" style="--rd:.18s">
         At Antique Home, we believe a home is more than a place, it&rsquo;s a reflection of your story, your taste, and the moments that matter most.
       </p>
       <span class="ornament rv" data-rv style="--rd:.26s" aria-hidden="true"><i></i><b></b><i></i></span>
@@ -83,7 +83,7 @@
     <div class="about__journeyCopy">
       <p class="kicker kicker--gold rv" data-rv><span>Our Journey</span><i class="kicker__rule" aria-hidden="true"></i></p>
       <h2 class="about__journeyTitle rv rv--up" data-rv style="--rd:.08s">Born from a Passion<br />for Timeless Spaces</h2>
-      <p class="about__journeyText rv rv--up" data-rv style="--rd:.16s">
+      <p class="about__journeyText rv rv--up" data-rv id="aboutJourneyText" style="--rd:.16s">
         Antique Home started with a simple idea — to bring unique, high-quality pieces that combine elegance, functionality, and character. We carefully curate each item to help you create a home that feels warm, authentic, and effortlessly beautiful.
       </p>
       <ul class="about__stats rv rv--up" data-rv style="--rd:.24s">
@@ -100,7 +100,7 @@
     <div class="about__philosophyCopy">
       <p class="kicker kicker--gold rv" data-rv><span>Our Philosophy</span><i class="kicker__rule" aria-hidden="true"></i></p>
       <h2 class="about__philosophyTitle rv rv--up" data-rv style="--rd:.08s">More Than Furniture,<br />A Way of Living</h2>
-      <p class="about__philosophyText rv rv--up" data-rv style="--rd:.16s">
+      <p class="about__philosophyText rv rv--up" data-rv id="aboutPhilosophyText" style="--rd:.16s">
         We believe in spaces that tell a story — spaces filled with texture, harmony, and meaningful details. Every piece we choose is designed to bring timeless beauty and lasting comfort into your everyday life.
       </p>
     </div>
@@ -140,7 +140,7 @@
     <div class="about__ctaCopy">
       <p class="kicker kicker--gold rv" data-rv><span>Explore Our Collection</span><i class="kicker__rule" aria-hidden="true"></i></p>
       <h2 class="about__ctaTitle rv rv--up" data-rv style="--rd:.08s">Bring Your Vision<br />to Life</h2>
-      <p class="about__ctaText rv rv--up" data-rv style="--rd:.16s">
+      <p class="about__ctaText rv rv--up" data-rv id="aboutCtaText" style="--rd:.16s">
         Discover our curated collections and find pieces that make your house feel like home.
       </p>
       <a class="btn-solid rv rv--up" href="/shop.html" data-rv style="--rd:.24s">
@@ -159,5 +159,26 @@
 <script src="/js/api.js"></script>
 <script src="/js/chrome-partials.js"></script>
 <script src="/js/site-chrome.js"></script>
+<script>
+  // Overrides the hardcoded body-copy paragraphs with admin-edited text
+  // from the Content page, when set — the site's own default text (in
+  // the markup above) stays otherwise.
+  (async () => {
+    let content = null;
+    try { content = await API.get("/api/settings?key=site_content"); } catch { content = null; }
+    if (!content) return;
+    const map = {
+      aboutHeroText: "aboutHeroText",
+      aboutJourneyText: "aboutJourneyText",
+      aboutPhilosophyText: "aboutPhilosophyText",
+      aboutCtaText: "aboutCtaText",
+    };
+    for (const [key, elId] of Object.entries(map)) {
+      const val = content[key];
+      const el = document.getElementById(elId);
+      if (val && el) el.textContent = val;
+    }
+  })();
+</script>
 </body>
 </html>
