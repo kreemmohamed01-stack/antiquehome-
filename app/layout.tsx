@@ -11,8 +11,6 @@ import "./styles/product.css";
 import "./styles/checkout.css";
 import "./styles/order-confirmation.css";
 import "./styles/about.css";
-import "./styles/route-loader.css";
-import RouteLoaderWrapper from "./components/RouteLoaderWrapper";
 import VisitTracker from "./components/VisitTracker";
 
 export const metadata: Metadata = {
@@ -33,7 +31,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <RouteLoaderWrapper />
         <VisitTracker />
         {children}
       </body>
