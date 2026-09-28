@@ -63,7 +63,8 @@
         const name = addBtn.getAttribute("data-add") || "";
         const price = parseFloat(addBtn.getAttribute("data-add-price") || "0") || 0;
         const image = addBtn.getAttribute("data-add-image") || "";
-        if (id) Cart.add({ id, name, price, image }, 1);
+        const weightKg = parseFloat(addBtn.getAttribute("data-add-weight") || "0") || 0;
+        if (id) Cart.add({ id, name, price, image, weightKg }, 1);
         if (!reduced) pop(addBtn);
       }
     }

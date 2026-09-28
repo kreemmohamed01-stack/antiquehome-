@@ -5,19 +5,22 @@
    ========================================================= */
 
 .admin{
-  --a-bg:        #100D09;
-  --a-panel:     #17130E;
-  --a-panel-2:   #1D1811;
-  --a-border:    rgba(233,196,116,.12);
-  --a-gold:      #D9AE63;
-  --a-gold-deep: #B98A3F;
-  --a-cream:     #F3E9D6;
-  --a-text:      #EDE6D8;
-  --a-text-dim:  #9C9284;
-  --a-green:     #6FA36B;
-  --a-amber:     #D9A441;
-  --a-red:       #C5645A;
-  --a-blue:      #6F93C5;
+  /* Black/white/cream base — every other token below is a colored
+     accent reserved for numbers, status pills and small emphasis,
+     never for large surfaces. */
+  --a-bg:        #FAF7F1;
+  --a-panel:     #FFFFFF;
+  --a-panel-2:   #F3EEE4;
+  --a-border:    rgba(20,17,12,.10);
+  --a-gold:      #1A1A1A;
+  --a-gold-deep: #000000;
+  --a-cream:     #14110C;
+  --a-text:      #14110C;
+  --a-text-dim:  #7A7266;
+  --a-green:     #2E7D4F;
+  --a-amber:     #B8790A;
+  --a-red:       #B23A2E;
+  --a-blue:      #2B5FA8;
 
   --serif: "Cormorant Garamond", Georgia, serif;
   --sans:  "Jost", "Helvetica Neue", Arial, sans-serif;
@@ -121,7 +124,7 @@
   align-items:center;
   gap:11px;
   padding:10px 12px;
-  border-radius:8px;
+  border-radius:0;
   font-size:12.5px;
   font-weight:500;
   color: var(--a-text-dim);
@@ -148,7 +151,7 @@
   min-width:20px;
   text-align:center;
   padding:1px 6px;
-  border-radius:20px;
+  border-radius:0;
   background: rgba(217,174,99,.16);
   color: var(--a-gold);
   font-size:10px;
@@ -157,7 +160,7 @@
 .admin__navPill{
   margin-left:auto;
   padding:1px 6px;
-  border-radius:20px;
+  border-radius:0;
   background: var(--a-gold);
   color:#1C1611;
   font-size:8.5px;
@@ -169,7 +172,7 @@
   margin: 14px 2px 12px;
   padding:14px;
   border:1px solid var(--a-border);
-  border-radius:12px;
+  border-radius:0;
   background: linear-gradient(160deg, rgba(217,174,99,.09), transparent);
 }
 .admin__upgrade h4{
@@ -190,7 +193,7 @@
   align-items:center;
   gap:6px;
   padding:7px 12px;
-  border-radius:7px;
+  border-radius:0;
   border:1px solid var(--a-gold);
   background:none;
   color: var(--a-gold);
@@ -287,7 +290,7 @@
     align-items:center;
     gap:9px;
     padding:9px 12px;
-    border-radius:9px;
+    border-radius:0;
     border:1px solid var(--a-border);
     background: var(--a-panel-2);
   }
@@ -304,7 +307,7 @@
   .admin__search kbd{
     font-size:10px;
     padding:2px 6px;
-    border-radius:5px;
+    border-radius:0;
     background: rgba(255,255,255,.06);
     color: var(--a-text-dim);
     border:1px solid var(--a-border);
@@ -321,7 +324,7 @@
   position:relative;
   width:34px; height:34px;
   display:flex; align-items:center; justify-content:center;
-  border-radius:8px;
+  border-radius:0;
   background:none;
   border:0;
   color: var(--a-text-dim);
@@ -345,7 +348,7 @@
     align-items:center;
     gap:8px;
     padding:5px 10px 5px 5px;
-    border-radius:20px;
+    border-radius:0;
     border:1px solid var(--a-border);
     cursor:pointer;
     background:none;
@@ -400,7 +403,7 @@
 
 .admin__hero{
   position:relative;
-  border-radius:16px;
+  border-radius:0;
   overflow:hidden;
   min-height:200px;
   display:flex;
@@ -432,7 +435,7 @@
   align-items:center;
   gap:8px;
   padding:11px 20px;
-  border-radius:8px;
+  border-radius:0;
   background: var(--a-gold);
   color:#1C1611;
   font-size:11.5px;
@@ -485,14 +488,14 @@
 .admin__stat{
   background: var(--a-panel);
   border:1px solid var(--a-border);
-  border-radius:12px;
+  border-radius:0;
   padding:16px;
 }
 .admin__stat-top{ display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px; }
 .admin__stat-label{ font-size:11.5px; color: var(--a-text-dim); }
 .admin__stat-icon{
   width:30px; height:30px;
-  border-radius:8px;
+  border-radius:0;
   display:flex; align-items:center; justify-content:center;
   background: rgba(217,174,99,.1);
   color: var(--a-gold);
@@ -508,7 +511,7 @@
   align-items:center;
   gap:8px;
   padding:9px 14px;
-  border-radius:9px;
+  border-radius:0;
   border:1px solid var(--a-border);
   background: var(--a-panel);
   font-size:11.5px;
@@ -534,7 +537,7 @@
 .admin__panel{
   background: var(--a-panel);
   border:1px solid var(--a-border);
-  border-radius:14px;
+  border-radius:0;
   padding:16px;
 }
 .admin__panel-head{
@@ -567,7 +570,7 @@
 }
 .admin__tab{
   padding:6px 14px;
-  border-radius:20px;
+  border-radius:0;
   font-size:11px;
   font-weight:500;
   color: var(--a-text-dim);
@@ -579,7 +582,7 @@
 
 .admin__select{
   padding:6px 10px;
-  border-radius:7px;
+  border-radius:0;
   border:1px solid var(--a-border);
   background: var(--a-panel-2);
   color: var(--a-text-dim);
@@ -590,7 +593,7 @@
 .admin-tooltip{
   background: #221B12;
   border:1px solid var(--a-border);
-  border-radius:8px;
+  border-radius:0;
   padding:8px 12px;
   font-size:11px;
   color: var(--a-cream);
@@ -607,11 +610,11 @@
 /* category bar list (mobile) */
 .admin__catbars{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px; }
 .admin__catbar{ display:flex; align-items:center; gap:10px; }
-.admin__catbar img{ width:32px; height:32px; border-radius:7px; object-fit:cover; flex:none; }
+.admin__catbar img{ width:32px; height:32px; border-radius:0; object-fit:cover; flex:none; }
 .admin__catbar-body{ flex:1; min-width:0; }
 .admin__catbar-top{ display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:4px; }
-.admin__catbar-track{ height:5px; border-radius:3px; background: rgba(255,255,255,.06); overflow:hidden; }
-.admin__catbar-fill{ height:100%; background: var(--a-gold); border-radius:3px; }
+.admin__catbar-track{ height:5px; border-radius:0; background: rgba(255,255,255,.06); overflow:hidden; }
+.admin__catbar-fill{ height:100%; background: var(--a-gold); border-radius:0; }
 .admin__catbar-pct{ font-size:11px; color: var(--a-text-dim); min-width:32px; text-align:right; }
 
 /* =========================================================
@@ -641,12 +644,12 @@
 .admin__cellUser{ display:flex; align-items:center; gap:8px; }
 .admin__cellUser img{ width:26px; height:26px; border-radius:50%; object-fit:cover; }
 .admin__cellProduct{ display:flex; align-items:center; gap:10px; }
-.admin__cellProduct img{ width:36px; height:36px; border-radius:8px; object-fit:cover; flex:none; background:#221B12; }
+.admin__cellProduct img{ width:36px; height:36px; border-radius:0; object-fit:cover; flex:none; background:#221B12; }
 
 .admin__pill{
   display:inline-flex;
   padding:3px 10px;
-  border-radius:20px;
+  border-radius:0;
   font-size:10.5px;
   font-weight:600;
 }
@@ -670,7 +673,7 @@
 /* simple list rows (products / low stock / mobile orders) */
 .admin__list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px; }
 .admin__listRow{ display:flex; align-items:center; gap:10px; }
-.admin__listRow img{ width:38px; height:38px; border-radius:8px; object-fit:cover; flex:none; background:#221B12; }
+.admin__listRow img{ width:38px; height:38px; border-radius:0; object-fit:cover; flex:none; background:#221B12; }
 .admin__listRow .name{ font-size:12.5px; color: var(--a-text); font-weight:500; }
 .admin__listRow .meta{ font-size:10.5px; color: var(--a-text-dim); }
 .admin__listRow .price{ font-size:12px; font-weight:600; color: var(--a-cream); }
@@ -687,11 +690,11 @@
   width:120px;
   background: var(--a-panel-2);
   border:1px solid var(--a-border);
-  border-radius:10px;
+  border-radius:0;
   padding:10px;
   text-align:center;
 }
-.admin__scrollCard img{ width:100%; height:64px; border-radius:7px; object-fit:cover; margin-bottom:8px; }
+.admin__scrollCard img{ width:100%; height:64px; border-radius:0; object-fit:cover; margin-bottom:8px; }
 .admin__scrollCard .name{ font-size:11px; color: var(--a-text); margin-bottom:6px; }
 
 /* =========================================================
@@ -700,7 +703,7 @@
 
 .admin__promo{
   position:relative;
-  border-radius:14px;
+  border-radius:0;
   overflow:hidden;
   min-height:150px;
   display:flex;
@@ -713,7 +716,7 @@
 .admin__promo-title{ margin:0 0 10px; font-family: var(--serif); font-weight:500; font-size:19px; color:#fff; line-height:1.2; }
 .admin__promo-btn{
   display:inline-flex; align-items:center; gap:7px;
-  padding:9px 16px; border-radius:8px;
+  padding:9px 16px; border-radius:0;
   background: var(--a-gold); color:#1C1611;
   font-size:11px; font-weight:600;
 }
@@ -734,7 +737,7 @@
 .admin__action{
   background: var(--a-panel);
   border:1px solid var(--a-border);
-  border-radius:12px;
+  border-radius:0;
   padding:16px;
   display:flex;
   flex-direction:column;
@@ -744,7 +747,7 @@
 .admin__action:hover{ border-color: var(--a-gold); transform: translateY(-2px); }
 .admin__action-icon{
   width:34px; height:34px;
-  border-radius:9px;
+  border-radius:0;
   background: rgba(217,174,99,.1);
   color: var(--a-gold);
   display:flex; align-items:center; justify-content:center;
@@ -786,7 +789,7 @@
 .admin__tabbar-badge{
   position:absolute; top:2px; right:22%;
   min-width:14px; height:14px; padding:0 3px;
-  border-radius:20px;
+  border-radius:0;
   background: var(--a-gold);
   color:#1C1611;
   font-size:8px; font-weight:700;
@@ -804,7 +807,7 @@
 .admin__field select,
 .admin__field textarea{
   padding:10px 12px;
-  border-radius:8px;
+  border-radius:0;
   border:1px solid var(--a-border);
   background: var(--a-panel-2);
   color: var(--a-text);
@@ -821,7 +824,7 @@
 .admin__btn{
   display:inline-flex; align-items:center; justify-content:center; gap:8px;
   padding:11px 20px;
-  border-radius:9px;
+  border-radius:0;
   border:1px solid var(--a-border);
   background: var(--a-panel-2);
   color: var(--a-text);
@@ -836,7 +839,7 @@
 
 .admin__uploader{
   border:1.5px dashed var(--a-border);
-  border-radius:10px;
+  border-radius:0;
   padding:20px;
   text-align:center;
   color: var(--a-text-dim);
@@ -845,7 +848,7 @@
 }
 .admin__uploader:hover{ border-color: var(--a-gold); }
 .admin__uploadPreview{ display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; }
-.admin__uploadPreview img{ width:70px; height:70px; border-radius:8px; object-fit:cover; border:1px solid var(--a-border); }
+.admin__uploadPreview img{ width:70px; height:70px; border-radius:0; object-fit:cover; border:1px solid var(--a-border); }
 
 .admin__loginWrap{
   min-height:100vh;
@@ -859,7 +862,7 @@
   max-width:380px;
   background: var(--a-panel);
   border:1px solid var(--a-border);
-  border-radius:16px;
+  border-radius:0;
   padding:32px 28px;
 }
 .admin__loginCard h1{
@@ -876,7 +879,7 @@
   border:1px solid rgba(197,100,90,.3);
   color: var(--a-red);
   padding:9px 12px;
-  border-radius:8px;
+  border-radius:0;
   font-size:11.5px;
   margin-bottom:14px;
 }

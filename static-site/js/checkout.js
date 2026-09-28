@@ -34,7 +34,7 @@
   function computeTotals() {
     const subtotal = state.lines.reduce((s, l) => s + l.qty * l.price, 0);
     const rate = state.rates.find((r) => r.governorate === state.governorate);
-    const shipping =
+    const baseShipping =
       state.delivery === "pickup"
         ? 0
         : state.delivery === "express"
@@ -44,9 +44,14 @@
         : rate
         ? Number(rate.standard_price)
         : FALLBACK_STANDARD;
+    // Weight surcharge: total kg across the cart × the governorate's per-kg
+    // rate, added on top of the base shipping price (skipped for pickup).
+    const totalWeight = state.lines.reduce((s, l) => s + l.qty * (Number(l.weightKg) || 0), 0);
+    const weightSurcharge = state.delivery === "pickup" ? 0 : totalWeight * (rate ? Number(rate.per_kg_rate) || 0 : 0);
+    const shipping = baseShipping + weightSurcharge;
     const discount = state.coupon ? Math.round(subtotal * (state.coupon.percent / 100) * 100) / 100 : 0;
     const total = Math.max(0, subtotal - discount) + shipping;
-    return { subtotal, shipping, discount, total, rate };
+    return { subtotal, shipping, discount, total, rate, totalWeight, weightSurcharge };
   }
 
   function govOptions() {
@@ -55,7 +60,7 @@
   }
 
   function render() {
-    const { subtotal, shipping, discount, total, rate } = computeTotals();
+    const { subtotal, shipping, discount, total, rate, totalWeight, weightSurcharge } = computeTotals();
 
     const itemsHtml = state.lines.length
       ? `<ul class="chk__items">
@@ -208,7 +213,7 @@
             <div class="chk__totals">
               <div class="chk__totalsRow"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>
               ${discount > 0 ? `<div class="chk__totalsRow" style="color:#4C6B3F"><span>Discount (${state.coupon.code})</span><span>-${fmt(discount)}</span></div>` : ""}
-              <div class="chk__totalsRow"><span>Shipping</span><span>${shipping === 0 ? "Free" : fmt(shipping)}</span></div>
+              <div class="chk__totalsRow"><span>Shipping${weightSurcharge > 0 ? ` <small style="opacity:.65">(incl. ${fmt(weightSurcharge)} for ${totalWeight.toFixed(1)}kg)</small>` : ""}</span><span>${shipping === 0 ? "Free" : fmt(shipping)}</span></div>
               <div class="chk__totalsFinal"><span>Total</span><strong>${fmt(total)}</strong></div>
             </div>
           </section>

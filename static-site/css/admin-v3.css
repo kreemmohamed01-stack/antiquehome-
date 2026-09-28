@@ -62,7 +62,7 @@
 
 .admin__pageHead{
   position:relative;
-  border-radius:16px;
+  border-radius:0;
   overflow:hidden;
   padding: 26px 22px;
   min-height:150px;
@@ -143,7 +143,7 @@
 
 .admin__spark{ display:flex; align-items:flex-end; gap:2px; height:22px; }
 .admin__spark i{
-  width:3px; border-radius:2px;
+  width:3px; border-radius:0;
   background: linear-gradient(180deg, var(--a-gold), rgba(217,174,99,.25));
 }
 
@@ -160,7 +160,7 @@
 .admin__chip{
   flex:none;
   padding:9px 16px;
-  border-radius:10px;
+  border-radius:0;
   border:1px solid var(--a-border);
   background: var(--a-panel);
   color: var(--a-text-dim);
@@ -185,7 +185,7 @@
   flex:1 1 220px;
   display:flex; align-items:center; gap:9px;
   padding:10px 13px;
-  border-radius:10px;
+  border-radius:0;
   border:1px solid var(--a-border);
   background: var(--a-panel-2);
 }
@@ -200,7 +200,7 @@
 .admin__viewToggle button{
   width:36px; height:36px;
   display:flex; align-items:center; justify-content:center;
-  border-radius:8px;
+  border-radius:0;
   border:1px solid var(--a-border);
   background: var(--a-panel);
   color: var(--a-text-dim);
@@ -223,7 +223,7 @@
 }
 .admin__prow:last-child{ border-bottom:0; }
 .admin__prow img{
-  width:48px; height:48px; border-radius:9px; object-fit:cover; flex:none;
+  width:48px; height:48px; border-radius:0; object-fit:cover; flex:none;
   background: var(--a-panel-2);
 }
 .admin__prow-main{ flex:1; min-width:0; }
@@ -234,7 +234,7 @@
 .admin__iconAct{
   width:32px; height:32px;
   display:flex; align-items:center; justify-content:center;
-  border-radius:8px;
+  border-radius:0;
   border:1px solid var(--a-border);
   background:none;
   color: var(--a-text-dim);
@@ -255,7 +255,7 @@
 .admin__pcard{
   background: var(--a-panel-2);
   border:1px solid var(--a-border);
-  border-radius:12px;
+  border-radius:0;
   overflow:hidden;
   transition: border-color .25s var(--ease), transform .25s var(--ease);
 }
@@ -272,7 +272,7 @@
 .admin__ocard{
   background: var(--a-panel);
   border:1px solid var(--a-border);
-  border-radius:12px;
+  border-radius:0;
   padding:14px;
   margin-bottom:12px;
 }
@@ -284,9 +284,9 @@
 .admin__ocard-date{ font-size:10.5px; color: var(--a-text-dim); margin-top:2px; }
 .admin__ocard-cust{ display:flex; align-items:center; gap:9px; margin-bottom:10px; }
 .admin__ocard-thumbs{ display:flex; gap:6px; margin-bottom:10px; }
-.admin__ocard-thumbs img{ width:44px; height:44px; border-radius:8px; object-fit:cover; }
+.admin__ocard-thumbs img{ width:44px; height:44px; border-radius:0; object-fit:cover; }
 .admin__ocard-more{
-  width:44px; height:44px; border-radius:8px;
+  width:44px; height:44px; border-radius:0;
   display:flex; align-items:center; justify-content:center;
   background: var(--a-panel-2); border:1px solid var(--a-border);
   font-size:11px; color: var(--a-text-dim); flex:none;
@@ -339,13 +339,13 @@
 .admin__formCard{
   background: var(--a-panel);
   border:1px solid var(--a-border);
-  border-radius:14px;
+  border-radius:0;
   padding:18px;
   margin-bottom:16px;
 }
 .admin__formCard-head{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
 .admin__formCard-ico{
-  width:30px; height:30px; border-radius:8px;
+  width:30px; height:30px; border-radius:0;
   display:flex; align-items:center; justify-content:center;
   background: rgba(217,174,99,.1); color: var(--a-gold);
   flex:none;
@@ -365,7 +365,7 @@
 .admin__mediaTile{
   position:relative;
   aspect-ratio:1;
-  border-radius:10px;
+  border-radius:0;
   overflow:hidden;
   border:1px solid var(--a-border);
   background: var(--a-panel-2);
@@ -373,7 +373,7 @@
 .admin__mediaTile img{ width:100%; height:100%; object-fit:cover; }
 .admin__mediaDel{
   position:absolute; top:6px; right:6px;
-  width:24px; height:24px; border-radius:7px;
+  width:24px; height:24px; border-radius:0;
   display:flex; align-items:center; justify-content:center;
   background: rgba(10,8,5,.72);
   border:1px solid rgba(255,255,255,.14);
@@ -383,7 +383,7 @@
 .admin__mediaAdd{
   aspect-ratio:1;
   border:1.5px dashed var(--a-border);
-  border-radius:10px;
+  border-radius:0;
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:6px;
   color: var(--a-text-dim);
@@ -394,7 +394,7 @@
 .admin__mediaAdd svg{ width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.5; }
 .admin__mediaHeroTag{
   position:absolute; left:6px; bottom:6px;
-  padding:2px 8px; border-radius:5px;
+  padding:2px 8px; border-radius:0;
   background: var(--a-gold); color:#1C1611;
   font-size:9px; font-weight:700;
 }
@@ -405,7 +405,7 @@
 }
 .admin__optLabel{ width:70px; flex:none; font-size:11.5px; color: var(--a-text-dim); }
 .admin__pill{
-  padding:7px 14px; border-radius:20px;
+  padding:7px 14px; border-radius:0;
   border:1px solid var(--a-border);
   background: var(--a-panel-2);
   color: var(--a-text);
@@ -440,7 +440,7 @@
   margin-bottom:8px;
 }
 .admin__variantRow input{
-  padding:8px 10px; border-radius:8px;
+  padding:8px 10px; border-radius:0;
   border:1px solid var(--a-border);
   background: var(--a-panel-2); color: var(--a-text);
   font-size:12px; outline:none; min-width:0;
@@ -453,7 +453,7 @@
 }
 .admin__switch input{ position:absolute; opacity:0; pointer-events:none; }
 .admin__switchTrack{
-  width:40px; height:22px; border-radius:20px;
+  width:40px; height:22px; border-radius:0;
   background: var(--a-panel-2);
   border:1px solid var(--a-border);
   position:relative; flex:none;
@@ -484,7 +484,7 @@
 .admin__demoBar{
   display:flex; align-items:center; gap:10px; flex-wrap:wrap;
   padding:11px 15px;
-  border-radius:10px;
+  border-radius:0;
   background: rgba(217,164,65,.1);
   border:1px solid rgba(217,164,65,.3);
   color: var(--a-amber);
@@ -493,7 +493,7 @@
 .admin__demoBar strong{ font-weight:600; }
 .admin__demoBar button{
   margin-left:auto;
-  padding:6px 14px; border-radius:8px;
+  padding:6px 14px; border-radius:0;
   border:1px solid rgba(217,164,65,.45);
   background:none; color: var(--a-amber);
   font-size:11px; font-weight:600; cursor:pointer;
@@ -510,7 +510,7 @@
 }
 .admin__pager button{
   min-width:34px; height:34px; padding:0 8px;
-  border-radius:8px;
+  border-radius:0;
   border:1px solid var(--a-border);
   background: var(--a-panel);
   color: var(--a-text-dim);
@@ -543,11 +543,11 @@
 }
 .admin__barRow-top .pct{ color: var(--a-text-dim); font-variant-numeric: tabular-nums; }
 .admin__barTrack{
-  height:7px; border-radius:99px; background: rgba(255,255,255,.06);
+  height:7px; border-radius:0; background: rgba(255,255,255,.06);
   overflow:hidden;
 }
 .admin__barFill{
-  height:100%; border-radius:99px;
+  height:100%; border-radius:0;
   transition: width .6s var(--ease);
 }
 @media (min-width: 700px){

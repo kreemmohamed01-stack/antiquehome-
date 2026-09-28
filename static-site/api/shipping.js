@@ -18,7 +18,10 @@ module.exports = async (req, res) => {
       if (typeof body === "string") { try { body = JSON.parse(body); } catch { body = {}; } }
       body = body || {};
       await sql`
-        UPDATE shipping_rates SET standard_price = ${Number(body.standardPrice) || 0}, express_price = ${Number(body.expressPrice) || 0}
+        UPDATE shipping_rates SET
+          standard_price = ${Number(body.standardPrice) || 0},
+          express_price = ${Number(body.expressPrice) || 0},
+          per_kg_rate = ${Number(body.perKgRate) || 0}
         WHERE id = ${id}
       `;
       res.status(200).json({ ok: true });

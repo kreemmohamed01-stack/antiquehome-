@@ -13,12 +13,13 @@
     <div class="admin__pageHead-body">
       <p class="admin__crumb"><a href="/admin/index.html">Dashboard</a><span>Shipping</span></p>
       <h1 class="admin__pageTitle">Shipping Rates</h1>
-      <p class="admin__pageSub">Standard and express prices per governorate.</p>
+      <p class="admin__pageSub">Standard and express prices per governorate, plus a per-kg surcharge added on top based on each order's total product weight.</p>
     </div>
   </div>
   <div class="admin__panel">
+    <p style="font-size:11.5px;color:var(--a-text-dim);margin-bottom:14px">Total shipping charged at checkout = governorate's base price below + (order's total weight in kg × per-kg rate). Set each product's weight on its Edit Product page.</p>
     <table class="admin__table">
-      <thead><tr><th>Governorate</th><th>Standard (EGP)</th><th>Express (EGP)</th><th></th></tr></thead>
+      <thead><tr><th>Governorate</th><th>Standard (EGP)</th><th>Express (EGP)</th><th>Per KG (EGP)</th><th></th></tr></thead>
       <tbody id="rateRows"></tbody>
     </table>
   </div>
@@ -37,6 +38,7 @@
         <td>${r.governorate}</td>
         <td><input type="number" data-std="${r.id}" value="${r.standard_price}" style="width:90px"></td>
         <td><input type="number" data-exp="${r.id}" value="${r.express_price}" style="width:90px"></td>
+        <td><input type="number" step="0.5" data-perkg="${r.id}" value="${r.per_kg_rate || 0}" style="width:90px"></td>
         <td><button type="button" class="admin__iconAct" data-save="${r.id}">Save</button></td>
       </tr>
     `).join("");
@@ -46,8 +48,9 @@
         const id = btn.dataset.save;
         const standardPrice = document.querySelector(`[data-std="${id}"]`).value;
         const expressPrice = document.querySelector(`[data-exp="${id}"]`).value;
+        const perKgRate = document.querySelector(`[data-perkg="${id}"]`).value;
         try {
-          await API.patch(`/api/shipping?id=${id}`, { standardPrice, expressPrice });
+          await API.patch(`/api/shipping?id=${id}`, { standardPrice, expressPrice, perKgRate });
           btn.textContent = "Saved ✓";
           setTimeout(() => { btn.textContent = "Save"; }, 1500);
         } catch { alert("Failed to save."); }
