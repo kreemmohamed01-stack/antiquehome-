@@ -1557,7 +1557,7 @@ a{ color:inherit; text-decoration:none; }
 
 .card__body{
   position:relative;
-  padding: 12px 44px 14px 12px;
+  padding: 12px 12px 14px;
 }
 
 .card__name{
@@ -1589,31 +1589,41 @@ a{ color:inherit; text-decoration:none; }
   color: var(--ink-900);
 }
 
+/* Add to Cart bar — same treatment as .pcard__add on the shop grid:
+   sits over the image, full width, reveals on hover on desktop,
+   always visible on touch. */
 .add{
   position:absolute;
-  right:10px; bottom:12px;
+  left:0; right:0; bottom:0;
+  padding:10px 8px;
+  display:flex; align-items:center; justify-content:center;
+  gap:6px;
   appearance:none;
   border:0;
   cursor:pointer;
-  display:grid;
-  place-items:center;
-  width:28px; height:28px;
-  border-radius:50%;
-  background: linear-gradient(140deg, #BD9E6A, #A98A5C);
-  color:#FBF6EC;
-  transition: transform .35s var(--ease), box-shadow .35s var(--ease);
+  background: rgba(20,15,9,.72);
+  color:#fff;
+  font-family: var(--sans);
+  font-size:10.5px;
+  font-weight:600;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  opacity:1;
+  transform: translateY(0);
+  transition: background .3s var(--ease), opacity .3s var(--ease), transform .3s var(--ease);
   -webkit-tap-highlight-color: transparent;
 }
 .add svg{
-  width:14px; height:14px;
+  width:13px; height:13px;
   fill:none; stroke:currentColor;
-  stroke-width:1.5; stroke-linecap:round;
+  stroke-width:1.7; stroke-linecap:round;
 }
 @media (hover:hover){
-  .add:hover{ transform: rotate(90deg) scale(1.1); box-shadow: 0 4px 14px rgba(169,138,92,.4); }
+  .add{ opacity:0; transform: translateY(100%); }
+  .card:hover .add{ opacity:1; transform: translateY(0); }
+  .add:hover{ background: rgba(20,15,9,.92); }
 }
-.add:active{ transform: scale(.88); }
-.add.pop{ animation: favPop .45s var(--ease); }
+.add.pop{ animation: favPop .4s var(--ease); }
 
 
 /* =========================================================
@@ -2314,13 +2324,13 @@ a{ color:inherit; text-decoration:none; }
   .card__body{ padding: 6px 6px 7px; }
   .card__name{ font-size:8.6px; line-height:1.2; margin-bottom:3px; }
   .card__cat{ font-size:5.8px; letter-spacing:.12em; margin-bottom:3px; }
-  .card__price{ font-size:8px; padding-right:20px; }
+  .card__price{ font-size:8px; }
   .card__no{ font-size:9px; top:3px; left:5px; }
   .card__media .fav{ top:3px; right:3px; }
   .fav--sm{ width:17px; height:17px; }
   .fav--sm svg{ width:8.5px; height:8.5px; }
-  .add{ width:18px; height:18px; right:4px; bottom:5px; }
-  .add svg{ width:9px; height:9px; }
+  .add{ padding:7px 6px; font-size:8.5px; gap:4px; }
+  .add svg{ width:10px; height:10px; }
 }
 
 /* =========================================================
@@ -2359,7 +2369,7 @@ a{ color:inherit; text-decoration:none; }
     overflow:visible;
     gap:18px;
   }
-  .card__body{ padding: 14px 48px 16px 14px; }
+  .card__body{ padding: 14px; }
   .card__name{ font-size:15.5px; }
 
   .cats__head{ padding: 84px var(--gutter) 60px; }
@@ -2425,11 +2435,10 @@ a{ color:inherit; text-decoration:none; }
     max-width: var(--shell);
     margin-inline:auto;
   }
-  .card__body{ padding: 16px 52px 18px 16px; }
+  .card__body{ padding: 16px 16px 18px; }
   .card__name{ font-size:16px; }
   .card__cat{ font-size:8.5px; }
   .card__price{ font-size:12.5px; }
-  .add{ width:32px; height:32px; right:12px; bottom:14px; }
   .fav--sm{ width:32px; height:32px; }
   .fav--sm svg{ width:15px; height:15px; }
   .card__no{ font-size:17px; top:11px; left:14px; }
