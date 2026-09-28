@@ -624,6 +624,57 @@
   display:none;
 }
 
+/* mobile filter drawer — toggled by #filterToggle */
+.filters__scrim{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:299;
+  background:rgba(20,15,9,.5);
+  opacity:0;
+  transition:opacity .35s ease;
+}
+.filters__scrim.is-open{ display:block; opacity:1; }
+
+@media (max-width: 1023.98px){
+  .filters.is-open{
+    display:block;
+    position:fixed;
+    top:0; right:0; bottom:0;
+    z-index:300;
+    width:min(86vw, 340px);
+    background: var(--paper, #FAF6EE);
+    padding:20px var(--gutter) 40px;
+    overflow-y:auto;
+    transform:translateX(0);
+    box-shadow:-20px 0 50px rgba(0,0,0,.25);
+    animation: filtersSlideIn .35s ease;
+  }
+  @keyframes filtersSlideIn{
+    from{ transform:translateX(100%); }
+    to{ transform:translateX(0); }
+  }
+  .filters__closeBtn{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:16px;
+    font-family: var(--sans);
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+  }
+  .filters__closeBtn button{
+    background:none;
+    border:0;
+    width:32px;height:32px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+  }
+  .filters__closeBtn svg{ width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6; }
+}
+
 @media (min-width: 1024px){
   .filters{
     display:block;
@@ -789,22 +840,33 @@
 }
 .pcard__badge--sale{ background:#8C3A26; color:#fff; }
 
+/* Full-width "Add to Cart" bar — sits just under the image, above the
+   product name, transparent black that solidifies slightly on hover.
+   Always visible on touch devices (no hover to reveal it there). */
 .pcard__add{
   position:absolute;
-  bottom:7px; right:7px;
-  width:28px; height:28px;
-  border-radius:50%;
+  left:0; right:0; bottom:0;
+  padding:10px 8px;
   display:flex; align-items:center; justify-content:center;
-  background: var(--ink-900);
-  color: var(--champagne, #E3D5BC);
+  gap:6px;
+  background: rgba(20,15,9,.72);
+  color:#fff;
   border:0;
   cursor:pointer;
-  box-shadow: 0 2px 8px rgba(20,15,9,.2);
-  transition: background .3s var(--ease), transform .3s var(--ease);
+  font-family: var(--sans);
+  font-size:10.5px;
+  font-weight:600;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  opacity:1;
+  transform: translateY(0);
+  transition: background .3s var(--ease), opacity .3s var(--ease), transform .3s var(--ease);
 }
 .pcard__add svg{ width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; }
 @media (hover:hover){
-  .pcard__add:hover{ background: var(--gold-deep); transform: scale(1.08); }
+  .pcard__add{ opacity:0; transform: translateY(100%); }
+  .pcard:hover .pcard__add{ opacity:1; transform: translateY(0); }
+  .pcard__add:hover{ background: rgba(20,15,9,.92); }
 }
 .pcard__add.pop{ animation: favPop .4s var(--ease); }
 

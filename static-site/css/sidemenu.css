@@ -189,6 +189,7 @@
   text-transform:uppercase;
   color: var(--ink-900, #2B2318);
   transition: background-color .4s var(--ease), color .4s var(--ease);
+  -webkit-tap-highlight-color: transparent;
 
   /* staggered entrance, played once when the panel opens */
   opacity:0;

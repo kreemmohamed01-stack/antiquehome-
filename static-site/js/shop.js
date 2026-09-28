@@ -272,6 +272,7 @@
           </button>
           <button class="pcard__add" type="button" data-add="${p.name}" data-add-id="${p.slug}" data-add-price="${p.price}" data-add-image="${splitFocal(img).src}" data-add-weight="${p.weight_kg || 0}" aria-label="Add ${p.name} to cart" onclick="event.preventDefault()">
             <svg viewBox="0 0 20 20" aria-hidden="true"><line x1="10" y1="4.4" x2="10" y2="15.6"></line><line x1="4.4" y1="10" x2="15.6" y2="10"></line></svg>
+            <span>Add to Cart</span>
           </button>
         </a>
         <div class="pcard__body">
@@ -360,6 +361,26 @@
       document.querySelectorAll("#materialChecks input").forEach((cb) => (cb.checked = false));
       render();
     });
+
+    // mobile filter drawer
+    const filtersAside = document.getElementById("shopFiltersAside");
+    const filtersScrim = document.getElementById("filtersScrim");
+    const filterToggleBtn = document.getElementById("filterToggle");
+    function openFilters() {
+      filtersAside.classList.add("is-open");
+      filtersScrim.classList.add("is-open");
+      filterToggleBtn.setAttribute("aria-expanded", "true");
+      document.body.style.overflow = "hidden";
+    }
+    function closeFilters() {
+      filtersAside.classList.remove("is-open");
+      filtersScrim.classList.remove("is-open");
+      filterToggleBtn.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+    }
+    filterToggleBtn.addEventListener("click", openFilters);
+    document.getElementById("filterClose").addEventListener("click", closeFilters);
+    filtersScrim.addEventListener("click", closeFilters);
 
     const sortToggle = document.getElementById("sortToggle");
     const sortPop = document.getElementById("sortPop");

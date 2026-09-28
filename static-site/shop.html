@@ -19,7 +19,7 @@
 <div class="shop">
   <div class="shop-toolbar">
     <div class="shop-toolbar__row">
-      <button class="tool-btn tool-btn--filter" type="button">
+      <button class="tool-btn tool-btn--filter" type="button" id="filterToggle" aria-expanded="false" aria-controls="shopFiltersAside">
         <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"></line><circle cx="9" cy="7" r="2.2"></circle><line x1="4" y1="17" x2="20" y2="17"></line><circle cx="15" cy="17" r="2.2"></circle></svg>
         Filter
       </button>
@@ -50,7 +50,14 @@
   </div>
 
   <div class="shop-body">
-    <aside class="filters" aria-label="Filters">
+    <div class="filters__scrim" id="filtersScrim"></div>
+    <aside class="filters" aria-label="Filters" id="shopFiltersAside">
+      <div class="filters__closeBtn">
+        <span>Filters</span>
+        <button type="button" id="filterClose" aria-label="Close filters">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4.6" y1="4.6" x2="19.4" y2="19.4"></line><line x1="19.4" y1="4.6" x2="4.6" y2="19.4"></line></svg>
+        </button>
+      </div>
       <div class="filters__group">
         <h3 class="filters__title">Category</h3>
         <ul class="filters__cats" id="filterCats"></ul>

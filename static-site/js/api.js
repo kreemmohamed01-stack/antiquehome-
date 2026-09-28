@@ -82,6 +82,31 @@ function cldUrl(url, width) {
   return src.slice(0, i + marker.length) + transform + "/" + src.slice(i + marker.length);
 }
 
+// Small "Added to Cart" toast, shared by every add-to-cart path (product
+// cards, the PDP button, homepage rail) since they all funnel through
+// Cart.add() below.
+function showAddedToCartToast(name) {
+  try {
+    let host = document.getElementById("ahToastHost");
+    if (!host) {
+      host = document.createElement("div");
+      host.id = "ahToastHost";
+      host.style.cssText = "position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none";
+      document.body.appendChild(host);
+    }
+    const toast = document.createElement("div");
+    toast.style.cssText = "display:flex;align-items:center;gap:10px;background:#14110C;color:#fff;padding:12px 20px;font-family:'Jost',sans-serif;font-size:12.5px;letter-spacing:.02em;box-shadow:0 12px 30px rgba(0,0,0,.28);opacity:0;transform:translateY(-8px);transition:opacity .35s ease,transform .35s ease;white-space:nowrap";
+    toast.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" style="flex:none" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="#7FBF7F" stroke-width="1.6"/><polyline points="7,12.5 10.3,16 17,8" fill="none" stroke="#7FBF7F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><strong>${name}</strong> added to cart</span>`;
+    host.appendChild(toast);
+    requestAnimationFrame(() => { toast.style.opacity = "1"; toast.style.transform = "translateY(0)"; });
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      toast.style.transform = "translateY(-8px)";
+      setTimeout(() => toast.remove(), 400);
+    }, 2200);
+  } catch {}
+}
+
 // Cart, stored client-side same as before.
 const Cart = {
   KEY: "ah_cart",
@@ -98,6 +123,7 @@ const Cart = {
     if (existing) existing.qty += qty;
     else items.push({ ...item, qty });
     this.write(items);
+    showAddedToCartToast(item.name);
   },
   remove(id) {
     this.write(this.read().filter((i) => i.id !== id));
