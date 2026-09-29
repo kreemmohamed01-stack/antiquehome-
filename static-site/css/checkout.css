@@ -500,14 +500,14 @@
 /* ---- Instapay Payment Details panel ---- */
 .chk__instapayBox{
   display:flex;
-  align-items:center;
+  flex-direction:column;
   gap:16px;
-  padding:16px;
+  padding:20px 16px;
   border-radius:12px;
   background: linear-gradient(135deg, rgba(236,72,153,.08), rgba(107,33,216,.06));
   margin-bottom:14px;
 }
-.chk__instapayLogo{ flex:none; width:76px; }
+.chk__instapayLogo{ align-self:center; width:220px; max-width:80%; }
 .chk__instapayLogo svg{ width:100%; height:auto; display:block; }
 .chk__instapayInfo{ flex:1; min-width:0; display:flex; flex-direction:column; gap:10px; }
 .chk__instapayInfo-row{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap; }
