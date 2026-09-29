@@ -35,8 +35,8 @@ module.exports = async (req, res) => {
       const parentId = b.parentId ? Number(b.parentId) : null;
       const maxRow = await sql`SELECT COALESCE(MAX(sort_order), 0) + 1 AS next FROM categories`;
       await sql`
-        INSERT INTO categories (slug, name, image_url, sort_order, parent_id)
-        VALUES (${slug}, ${name}, ${b.imageUrl || null}, ${maxRow[0].next}, ${parentId})
+        INSERT INTO categories (slug, name, name_ar, image_url, sort_order, parent_id)
+        VALUES (${slug}, ${name}, ${b.nameAr ? String(b.nameAr).trim() : null}, ${b.imageUrl || null}, ${maxRow[0].next}, ${parentId})
       `;
       res.status(200).json({ ok: true });
       return;
@@ -65,7 +65,7 @@ module.exports = async (req, res) => {
       const slug = slugify(name);
       const parentId = b.parentId ? Number(b.parentId) : null;
       await sql`
-        UPDATE categories SET name = ${name}, slug = ${slug}, image_url = ${b.imageUrl || null}, parent_id = ${parentId}
+        UPDATE categories SET name = ${name}, name_ar = ${b.nameAr ? String(b.nameAr).trim() : null}, slug = ${slug}, image_url = ${b.imageUrl || null}, parent_id = ${parentId}
         WHERE id = ${id}
       `;
       res.status(200).json({ ok: true });

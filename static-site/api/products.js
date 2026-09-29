@@ -107,12 +107,13 @@ module.exports = async (req, res) => {
       const rows = await sql`
         WITH new_product AS (
           INSERT INTO products (
-            name, slug, description, price, compare_at_price, category_id, material,
+            name, name_ar, slug, description, description_ar, price, compare_at_price, category_id, material,
             colors, color_options, variants, size_cm, image_urls, badge,
             sale_percent, sale_label, stock_qty, low_stock_threshold,
             is_new_arrival, status, sku, pricing_mode, price_per_piece, set_size, weight_kg, is_top_seller
           ) VALUES (
-            ${name}, ${slug}, ${b.description ? String(b.description) : null},
+            ${name}, ${b.nameAr ? String(b.nameAr).trim() : null}, ${slug}, ${b.description ? String(b.description) : null},
+            ${b.descriptionAr ? String(b.descriptionAr) : null},
             ${Number(b.price) || 0}, ${num(b.compareAtPrice)}, ${primaryCategory},
             ${b.material ? String(b.material) : null},
             ${JSON.stringify(Array.isArray(b.colors) ? b.colors : [])},
@@ -163,8 +164,9 @@ module.exports = async (req, res) => {
       await sql`
         WITH updated AS (
           UPDATE products SET
-            name = ${name}, slug = ${slug},
+            name = ${name}, name_ar = ${b.nameAr ? String(b.nameAr).trim() : null}, slug = ${slug},
             description = ${b.description ? String(b.description) : null},
+            description_ar = ${b.descriptionAr ? String(b.descriptionAr) : null},
             price = ${Number(b.price) || 0}, compare_at_price = ${num(b.compareAtPrice)},
             category_id = ${primaryCategory},
             material = ${b.material ? String(b.material) : null},

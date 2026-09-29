@@ -235,6 +235,11 @@
 
       <div class="admin__formSection">
         <div class="admin__field"><label>Name</label><input id="f_name" value="${p.name || ""}"></div>
+        <div class="admin__field">
+          <label>Arabic Name <span class="admin__hint-inline">(optional)</span></label>
+          <input id="f_nameAr" dir="rtl" style="text-align:right;font-family:'Tajawal',sans-serif" value="${p.name_ar || ""}" placeholder="اسم المنتج بالعربي">
+        </div>
+        <p class="admin__hint">Shown when a customer switches the storefront to Arabic. Leave blank to keep showing the English name for this product in Arabic mode.</p>
       </div>
 
       <div class="admin__formSection">
@@ -558,6 +563,7 @@
 
       const body = {
         name: document.getElementById("f_name").value.trim(),
+        nameAr: document.getElementById("f_nameAr").value.trim(),
         slug: document.getElementById("f_slug").value.trim(),
         description: document.getElementById("f_description").value,
         price: Number(document.getElementById("f_price").value) || 0,
