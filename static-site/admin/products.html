@@ -178,6 +178,17 @@
     let variants = (p.variants || []).map((v) => ({ label: v.label, price: v.price, stock: v.stock, imageUrls: v.imageUrls || [] }));
     let categoryIds = (p.category_ids && p.category_ids.length ? p.category_ids : (p.category_id ? [p.category_id] : []));
 
+    // Categories can have one level of subcategories (parent_id). The
+    // primary Category dropdown only lists top-level categories; picking
+    // one that has children reveals a second Subcategory dropdown scoped
+    // to just that category's children. If the product's current primary
+    // category IS itself a subcategory, both dropdowns pre-select correctly.
+    const TOP_CATEGORIES = CATEGORIES.filter((c) => !c.parent_id);
+    const subsOf = (parentId) => CATEGORIES.filter((c) => c.parent_id === parentId);
+    const primaryCat = CATEGORIES.find((c) => c.id === categoryIds[0]);
+    let selectedTopId = primaryCat ? (primaryCat.parent_id || primaryCat.id) : "";
+    let selectedSubId = primaryCat && primaryCat.parent_id ? primaryCat.id : "";
+
     // Focal point + zoom, both encoded in the stored URL's fragment as
     // "#x,y,zoom" (x/y percentages, zoom a 1.0-2.5 scale factor) — no DB
     // schema change, image_urls stays a plain string array.
@@ -232,21 +243,31 @@
             <label>Category</label>
             <select id="f_category">
               <option value="">— None —</option>
-              ${CATEGORIES.map((c) => `<option value="${c.id}" ${categoryIds[0] === c.id ? "selected" : ""}>${c.name}</option>`).join("")}
+              ${TOP_CATEGORIES.map((c) => `<option value="${c.id}" ${selectedTopId === c.id ? "selected" : ""}>${c.name}</option>`).join("")}
             </select>
           </div>
           <div class="admin__field"><label>Slug</label><input id="f_slug" value="${p.slug || ""}"></div>
         </div>
+
+        <div class="admin__field" id="subcategoryField" style="${subsOf(selectedTopId).length ? "" : "display:none"}">
+          <label>Subcategory</label>
+          <select id="f_subcategory">
+            <option value="">— None —</option>
+            ${subsOf(selectedTopId).map((c) => `<option value="${c.id}" ${selectedSubId === c.id ? "selected" : ""}>${c.name}</option>`).join("")}
+          </select>
+          <p class="admin__hint" style="margin-top:6px">Pick which ${TOP_CATEGORIES.find((c) => c.id === selectedTopId) ? TOP_CATEGORIES.find((c) => c.id === selectedTopId).name : ""} subcategory this product belongs to — it'll show up under that subcategory on the storefront.</p>
+        </div>
+
         <label style="display:block;margin:14px 0 8px;font-size:12px;color:var(--a-text-dim)">Also Show In — extra categories (optional)</label>
         <div class="admin__checkGrid" id="alsoShowIn">
           ${CATEGORIES.map((c) => `
             <label class="admin__checkRow">
               <input type="checkbox" value="${c.id}" ${categoryIds.includes(c.id) ? "checked" : ""}>
-              ${c.name}
+              ${c.parent_id ? "&nbsp;&nbsp;&#8627; " : ""}${c.name}
             </label>
           `).join("")}
         </div>
-        <p class="admin__hint">Tick any other category this piece should ALSO appear in — a product can stay listed under several categories at once. The Category above stays the main one.</p>
+        <p class="admin__hint">Tick any other category this piece should ALSO appear in — a product can stay listed under several categories at once. The Category (and Subcategory) above stay the main ones.</p>
       </div>
 
       <div class="admin__formSection">
@@ -321,6 +342,26 @@
       if (isNew) {
         document.getElementById("f_slug").value = e.target.value.toLowerCase().trim()
           .replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
+      }
+    });
+
+    // ---- Category / Subcategory ----
+    // Picking a top-level category that has subcategories reveals the
+    // Subcategory dropdown scoped to just that category's children;
+    // picking one with none hides it again.
+    document.getElementById("f_category").addEventListener("change", (e) => {
+      const topId = Number(e.target.value) || "";
+      const subs = subsOf(topId);
+      const subField = document.getElementById("subcategoryField");
+      const subSelect = document.getElementById("f_subcategory");
+      if (subs.length) {
+        subField.style.display = "";
+        const topName = TOP_CATEGORIES.find((c) => c.id === topId)?.name || "";
+        subSelect.innerHTML = `<option value="">— None —</option>${subs.map((c) => `<option value="${c.id}">${c.name}</option>`).join("")}`;
+        subField.querySelector(".admin__hint").textContent = `Pick which ${topName} subcategory this product belongs to — it'll show up under that subcategory on the storefront.`;
+      } else {
+        subField.style.display = "none";
+        subSelect.value = "";
       }
     });
 
@@ -493,8 +534,19 @@
     // ---- Save / Delete ----
     document.getElementById("saveProductBtn").addEventListener("click", async () => {
       const alsoIds = Array.from(document.querySelectorAll("#alsoShowIn input:checked")).map((cb) => Number(cb.value));
-      const primaryId = Number(document.getElementById("f_category").value) || null;
-      const allCategoryIds = primaryId ? [primaryId, ...alsoIds.filter((id) => id !== primaryId)] : alsoIds;
+      const topId = Number(document.getElementById("f_category").value) || null;
+      const subField = document.getElementById("subcategoryField");
+      const subEl = document.getElementById("f_subcategory");
+      const subId = subEl && subField && subField.style.display !== "none" ? Number(subEl.value) || null : null;
+      // A chosen subcategory becomes the real primary category (the
+      // storefront groups by the exact category, subcategory included);
+      // the parent still gets ticked into "Also Show In" so the product
+      // also shows under the broader Accessories listing.
+      const primaryId = subId || topId;
+      const impliedAlso = subId && topId ? [topId] : [];
+      const allCategoryIds = primaryId
+        ? [primaryId, ...impliedAlso, ...alsoIds.filter((id) => id !== primaryId)]
+        : alsoIds;
 
       const onSale = document.getElementById("f_onSale").checked;
       const salePercent = onSale ? (Number(document.getElementById("f_salePercent").value) || 0) : null;

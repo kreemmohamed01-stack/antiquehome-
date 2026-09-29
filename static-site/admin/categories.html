@@ -36,10 +36,12 @@
 <script>
   let ALL_PRODUCTS = [];
 
-  async function load() {
-    const cats = await API.get("/api/categories");
-    document.getElementById("catList").innerHTML = cats.length ? cats.map((c) => `
-      <div class="admin__prow">
+  let ALL_CATEGORIES = [];
+
+  function catRow(c, isSub) {
+    return `
+      <div class="admin__prow"${isSub ? ' style="padding-left:36px"' : ""}>
+        ${isSub ? '<span style="color:var(--a-text-dim);font-size:14px;flex:none">&#8627;</span>' : ""}
         <img src="${c.image_url ? cldUrl(c.image_url, 80) : '/logo hero.png'}" alt="">
         <div class="admin__prow-main">
           <div class="admin__prow-name">${c.name}</div>
@@ -53,15 +55,31 @@
             <svg viewBox="0 0 24 24"><path d="M5.6 7.2h12.8l-1 12.4H6.6Z"></path></svg>
           </button>
         </div>
-      </div>
-    `).join("") : `<p style="color:var(--a-text-dim);padding:20px;text-align:center">No categories yet.</p>`;
+      </div>`;
+  }
+
+  async function load() {
+    const cats = await API.get("/api/categories");
+    ALL_CATEGORIES = cats;
+    const topLevel = cats.filter((c) => !c.parent_id);
+    const bySlugParent = (parentId) => cats.filter((c) => c.parent_id === parentId);
+
+    document.getElementById("catList").innerHTML = topLevel.length ? topLevel.map((c) => {
+      const subs = bySlugParent(c.id);
+      return catRow(c, false) + subs.map((s) => catRow(s, true)).join("");
+    }).join("") : `<p style="color:var(--a-text-dim);padding:20px;text-align:center">No categories yet.</p>`;
 
     document.querySelectorAll("[data-edit]").forEach((btn) => {
       btn.addEventListener("click", () => openForm(cats.find((c) => c.id === Number(btn.dataset.edit))));
     });
     document.querySelectorAll("[data-del]").forEach((btn) => {
       btn.addEventListener("click", async () => {
-        if (!confirm("Delete this category? Products stay, they just lose this category.")) return;
+        const target = cats.find((c) => c.id === Number(btn.dataset.del));
+        const hasSubs = target && cats.some((c) => c.parent_id === target.id);
+        const msg = hasSubs
+          ? "Delete this category? Its subcategories will also be deleted. Products stay, they just lose this category."
+          : "Delete this category? Products stay, they just lose this category.";
+        if (!confirm(msg)) return;
         await API.del(`/api/categories?id=${btn.dataset.del}`);
         await load();
       });
@@ -97,6 +115,13 @@
 
       <div class="admin__formSection">
         <div class="admin__field"><label>Category Name</label><input id="f_catName" value="${c.name || ""}" placeholder="e.g. Lighting"></div>
+        <div class="admin__field">
+          <label>Parent Category <span class="admin__hint-inline">(optional — makes this a subcategory)</span></label>
+          <select id="f_catParent">
+            <option value="">None — top-level category</option>
+            ${ALL_CATEGORIES.filter((x) => !x.parent_id && x.id !== c.id).map((x) => `<option value="${x.id}" ${c.parent_id === x.id ? "selected" : ""}>${x.name}</option>`).join("")}
+          </select>
+        </div>
       </div>
 
       <div class="admin__formSection">
@@ -157,15 +182,16 @@
     document.getElementById("saveCatBtn").addEventListener("click", async () => {
       const name = document.getElementById("f_catName").value.trim();
       if (!name) { alert("Category name is required."); return; }
+      const parentId = document.getElementById("f_catParent").value || null;
       try {
         let catId = c.id;
         if (isNew) {
-          await API.post("/api/categories", { name, imageUrl });
+          await API.post("/api/categories", { name, imageUrl, parentId });
           const fresh = await API.get("/api/categories");
           const created = fresh.find((x) => x.name === name);
           catId = created ? created.id : null;
         } else {
-          await API.patch(`/api/categories?id=${c.id}`, { name, imageUrl });
+          await API.patch(`/api/categories?id=${c.id}`, { name, imageUrl, parentId });
         }
         if (catId) {
           await API.patch(`/api/categories?id=${catId}&assign=1`, { productIds: Array.from(selectedProductIds) });
