@@ -94,6 +94,9 @@
 @media (hover:hover){ .oc-btn--dark:hover{ background: var(--gold-deep); } }
 .oc-btn--outline{ background: var(--paper-card); border-color: rgba(43,36,28,.18); color: var(--ink-900); }
 @media (hover:hover){ .oc-btn--outline:hover{ border-color: var(--gold-deep); color: var(--gold-deep); } }
+.oc-btn--whatsapp{ background: #25D366; color:#fff; }
+.oc-btn--whatsapp svg{ fill: currentColor; stroke: none; }
+@media (hover:hover){ .oc-btn--whatsapp:hover{ background: #1EBE5A; } }
 
 /* =========================================================
    RECEIPT
