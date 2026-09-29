@@ -284,15 +284,36 @@
 
     // Small transparent prev/next arrows beside the main image, plus
     // scrolling (wheel or touch swipe) over the main image itself steps
-    // through photos the same way — and either path scrolls the matching
-    // thumbnail into view in the rail, so the customer can always see
-    // which photo is active without hunting for it.
-    const imgCount = images().length;
+    // through photos the same way. Both paths swap the photo with a quick
+    // crossfade instead of the full-page re-render's instant cut, and
+    // scroll the matching thumbnail into view in the rail so the customer
+    // can always see which photo is active without hunting for it.
+    const imgList = images();
+    const imgCount = imgList.length;
     function stepImage(dir) {
       const next = state.activeIdx + dir;
       if (next < 0 || next >= imgCount) return;
       state.activeIdx = next;
-      render();
+
+      const mainImgEl = document.getElementById("pdpMainImg");
+      const countEm = document.querySelector(".pdp__count em");
+      const prevBtnEl = document.getElementById("pdpMainPrev");
+      const nextBtnEl = document.getElementById("pdpMainNext");
+
+      if (mainImgEl) {
+        mainImgEl.classList.add("is-fading");
+        setTimeout(() => {
+          mainImgEl.src = cldUrl(imgList[state.activeIdx], 900);
+          mainImgEl.classList.remove("is-fading");
+        }, 180);
+      }
+      if (countEm) countEm.textContent = String(state.activeIdx + 1).padStart(2, "0");
+      if (prevBtnEl) prevBtnEl.disabled = state.activeIdx === 0;
+      if (nextBtnEl) nextBtnEl.disabled = state.activeIdx === imgCount - 1;
+
+      document.querySelectorAll(".pdp__thumb").forEach((t, i) => t.classList.toggle("is-active", i === state.activeIdx));
+      const newActiveThumb = document.querySelectorAll(".pdp__thumb")[state.activeIdx];
+      if (newActiveThumb) newActiveThumb.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
     }
     const prevBtn = document.getElementById("pdpMainPrev");
     const nextBtn = document.getElementById("pdpMainNext");
