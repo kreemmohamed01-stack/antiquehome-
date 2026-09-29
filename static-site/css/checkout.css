@@ -469,9 +469,18 @@
   background: rgba(43,36,28,.05);
 }
 .chk__payRow-ico svg{ width:24px; height:24px; fill:none; stroke: var(--ink-900); stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; }
-.chk__payRow-ico--instapay{ background: rgba(107,33,216,.08); padding:8px; }
+/* The InstaPay wordmark's own viewBox is a wide rectangle (~3.5:1), so at
+   width:height 100% in this square box it only fills the box's height
+   and stays letterboxed left/right by default. Scaling the SVG itself
+   up (rather than just its box) makes it genuinely fill the square,
+   cropping the wordmark's empty side margins rather than shrinking the
+   whole logo down to fit them in. */
+.chk__payRow-ico--instapay{ background: rgba(107,33,216,.08); padding:0; overflow:hidden; }
 .chk__payRow-ico--instapay svg,
-.chk__payRow-ico--instapay .instapay-logo{ width:100%; height:100%; }
+.chk__payRow-ico--instapay .instapay-logo{
+  width:100%; height:100%; display:block;
+  transform: scale(2.9);
+}
 .chk__payRow-body{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
 .chk__payRow-body strong{ font-size:13.5px; font-weight:600; color: var(--ink-900); }
 .chk__payRow-body small{ font-size:11px; font-weight:300; color: var(--ink-500); }
