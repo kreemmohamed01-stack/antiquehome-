@@ -441,6 +441,114 @@
    PAYMENT METHOD
    ========================================================= */
 
+/* ---- payment method rows (Cash on Delivery / Instapay) ---- */
+.chk__payList{ display:flex; flex-direction:column; gap:10px; }
+.chk__payRow{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px 16px;
+  border:1.5px solid rgba(43,36,28,.12);
+  border-radius:12px;
+  background: var(--paper-2);
+  cursor:pointer;
+  transition: border-color .25s ease, background .25s ease;
+}
+.chk__payRow input{ position:absolute; opacity:0; pointer-events:none; }
+.chk__payRow.is-active,
+.chk__payRow:has(input:checked){
+  border-color: var(--gold-deep);
+  background: var(--paper-card);
+}
+.chk__payRow-ico{
+  flex:none;
+  width:44px; height:44px;
+  border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  background: rgba(43,36,28,.05);
+}
+.chk__payRow-ico svg{ width:24px; height:24px; fill:none; stroke: var(--ink-900); stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; }
+.chk__payRow-ico--instapay{ background: rgba(107,33,216,.08); padding:8px; }
+.chk__payRow-ico--instapay svg,
+.chk__payRow-ico--instapay .instapay-logo{ width:100%; height:100%; }
+.chk__payRow-body{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+.chk__payRow-body strong{ font-size:13.5px; font-weight:600; color: var(--ink-900); }
+.chk__payRow-body small{ font-size:11px; font-weight:300; color: var(--ink-500); }
+.chk__payRow-tag{
+  flex:none;
+  padding:3px 9px;
+  border-radius:20px;
+  background: rgba(217,174,99,.22);
+  color: var(--gold-deep);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.04em;
+}
+.chk__payRow-dot{
+  flex:none;
+  width:18px; height:18px;
+  border-radius:50%;
+  border:1.5px solid rgba(43,36,28,.3);
+}
+.chk__payRow.is-active .chk__payRow-dot,
+.chk__payRow:has(input:checked) .chk__payRow-dot{
+  border-color: var(--ink-900);
+  background: radial-gradient(circle, var(--ink-900) 0 5px, transparent 5px);
+}
+
+/* ---- Instapay Payment Details panel ---- */
+.chk__instapayBox{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:16px;
+  border-radius:12px;
+  background: linear-gradient(135deg, rgba(236,72,153,.08), rgba(107,33,216,.06));
+  margin-bottom:14px;
+}
+.chk__instapayLogo{ flex:none; width:76px; }
+.chk__instapayLogo svg{ width:100%; height:auto; display:block; }
+.chk__instapayInfo{ flex:1; min-width:0; display:flex; flex-direction:column; gap:10px; }
+.chk__instapayInfo-row{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+.chk__instapayInfo-row span{ font-size:11.5px; color: var(--ink-500); font-weight:300; }
+.chk__instapayInfo-val{ display:flex; align-items:center; gap:6px; }
+.chk__instapayInfo-val strong{ font-size:14px; font-weight:700; color: var(--ink-900); letter-spacing:.01em; text-transform:capitalize; }
+.chk__copyBtn{
+  flex:none;
+  width:26px; height:26px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:6px;
+  border:0;
+  background: rgba(255,255,255,.7);
+  color: var(--ink-600);
+  cursor:pointer;
+  transition: background .2s ease, color .2s ease;
+}
+.chk__copyBtn svg{ width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+@media (hover:hover){ .chk__copyBtn:hover{ background: var(--gold-deep); color:#fff; } }
+
+/* ---- labeled field (phone / sender's name) — its own wrapper (distinct
+   from the flat icon+input .chk__field used elsewhere) with a label
+   above and a hint below, matching the reference's InstaPay detail form ---- */
+.chk__fieldLabeled{ display:block; margin-bottom:14px; }
+.chk__fieldLabeled:last-child{ margin-bottom:0; }
+.chk__fieldLabel{ display:block; font-size:12.5px; font-weight:600; color: var(--ink-900); margin-bottom:7px; }
+.chk__fieldInput{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:13px 14px;
+  border:1px solid rgba(43,36,28,.16);
+  border-radius:9px;
+  background: var(--paper-2);
+  transition: border-color .25s ease;
+}
+.chk__fieldLabeled:focus-within .chk__fieldInput{ border-color: var(--gold-deep); }
+.chk__fieldInput svg{ flex:none; width:17px; height:17px; fill:none; stroke: var(--ink-400); stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+.chk__fieldInput input{ flex:1; border:0; background:none; font-family: var(--sans); font-size:13px; color: var(--ink-900); outline:none; min-width:0; }
+.chk__fieldHint{ display:block; font-size:10.5px; font-weight:300; color: var(--ink-400); margin-top:6px; }
+
 .chk__pay{
   display:grid;
   grid-template-columns: repeat(2, 1fr);

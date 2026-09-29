@@ -6,6 +6,20 @@
   const FALLBACK_STANDARD = 100;
   const FALLBACK_EXPRESS = 150;
 
+  // Instapay's own diagonal-arrow wordmark (purple "Insta" / orange "Pay"),
+  // matching the real logo rather than a plain text label — used both in
+  // the payment-method row and the details panel below it.
+  const INSTAPAY_LOGO_SVG = `
+    <svg viewBox="0 0 120 34" class="instapay-logo" aria-hidden="true">
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 24 L14 10" stroke="#6B21D8" stroke-width="4"/>
+        <path d="M9 24 L21 10" stroke="#A21CAF" stroke-width="4"/>
+        <path d="M16 24 L28 10" stroke="#EA580C" stroke-width="4"/>
+      </g>
+      <text x="34" y="15" font-family="Jost, Arial, sans-serif" font-weight="700" font-size="14" letter-spacing="0.2" fill="#3B0764">INSTA</text>
+      <text x="34" y="30" font-family="Jost, Arial, sans-serif" font-weight="700" font-size="14" letter-spacing="0.2" fill="#EA580C">PAY</text>
+    </svg>`;
+
   const state = {
     lines: [],
     delivery: "standard",
@@ -21,6 +35,7 @@
     address: "",
     notes: "",
     paymentReference: "",
+    paymentSenderName: "",
     rates: [],
     couponInput: "",
     coupon: null,
@@ -232,48 +247,83 @@
           <section class="chk__card">
             <h2 class="chk__heading">5. Payment Method</h2>
             <p class="chk__sub">Choose your preferred payment method.</p>
-            <div class="chk__pay">
-              <label class="chk__payCard${state.payment === "instapay" ? " is-active" : ""}">
-                <input type="radio" name="payment" value="instapay" ${state.payment === "instapay" ? "checked" : ""} />
-                <span class="chk__payDot" aria-hidden="true"></span>
-                <span class="chk__payLogo chk__payLogo--instapay">InstaPay</span>
-                <span class="chk__payLabel">InstaPay</span>
-              </label>
-              <label class="chk__payCard${state.payment === "cod" ? " is-active" : ""}">
+            <div class="chk__payList">
+              <label class="chk__payRow${state.payment === "cod" ? " is-active" : ""}">
                 <input type="radio" name="payment" value="cod" ${state.payment === "cod" ? "checked" : ""} />
-                <span class="chk__payDot" aria-hidden="true"></span>
-                <span class="chk__payIco" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="3" y="9" width="26" height="17" rx="2.4"></rect><circle cx="16" cy="17.5" r="4.2"></circle><path d="M20 25 25 29"></path></svg></span>
-                <span class="chk__payLabel">Cash<br />on Delivery</span>
+                <span class="chk__payRow-ico chk__payRow-ico--cod" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="3" y="9" width="26" height="17" rx="2.4"></rect><circle cx="16" cy="17.5" r="4.2"></circle><path d="M20 25 25 29"></path></svg></span>
+                <span class="chk__payRow-body">
+                  <strong>Cash on Delivery</strong>
+                  <small>Pay when you receive your order</small>
+                </span>
+                <span class="chk__payRow-tag">COD</span>
+                <span class="chk__payRow-dot" aria-hidden="true"></span>
+              </label>
+              <label class="chk__payRow${state.payment === "instapay" ? " is-active" : ""}">
+                <input type="radio" name="payment" value="instapay" ${state.payment === "instapay" ? "checked" : ""} />
+                <span class="chk__payRow-ico chk__payRow-ico--instapay" aria-hidden="true">${INSTAPAY_LOGO_SVG}</span>
+                <span class="chk__payRow-body">
+                  <strong>Instapay</strong>
+                  <small>Transfer the amount using Instapay</small>
+                </span>
+                <span class="chk__payRow-dot" aria-hidden="true"></span>
               </label>
             </div>
+          </section>
 
-            ${
-              state.payment === "instapay"
-                ? `<div class="chk__payPanel">
-                    <div class="chk__payNote">
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.4"></circle><line x1="12" y1="8" x2="12" y2="13"></line><circle cx="12" cy="16.2" r="0.4"></circle></svg>
-                      <div>
-                        <strong>Transfer to this InstaPay account</strong>
-                        <p>Send the total below, then enter the reference number from your transfer so we can match your payment.</p>
+          ${
+            state.payment === "instapay"
+              ? `<section class="chk__card">
+                  <h2 class="chk__heading">Instapay Payment Details</h2>
+                  <p class="chk__sub">Send the exact amount to the following account</p>
+
+                  <div class="chk__instapayBox">
+                    <div class="chk__instapayLogo" aria-hidden="true">${INSTAPAY_LOGO_SVG}</div>
+                    <div class="chk__instapayInfo">
+                      <div class="chk__instapayInfo-row">
+                        <span>Instapay number :</span>
+                        <div class="chk__instapayInfo-val">
+                          <strong>01125470009</strong>
+                          <button type="button" class="chk__copyBtn" data-copy="01125470009" aria-label="Copy InstaPay number"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="1.5"></rect><path d="M5 16H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"></path></svg></button>
+                        </div>
+                      </div>
+                      <div class="chk__instapayInfo-row">
+                        <span>Name :</span>
+                        <div class="chk__instapayInfo-val">
+                          <strong>karim said salah</strong>
+                          <button type="button" class="chk__copyBtn" data-copy="karim said salah" aria-label="Copy account name"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="1.5"></rect><path d="M5 16H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"></path></svg></button>
+                        </div>
                       </div>
                     </div>
-                    <div class="chk__instapayDetails">
-                      <div class="chk__instapayRow"><span>InstaPay Number</span><strong>01125470009</strong></div>
-                      <div class="chk__instapayRow"><span>Account Name</span><strong>Karim Said Salah</strong></div>
+                  </div>
+
+                  <div class="chk__payNote">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.4"></circle><line x1="12" y1="8" x2="12" y2="13"></line><circle cx="12" cy="16.2" r="0.4"></circle></svg>
+                    <div>
+                      <strong>Please transfer the amount on this account</strong>
+                      <p>Make sure to send the exact amount for your order.</p>
                     </div>
-                    <label class="chk__field">
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.6h16v12.8H4Z"></path><path d="m4.4 6 7.6 6.4L19.6 6"></path></svg>
-                      <input type="text" id="fPaymentRef" placeholder="Transfer reference / transaction number" value="${state.paymentReference || ""}" />
-                    </label>
-                  </div>`
-                : ""
-            }
-            ${
-              state.payment === "cod"
-                ? `<div class="chk__payPanel"><div class="chk__payNote"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.4"></circle><line x1="12" y1="8" x2="12" y2="13"></line><circle cx="12" cy="16.2" r="0.4"></circle></svg><div><strong>Cash on Delivery</strong><p>Pay in cash when your order arrives at your doorstep.</p></div></div></div>`
-                : ""
-            }
-          </section>
+                  </div>
+
+                  <label class="chk__fieldLabeled">
+                    <span class="chk__fieldLabel">Enter the phone number you sent from</span>
+                    <span class="chk__fieldInput">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 4.4H6a2.2 2.2 0 0 0-2.2 2.2c0 7.4 5.8 13.2 13.2 13.2a2.2 2.2 0 0 0 2.2-2.2v-2l-4-1.5-1.8 1.8a12.4 12.4 0 0 1-5.1-5.1L10 8.8Z"></path></svg>
+                      <input type="tel" id="fPaymentRef" placeholder="01XXXXXXXX" value="${state.paymentReference || ""}" />
+                    </span>
+                    <small class="chk__fieldHint">Write the InstaPay number you used to send the payment from.</small>
+                  </label>
+
+                  <label class="chk__fieldLabeled">
+                    <span class="chk__fieldLabel">Sender's name</span>
+                    <span class="chk__fieldInput">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"></circle><path d="M4.4 20a7.6 7.6 0 0 1 15.2 0"></path></svg>
+                      <input type="text" id="fPaymentSender" placeholder="Full name" value="${state.paymentSenderName || ""}" />
+                    </span>
+                    <small class="chk__fieldHint">Enter the name of the account you sent from.</small>
+                  </label>
+                </section>`
+              : ""
+          }
 
           <section class="chk__card">
             <h2 class="chk__heading">6. Additional Notes <small>(Optional)</small></h2>
@@ -324,6 +374,23 @@
     byId("fAgree").addEventListener("change", (e) => (state.agree = e.target.checked));
     const paymentRefEl = byId("fPaymentRef");
     paymentRefEl && paymentRefEl.addEventListener("input", (e) => (state.paymentReference = e.target.value));
+    const paymentSenderEl = byId("fPaymentSender");
+    paymentSenderEl && paymentSenderEl.addEventListener("input", (e) => (state.paymentSenderName = e.target.value));
+
+    document.querySelectorAll("[data-copy]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const text = btn.getAttribute("data-copy") || "";
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          // clipboard API unavailable — select the text as a fallback so
+          // the customer can still copy it manually.
+        }
+        const original = btn.innerHTML;
+        btn.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="4,13 9,18 20,6"></polyline></svg>`;
+        setTimeout(() => { btn.innerHTML = original; }, 1400);
+      });
+    });
 
     document.querySelectorAll('input[name="delivery"]').forEach((r) =>
       r.addEventListener("change", (e) => {
@@ -412,7 +479,12 @@
       return;
     }
     if (state.payment === "instapay" && !state.paymentReference.trim()) {
-      state.error = "Please enter the InstaPay transfer reference number.";
+      state.error = "Please enter the phone number you sent the InstaPay transfer from.";
+      render();
+      return;
+    }
+    if (state.payment === "instapay" && !state.paymentSenderName.trim()) {
+      state.error = "Please enter the sender's name.";
       render();
       return;
     }
@@ -440,6 +512,7 @@
         delivery: deliveryLabel,
         payment: state.payment === "instapay" ? "InstaPay" : "Cash on Delivery",
         paymentReference: state.payment === "instapay" ? state.paymentReference.trim() : null,
+        paymentSenderName: state.payment === "instapay" ? state.paymentSenderName.trim() : null,
         notes: state.notes,
         items: state.lines.map((l) => ({ name: l.name, price: l.price, image: l.image, qty: l.qty })),
         subtotal,

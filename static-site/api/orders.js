@@ -48,11 +48,11 @@ module.exports = async (req, res) => {
       const orderRows = await sql`
         INSERT INTO orders (
           order_number, customer_name, email, phone, governorate, city, address,
-          delivery_method, payment_method, payment_reference, notes, subtotal, shipping, discount, coupon_code, total, status
+          delivery_method, payment_method, payment_reference, payment_sender_name, notes, subtotal, shipping, discount, coupon_code, total, status
         ) VALUES (
           ${orderNumber}, ${body.fullName}, ${body.email}, ${body.phone},
           ${body.governorate || null}, ${body.city || null}, ${body.address || null},
-          ${body.delivery}, ${body.payment}, ${body.paymentReference || null}, ${body.notes || null},
+          ${body.delivery}, ${body.payment}, ${body.paymentReference || null}, ${body.paymentSenderName || null}, ${body.notes || null},
           ${body.subtotal}, ${body.shipping}, ${body.discount || 0}, ${body.couponCode || null}, ${body.total}, 'pending'
         ) RETURNING id, order_number
       `;
