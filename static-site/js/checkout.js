@@ -438,7 +438,10 @@
         const id = btn.dataset.id;
         const step = Number(btn.dataset.step);
         const line = state.lines.find((l) => l.id === id);
-        if (line) Cart.setQty(id, line.qty + step);
+        if (!line) return;
+        // Pressing "-" at qty 1 removes the line instead of doing nothing.
+        if (step < 0 && line.qty <= 1) Cart.remove(id);
+        else Cart.setQty(id, line.qty + step);
       })
     );
 

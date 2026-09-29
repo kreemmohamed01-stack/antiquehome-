@@ -362,7 +362,14 @@
         const li = stepBtn.closest(".citem");
         const currentQty = parseInt((li && li.getAttribute("data-qty")) || "1", 10) || 1;
         const step = parseInt(stepBtn.getAttribute("data-step") || "0", 10) || 0;
-        Cart.setQty(id, currentQty + step);
+        // Pressing "-" at qty 1 removes the item — same as tapping the
+        // remove (×) button — instead of doing nothing (Cart.setQty
+        // never lets qty go below 1).
+        if (step < 0 && currentQty <= 1) {
+          Cart.remove(id);
+        } else {
+          Cart.setQty(id, currentQty + step);
+        }
         return;
       }
       const removeBtn = target.closest && target.closest(".citem__remove");
