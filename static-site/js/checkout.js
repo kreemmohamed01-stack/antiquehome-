@@ -6,6 +6,11 @@
   const FALLBACK_STANDARD = 100;
   const FALLBACK_EXPRESS = 150;
 
+  // Same showroom address/link as the footer's "Visit Us" block
+  // (js/chrome-partials.js) — shown here when Store Pickup is selected.
+  const STORE_ADDRESS = "El Nozha, Taha Hussein St. — 2 Mahmoud Haridy";
+  const STORE_MAPS_URL = "https://maps.google.com/maps?q=2+Mahmoud+Haridy,+El+Nozha,+Cairo+Governorate&ftid=0x145817d7eee8f175:0x984cb1d837b32a46";
+
   // Instapay's own diagonal-arrow wordmark (purple "Insta" / orange "Pay"),
   // matching the real logo rather than a plain text label — used both in
   // the payment-method row and the details panel below it.
@@ -217,6 +222,24 @@
                 <span class="chk__radioPrice">Free</span>
               </label>
             </div>
+
+            ${
+              state.delivery === "pickup"
+                ? `<div class="chk__payPanel">
+                    <div class="chk__payNote">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.4c-5.6 0-10 4.4-10 10 0 7.4 10 15.2 10 15.2s10-7.8 10-15.2c0-5.6-4.4-10-10-10Z"></path><circle cx="12" cy="13.4" r="3.6"></circle></svg>
+                      <div>
+                        <strong>Pick up from our showroom</strong>
+                        <p>${STORE_ADDRESS}</p>
+                        <a href="${STORE_MAPS_URL}" target="_blank" rel="noopener noreferrer" class="chk__pickupMapLink">
+                          <span>Get Directions</span>
+                          <svg viewBox="0 0 26 12" aria-hidden="true"><line x1="0" y1="6" x2="22" y2="6"></line><polyline points="17.4,1.6 22.4,6 17.4,10.4"></polyline></svg>
+                        </a>
+                      </div>
+                    </div>
+                  </div>`
+                : ""
+            }
           </section>
 
           <section class="chk__card">
