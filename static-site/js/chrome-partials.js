@@ -4,6 +4,11 @@
 // MusicPlayer.tsx). Injected as a string (not React) so site-chrome.js's
 // getElementById lookups find the same DOM structure/ids/classes.
 (function () {
+  // Stable place-id link (resolved from the shop's shared Google Maps
+  // short link) rather than a plain text-search query, so it always
+  // opens the exact pinned location rather than a "best guess" result.
+  var MAPS_URL = "https://maps.google.com/maps?q=2+Mahmoud+Haridy,+El+Nozha,+Cairo+Governorate&ftid=0x145817d7eee8f175:0x984cb1d837b32a46";
+
   var CHROME_HTML = `
 <footer class="foot" id="contact">
   <picture class="foot__bg">
@@ -64,6 +69,22 @@
       </div>
     </div>
 
+    <div class="fvisit rv rv--up" data-rv>
+      <a class="fvisit__inner" href="${MAPS_URL}" target="_blank" rel="noopener noreferrer">
+        <span class="fvisit__ico" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M16 3.4c-5.6 0-10 4.4-10 10 0 7.4 10 15.2 10 15.2s10-7.8 10-15.2c0-5.6-4.4-10-10-10Z"/><circle cx="16" cy="13.4" r="3.6"/></svg>
+        </span>
+        <span class="fvisit__copy">
+          <span class="fvisit__label">Visit Our Showroom</span>
+          <span class="fvisit__addr">El Nozha, Taha Hussein St. — 2 Mahmoud Haridy</span>
+        </span>
+        <span class="fvisit__cta">
+          <span>Get Directions</span>
+          <svg viewBox="0 0 26 12" aria-hidden="true"><line x1="0" y1="6" x2="22" y2="6"></line><polyline points="17.4,1.6 22.4,6 17.4,10.4"></polyline></svg>
+        </span>
+      </a>
+    </div>
+
     <div class="fbar">
       <ul class="fbar__list">
         <li class="fbar__item rv rv--up" data-rv>
@@ -97,7 +118,7 @@
                 <path fill="#c62828" d="M3 12.298V16.2l10 7.5V11.2L9.876 8.859A4.298 4.298 0 0 0 7.298 8h0A4.298 4.298 0 0 0 3 12.298z"/>
                 <path fill="#fbc02d" d="M45 12.298V16.2l-10 7.5V11.2l3.124-2.341A4.298 4.298 0 0 1 40.702 8h0A4.298 4.298 0 0 1 45 12.298z"/>
               </svg></a></li>
-            <li><a href="#" aria-label="Find us on Google Maps">
+            <li><a href="${MAPS_URL}" target="_blank" rel="noopener noreferrer" aria-label="Find us on Google Maps">
               <svg viewBox="0 0 48 48" aria-hidden="true">
                 <path fill="#4285F4" d="M24 46s-3.9-5-7.3-10.2h14.6C27.9 41 24 46 24 46z"/>
                 <path fill="#34A853" d="M11.9 28.7C10 25.6 8.8 22.6 8.8 19.6c0-2.9.9-5.6 2.5-7.8l11.1 9.4-10.5 7.5z"/>
@@ -274,7 +295,7 @@
           <path fill="#c62828" d="M3 12.298V16.2l10 7.5V11.2L9.876 8.859A4.298 4.298 0 0 0 7.298 8h0A4.298 4.298 0 0 0 3 12.298z"/>
           <path fill="#fbc02d" d="M45 12.298V16.2l-10 7.5V11.2l3.124-2.341A4.298 4.298 0 0 1 40.702 8h0A4.298 4.298 0 0 1 45 12.298z"/>
         </svg></a></li>
-      <li><a href="#" aria-label="Find us on Google Maps">
+      <li><a href="${MAPS_URL}" target="_blank" rel="noopener noreferrer" aria-label="Find us on Google Maps">
         <svg viewBox="0 0 48 48" aria-hidden="true">
           <path fill="#4285F4" d="M24 46s-3.9-5-7.3-10.2h14.6C27.9 41 24 46 24 46z"/>
           <path fill="#34A853" d="M11.9 28.7C10 25.6 8.8 22.6 8.8 19.6c0-2.9.9-5.6 2.5-7.8l11.1 9.4-10.5 7.5z"/>
