@@ -524,27 +524,14 @@
     (function heroVideo() {
       const video = document.getElementById("heroVideo");
       if (!video) return;
-      const SOURCES = { mobile: "/hero video mop.mp4", desktop: "/hero vedio lab.mp4" };
-      const wide = window.matchMedia("(min-width: 900px)");
-      let current = "mobile";
-
+      // Single hero video for both mobile and desktop now — src is
+      // already set in the markup, so this just handles autoplay.
       function play() {
         const p = video.play();
         if (p && typeof p.catch === "function") p.catch(() => {});
       }
 
-      function loadSource() {
-        const key = wide.matches ? "desktop" : "mobile";
-        if (key === current) return;
-        current = key;
-        video.src = SOURCES[key];
-        video.load();
-        play();
-      }
-
       play();
-      loadSource();
-      wide.addEventListener && wide.addEventListener("change", loadSource);
 
       document.addEventListener("visibilitychange", () => {
         if (!document.hidden && video.paused) play();
