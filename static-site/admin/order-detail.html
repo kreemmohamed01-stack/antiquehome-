@@ -90,6 +90,7 @@
       <p>${order.governorate || ""} ${order.city ? "· " + order.city : ""}</p>
       <p>${order.address || ""}</p>
       <p style="color:var(--a-text-dim);font-size:12px">${order.delivery_method} · ${order.payment_method}</p>
+      ${order.payment_reference ? `<p style="color:var(--a-text-dim);font-size:12px">InstaPay ref: <strong style="color:var(--a-text)">${order.payment_reference}</strong></p>` : ""}
     `;
 
     document.getElementById("itemsCard").innerHTML = `

@@ -200,6 +200,32 @@
 .pdp__zoom svg{ width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
 @media (hover:hover){ .pdp__zoom:hover{ transform: scale(1.08); } }
 
+/* small transparent prev/next arrows beside the main product photo —
+   step through the gallery without needing the thumbnail rail */
+.pdp__mainNav{
+  position:absolute;
+  top:50%;
+  transform: translateY(-50%);
+  width:34px; height:34px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background: rgba(251,248,243,.55);
+  border:0;
+  color: var(--ink-900);
+  cursor:pointer;
+  backdrop-filter: blur(2px);
+  transition: background .25s var(--ease), transform .25s var(--ease), opacity .25s var(--ease);
+}
+.pdp__mainNav svg{ width:15px; height:11px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.pdp__mainNav--prev{ left:10px; }
+.pdp__mainNav--prev svg{ margin-right:1px; }
+.pdp__mainNav--next{ right:10px; }
+.pdp__mainNav--next svg{ margin-left:1px; }
+.pdp__mainNav[disabled]{ opacity:.25; cursor:not-allowed; }
+@media (hover:hover){
+  .pdp__mainNav:not([disabled]):hover{ background: rgba(251,248,243,.92); transform: translateY(-50%) scale(1.08); }
+}
+
 @media (min-width: 1024px){
   .pdp__main{ aspect-ratio:auto; height:560px; }
 }

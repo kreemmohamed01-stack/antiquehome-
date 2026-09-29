@@ -443,7 +443,7 @@
 
 .chk__pay{
   display:grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap:10px;
   margin-bottom:16px;
 }
@@ -546,6 +546,27 @@
 .chk__payPerks span{ font-size:10.5px; color: var(--ink-400); }
 
 .chk__cardTitle{ margin:0 0 12px; font-size:13px; font-weight:600; color: var(--ink-900); }
+
+/* InstaPay transfer details — the account the customer sends money to,
+   shown plainly so it's easy to copy before entering their own reference
+   number below. */
+.chk__instapayDetails{
+  border:1px solid rgba(43,36,28,.12);
+  border-radius:10px;
+  padding:4px 14px;
+  margin-bottom:14px;
+}
+.chk__instapayRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:11px 0;
+  border-bottom:1px solid rgba(43,36,28,.08);
+}
+.chk__instapayRow:last-child{ border-bottom:0; }
+.chk__instapayRow span{ font-size:11.5px; color: var(--ink-600); font-weight:300; }
+.chk__instapayRow strong{ font-size:13px; color: var(--ink-900); font-weight:600; letter-spacing:.02em; }
 
 /* =========================================================
    ADDITIONAL NOTES / AGREE / SUBMIT

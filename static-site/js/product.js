@@ -165,6 +165,13 @@
               <button type="button" class="pdp__zoom" id="pdpZoomBtn" aria-label="Zoom image">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3H3v6"></path><path d="M15 21h6v-6"></path><path d="M21 3h-6"></path><path d="M3 21h6"></path></svg>
               </button>
+              ${imgs.length > 1 ? `
+              <button type="button" class="pdp__mainNav pdp__mainNav--prev" id="pdpMainPrev" aria-label="Previous image" ${state.activeIdx === 0 ? "disabled" : ""}>
+                <svg viewBox="0 0 20 14" aria-hidden="true"><line x1="19" y1="7" x2="2" y2="7"></line><polyline points="7.4,1.6 1.6,7 7.4,12.4"></polyline></svg>
+              </button>
+              <button type="button" class="pdp__mainNav pdp__mainNav--next" id="pdpMainNext" aria-label="Next image" ${state.activeIdx === imgs.length - 1 ? "disabled" : ""}>
+                <svg viewBox="0 0 20 14" aria-hidden="true"><line x1="1" y1="7" x2="18" y2="7"></line><polyline points="12.6,1.6 18.4,7 12.6,12.4"></polyline></svg>
+              </button>` : ""}
             </figure>
           </div>
 
@@ -274,6 +281,45 @@
         render();
       });
     });
+
+    // Small transparent prev/next arrows beside the main image, plus
+    // scrolling (wheel or touch swipe) over the main image itself steps
+    // through photos the same way — and either path scrolls the matching
+    // thumbnail into view in the rail, so the customer can always see
+    // which photo is active without hunting for it.
+    const imgCount = images().length;
+    function stepImage(dir) {
+      const next = state.activeIdx + dir;
+      if (next < 0 || next >= imgCount) return;
+      state.activeIdx = next;
+      render();
+    }
+    const prevBtn = document.getElementById("pdpMainPrev");
+    const nextBtn = document.getElementById("pdpMainNext");
+    if (prevBtn) prevBtn.addEventListener("click", () => stepImage(-1));
+    if (nextBtn) nextBtn.addEventListener("click", () => stepImage(1));
+
+    const mainFigure = document.querySelector(".pdp__main");
+    if (mainFigure && imgCount > 1) {
+      let wheelLock = false;
+      mainFigure.addEventListener(
+        "wheel",
+        (e) => {
+          if (wheelLock) return;
+          const horizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+          const delta = horizontal ? e.deltaX : e.deltaY;
+          if (Math.abs(delta) < 12) return;
+          e.preventDefault();
+          wheelLock = true;
+          stepImage(delta > 0 ? 1 : -1);
+          setTimeout(() => { wheelLock = false; }, 350);
+        },
+        { passive: false }
+      );
+    }
+
+    const activeThumb = document.querySelector(".pdp__thumb.is-active");
+    if (activeThumb) activeThumb.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
 
     document.querySelectorAll("[data-color-idx]").forEach((btn) => {
       btn.addEventListener("click", () => {

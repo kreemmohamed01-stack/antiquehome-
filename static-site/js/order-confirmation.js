@@ -128,6 +128,7 @@
               <h3>Order Info</h3>
               <p><span>Delivery:</span> <span>${order.delivery_method || "—"}</span></p>
               <p><span>Payment:</span> <span>${order.payment_method || "—"}</span></p>
+              ${order.payment_reference ? `<p><span>Transfer Ref:</span> <span>${order.payment_reference}</span></p>` : ""}
             </div>
           </div>
 

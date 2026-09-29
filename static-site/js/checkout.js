@@ -20,6 +20,7 @@
     city: "",
     address: "",
     notes: "",
+    paymentReference: "",
     rates: [],
     couponInput: "",
     coupon: null,
@@ -244,27 +245,32 @@
                 <span class="chk__payIco" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="3" y="9" width="26" height="17" rx="2.4"></rect><circle cx="16" cy="17.5" r="4.2"></circle><path d="M20 25 25 29"></path></svg></span>
                 <span class="chk__payLabel">Cash<br />on Delivery</span>
               </label>
-              <label class="chk__payCard${state.payment === "card" ? " is-active" : ""}">
-                <input type="radio" name="payment" value="card" ${state.payment === "card" ? "checked" : ""} />
-                <span class="chk__payDot" aria-hidden="true"></span>
-                <span class="chk__payIco" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="3" y="7.6" width="26" height="16.8" rx="2.4"></rect><line x1="3" y1="13" x2="29" y2="13"></line></svg></span>
-                <span class="chk__payLabel">Debit Card</span>
-              </label>
             </div>
 
             ${
               state.payment === "instapay"
-                ? `<div class="chk__payPanel"><div class="chk__payNote"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.4"></circle><line x1="12" y1="8" x2="12" y2="13"></line><circle cx="12" cy="16.2" r="0.4"></circle></svg><div><strong>Pay with InstaPay</strong><p>You will be redirected to complete your payment using InstaPay.</p></div></div></div>`
+                ? `<div class="chk__payPanel">
+                    <div class="chk__payNote">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.4"></circle><line x1="12" y1="8" x2="12" y2="13"></line><circle cx="12" cy="16.2" r="0.4"></circle></svg>
+                      <div>
+                        <strong>Transfer to this InstaPay account</strong>
+                        <p>Send the total below, then enter the reference number from your transfer so we can match your payment.</p>
+                      </div>
+                    </div>
+                    <div class="chk__instapayDetails">
+                      <div class="chk__instapayRow"><span>InstaPay Number</span><strong>01125470009</strong></div>
+                      <div class="chk__instapayRow"><span>Account Name</span><strong>Karim Said Salah</strong></div>
+                    </div>
+                    <label class="chk__field">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.6h16v12.8H4Z"></path><path d="m4.4 6 7.6 6.4L19.6 6"></path></svg>
+                      <input type="text" id="fPaymentRef" placeholder="Transfer reference / transaction number" value="${state.paymentReference || ""}" />
+                    </label>
+                  </div>`
                 : ""
             }
             ${
               state.payment === "cod"
                 ? `<div class="chk__payPanel"><div class="chk__payNote"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.4"></circle><line x1="12" y1="8" x2="12" y2="13"></line><circle cx="12" cy="16.2" r="0.4"></circle></svg><div><strong>Cash on Delivery</strong><p>Pay in cash when your order arrives at your doorstep.</p></div></div></div>`
-                : ""
-            }
-            ${
-              state.payment === "card"
-                ? `<div class="chk__payPanel"><p class="chk__cardTitle">Pay with Debit Card</p><label class="chk__field"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12.4" rx="1.8"></rect><line x1="3" y1="10" x2="21" y2="10"></line></svg><input type="text" placeholder="Card Number" inputmode="numeric" autocomplete="cc-number" /></label></div>`
                 : ""
             }
           </section>
@@ -316,6 +322,8 @@
     byId("fAddress").addEventListener("input", (e) => (state.address = e.target.value));
     byId("fNotes").addEventListener("input", (e) => (state.notes = e.target.value));
     byId("fAgree").addEventListener("change", (e) => (state.agree = e.target.checked));
+    const paymentRefEl = byId("fPaymentRef");
+    paymentRefEl && paymentRefEl.addEventListener("input", (e) => (state.paymentReference = e.target.value));
 
     document.querySelectorAll('input[name="delivery"]').forEach((r) =>
       r.addEventListener("change", (e) => {
@@ -403,6 +411,11 @@
       render();
       return;
     }
+    if (state.payment === "instapay" && !state.paymentReference.trim()) {
+      state.error = "Please enter the InstaPay transfer reference number.";
+      render();
+      return;
+    }
     if (state.lines.length === 0) {
       state.error = "Your cart is empty.";
       render();
@@ -425,7 +438,8 @@
         city: state.city,
         address: state.address,
         delivery: deliveryLabel,
-        payment: state.payment === "instapay" ? "InstaPay" : state.payment === "cod" ? "Cash on Delivery" : "Debit Card",
+        payment: state.payment === "instapay" ? "InstaPay" : "Cash on Delivery",
+        paymentReference: state.payment === "instapay" ? state.paymentReference.trim() : null,
         notes: state.notes,
         items: state.lines.map((l) => ({ name: l.name, price: l.price, image: l.image, qty: l.qty })),
         subtotal,
