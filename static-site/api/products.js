@@ -12,6 +12,26 @@ function num(x) {
   return x === "" || x === null || x === undefined ? null : Number(x);
 }
 
+// Two products can share a name (e.g. two "Porcelain Tissue Box" pieces
+// in different colors) — their slug can't collide though (products.slug
+// is UNIQUE), and this used to surface as a raw Postgres constraint
+// error with no indication of what happened or how to fix it. Appends
+// -2, -3, ... until the slug is free, excluding the product's own
+// current row on an edit (so re-saving a product unchanged never shifts
+// its own slug).
+async function uniqueSlug(desired, excludeId) {
+  let candidate = desired;
+  let n = 2;
+  for (;;) {
+    const rows = excludeId
+      ? await sql`SELECT 1 FROM products WHERE slug = ${candidate} AND id != ${excludeId} LIMIT 1`
+      : await sql`SELECT 1 FROM products WHERE slug = ${candidate} LIMIT 1`;
+    if (!rows.length) return candidate;
+    candidate = `${desired}-${n}`;
+    n += 1;
+  }
+}
+
 async function readBody(req) {
   let body = req.body;
   if (typeof body === "string") {
@@ -74,7 +94,7 @@ module.exports = async (req, res) => {
       const name = String(b.name || "").trim();
       if (!name) { res.status(400).json({ error: "Name is required." }); return; }
 
-      const slug = String(b.slug || slugify(name));
+      const slug = await uniqueSlug(String(b.slug || slugify(name)), null);
       const categoryIds = Array.isArray(b.categoryIds) ? b.categoryIds : [];
       const primaryCategory = categoryIds.length ? Number(categoryIds[0]) : null;
 
@@ -126,8 +146,9 @@ module.exports = async (req, res) => {
       if (!pid) { res.status(400).json({ error: "Missing id" }); return; }
       const b = await readBody(req);
       const name = String(b.name || "").trim();
-      const slug = String(b.slug || "").trim();
+      let slug = String(b.slug || "").trim();
       if (!name || !slug) { res.status(400).json({ error: "Name and slug are required." }); return; }
+      slug = await uniqueSlug(slug, pid);
 
       const categoryIds = Array.isArray(b.categoryIds) ? b.categoryIds : [];
       const primaryCategory = categoryIds.length ? Number(categoryIds[0]) : null;
@@ -169,7 +190,7 @@ module.exports = async (req, res) => {
         SELECT ${pid}, cid FROM unnest(${categoryIdInts}::int[]) AS cid
         ON CONFLICT DO NOTHING
       `;
-      res.status(200).json({ ok: true });
+      res.status(200).json({ ok: true, slug });
       return;
     }
 
