@@ -853,26 +853,33 @@
 .pcard__add{
   position:absolute;
   left:0; right:0; bottom:0;
-  padding:10px 8px;
+  padding:12px 8px 11px;
   display:flex; align-items:center; justify-content:center;
-  gap:6px;
-  background: rgba(20,15,9,.72);
-  color:#fff;
+  background: linear-gradient(180deg, rgba(20,15,9,.86), rgba(12,9,5,.94));
+  color: var(--gold, #C9B48A);
   border:0;
+  border-top:1px solid rgba(201,180,138,.5);
   cursor:pointer;
-  font-family: var(--sans);
-  font-size:10.5px;
-  font-weight:600;
-  letter-spacing:.14em;
+  font-family: var(--serif, var(--sans));
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:.22em;
   text-transform:uppercase;
   opacity:0;
   transform: translateY(100%);
-  transition: background .3s var(--ease), opacity .3s var(--ease), transform .3s var(--ease);
+  transition: background .3s var(--ease), opacity .3s var(--ease), transform .3s var(--ease), color .3s var(--ease);
+  overflow:hidden;
 }
-.pcard__add svg{ width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; }
+.pcard__add::after{
+  content:"";
+  position:absolute; inset:0;
+  background: linear-gradient(110deg, transparent 30%, rgba(201,180,138,.28) 50%, transparent 70%);
+  transform: translateX(-120%);
+}
 @media (hover:hover){
   .pcard:hover .pcard__add{ opacity:1; transform: translateY(0); }
-  .pcard__add:hover{ background: rgba(20,15,9,.92); }
+  .pcard__add:hover{ color:#fff; }
+  .pcard__add:hover::after{ transform: translateX(120%); transition: transform .9s var(--ease); }
 }
 /* touch devices: tapping the card once reveals the bar (site-chrome.js
    toggles this class) instead of navigating straight to the product;
