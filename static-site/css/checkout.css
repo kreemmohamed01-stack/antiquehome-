@@ -479,7 +479,7 @@
 .chk__payRow-ico--instapay svg,
 .chk__payRow-ico--instapay .instapay-logo{
   width:100%; height:100%; display:block;
-  transform: scale(2.9);
+  transform: scale(1.35);
 }
 .chk__payRow-body{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
 .chk__payRow-body strong{ font-size:13.5px; font-weight:600; color: var(--ink-900); }
