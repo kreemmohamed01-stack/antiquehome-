@@ -173,9 +173,45 @@
             <span class="shop-banner__rule" aria-hidden="true"><i></i><i></i></span>
             <p class="shop-banner__text">${banner.text}</p>
           </div>
-        </section>`;
+        </section>
+        <div id="subcatRailSlot"></div>`;
       railSlot.innerHTML = "";
+      renderSubcatRail();
     }
+  }
+
+  // When the current category has real subcategories (fetched live from
+  // /api/categories, not hardcoded), shows them as a row of pill links
+  // right under its banner — e.g. landing on Accessories shows Colored
+  // Vases / Candle Holder / Raisin / etc. so a customer can jump straight
+  // into one instead of only reaching it via a direct link.
+  function renderSubcatRail() {
+    const slot = document.getElementById("subcatRailSlot");
+    if (!slot) return;
+    const current = categories.find((c) => c.slug === activeCategory);
+    if (!current) { slot.innerHTML = ""; return; }
+
+    // On a parent category (e.g. Accessories), list its subcategories.
+    // On a subcategory itself (e.g. Colored Vases), list its siblings —
+    // plus the parent, so it's a one-click way back up to the full group.
+    const parentId = current.parent_id || current.id;
+    const parent = categories.find((c) => c.id === parentId);
+    const subs = categories.filter((c) => c.parent_id === parentId);
+    if (!subs.length) { slot.innerHTML = ""; return; }
+
+    const links = current.parent_id
+      ? [{ slug: parent.slug, name: parent.name, isParent: true }, ...subs]
+      : subs;
+
+    slot.innerHTML = `
+      <nav class="subcat-rail" aria-label="Shop ${parent.name} by type">
+        <div class="subcat-rail__inner">
+          <span class="subcat-rail__label">Shop by type</span>
+          <div class="subcat-rail__list">
+            ${links.map((s) => `<a class="subcat-rail__pill${s.slug === activeCategory ? " is-active" : ""}${s.isParent ? " subcat-rail__pill--all" : ""}" href="/shop.html?category=${s.slug}">${s.isParent ? "All " + s.name : s.name}</a>`).join("")}
+          </div>
+        </div>
+      </nav>`;
   }
 
   function catRailHtml(active) {
@@ -442,6 +478,7 @@
       categories = [];
       siteSale = { active: false, percent: 0, label: "" };
     }
+    renderSubcatRail();
 
     try {
       if (activeCategory === "all") {
