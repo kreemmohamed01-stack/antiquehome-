@@ -27,6 +27,15 @@
     "murano-glass": { title: "MURANO GLASS", text: "Hand-blown glass from Venice, colour and light in one form.", img: "/sec 3/category 7.png" },
     furniture: { title: "FURNITURE", text: "Statement chairs, consoles and tables built to be inherited.", img: "/sec 3/category 8.png" },
     sale: { title: "SALE", text: "Timeless pieces at a kinder price, for a limited time only.", img: "/sec 3/category 9.jpeg" },
+    // Accessories subcategories — share its category photo until each
+    // gets its own; the shop grid below still filters to only that
+    // subcategory's products.
+    "colored-vases": { title: "COLORED VASES", text: "Hand-finished vases in rich, saturated colour for every shelf.", img: "/sec 3/category 3.png" },
+    "candle-holder": { title: "CANDLE HOLDERS", text: "Sculptural holders that carry candlelight with quiet elegance.", img: "/sec 3/category 3.png" },
+    raisin: { title: "RAISIN", text: "Delicate resin pieces, cast with texture and warmth.", img: "/sec 3/category 3.png" },
+    "tissue-box": { title: "TISSUE BOXES", text: "Everyday essentials dressed in timeless, decorative covers.", img: "/sec 3/category 3.png" },
+    ashtray: { title: "ASHTRAYS", text: "Finely finished trays that double as tabletop sculpture.", img: "/sec 3/category 3.png" },
+    "photo-frame": { title: "PHOTO FRAMES", text: "Frames crafted to hold your favourite moments beautifully.", img: "/sec 3/category 3.png" },
   };
 
   const SORT_LABELS = {
