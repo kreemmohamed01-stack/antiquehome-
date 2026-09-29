@@ -150,7 +150,7 @@
             <p>
               Thank you for shopping with Antique Home. For any questions about your order, reach
               us on WhatsApp at
-              <a href="https://wa.me/201125470009" target="_blank" rel="noopener noreferrer">+20 112 547 0009</a>.
+              <a href="https://wa.me/201105288355" target="_blank" rel="noopener noreferrer">+20 110 528 8355</a>.
             </p>
           </footer>
         </section>
