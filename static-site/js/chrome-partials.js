@@ -203,12 +203,12 @@
         </div>
         <div class="sm__sub-wrap" id="smAccessoriesSub">
           <ul class="sm__sub">
-            <li><a href="/#categories">Colored Vases</a></li>
-            <li><a href="/#categories">Candle Holder</a></li>
-            <li><a href="/#categories">Raisin</a></li>
-            <li><a href="/#categories">Tissue Box</a></li>
-            <li><a href="/#categories">Ashtray</a></li>
-            <li><a href="/#categories">Photo Frame</a></li>
+            <li><a href="/shop.html?category=colored-vases">Colored Vases</a></li>
+            <li><a href="/shop.html?category=candle-holder">Candle Holder</a></li>
+            <li><a href="/shop.html?category=raisin">Raisin</a></li>
+            <li><a href="/shop.html?category=tissue-box">Tissue Box</a></li>
+            <li><a href="/shop.html?category=ashtray">Ashtray</a></li>
+            <li><a href="/shop.html?category=photo-frame">Photo Frame</a></li>
           </ul>
         </div>
       </li>
