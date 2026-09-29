@@ -533,6 +533,11 @@
 
     // ---- Save / Delete ----
     document.getElementById("saveProductBtn").addEventListener("click", async () => {
+      const saveBtn = document.getElementById("saveProductBtn");
+      if (saveBtn.disabled) return; // guards against a double-click firing two overlapping saves
+      saveBtn.disabled = true;
+      const originalLabel = saveBtn.textContent;
+      saveBtn.textContent = "Saving…";
       const alsoIds = Array.from(document.querySelectorAll("#alsoShowIn input:checked")).map((cb) => Number(cb.value));
       const topId = Number(document.getElementById("f_category").value) || null;
       const subField = document.getElementById("subcategoryField");
@@ -579,6 +584,8 @@
         await load();
       } catch (err) {
         alert(err.message || "Failed to save product.");
+        saveBtn.disabled = false;
+        saveBtn.textContent = originalLabel;
       }
     });
 
