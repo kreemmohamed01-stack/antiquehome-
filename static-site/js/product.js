@@ -255,7 +255,7 @@
 
         <section class="pdp__story">
           <p class="pdp__story-kicker">${t("handcraftedTitle", "Handcrafted With Purpose")}</p>
-          <h2 class="pdp__story-title" data-i18n-html="naturalTexture">Natural Texture,<br />Timeless Beauty.</h2>
+          <h2 class="pdp__story-title">${t("naturalTexture", "Natural Texture,<br />Timeless Beauty.")}</h2>
           <p class="pdp__story-text">${t("handcraftedText", "Each piece is carefully handcrafted, featuring a unique texture and earthy tones that make it a perfect addition to any interior style.")}</p>
           <ul class="pdp__features">
             <li><span class="pdp__feature-ico" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 4c6 6 6 14 0 24-6-10-6-18 0-24Z"></path></svg></span><strong>${t("handcraftedPct", "100%")}</strong><span>${t("handcrafted", "Handcrafted")}</span></li>
