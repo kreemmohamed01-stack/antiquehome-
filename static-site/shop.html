@@ -9,6 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/css/base.css" />
 <link rel="stylesheet" href="/css/shop.css" />
+<script src="/js/i18n.js"></script>
+<script src="/js/i18n-dictionary.js"></script>
 </head>
 <body>
 
@@ -21,7 +23,7 @@
     <div class="shop-toolbar__row">
       <button class="tool-btn tool-btn--filter" type="button" id="filterToggle" aria-expanded="false" aria-controls="shopFiltersAside">
         <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"></line><circle cx="9" cy="7" r="2.2"></circle><line x1="4" y1="17" x2="20" y2="17"></line><circle cx="15" cy="17" r="2.2"></circle></svg>
-        Filter
+        <span data-i18n="filter">Filter</span>
       </button>
     </div>
     <div class="shop-toolbar__meta">
@@ -32,10 +34,10 @@
           <svg class="tool-btn__chev" viewBox="0 0 12 8" aria-hidden="true"><polyline points="1,1.5 6,6.5 11,1.5"></polyline></svg>
         </button>
         <div class="sort-pop__list" id="sortList">
-          <button type="button" data-sort="newest" class="is-active">Newest</button>
-          <button type="button" data-sort="price-asc">Price: Low to High</button>
-          <button type="button" data-sort="price-desc">Price: High to Low</button>
-          <button type="button" data-sort="name-asc">Name: A&ndash;Z</button>
+          <button type="button" data-sort="newest" class="is-active" data-i18n="sortNewest">Newest</button>
+          <button type="button" data-sort="price-asc" data-i18n="sortPriceAsc">Price: Low to High</button>
+          <button type="button" data-sort="price-desc" data-i18n="sortPriceDesc">Price: High to Low</button>
+          <button type="button" data-sort="name-asc" data-i18n="sortNameAsc">Name: A&ndash;Z</button>
         </div>
       </div>
       <div class="view-toggle" id="viewToggle">
@@ -53,18 +55,18 @@
     <div class="filters__scrim" id="filtersScrim"></div>
     <aside class="filters" aria-label="Filters" id="shopFiltersAside">
       <div class="filters__closeBtn">
-        <span>Filters</span>
+        <span data-i18n="filter">Filters</span>
         <button type="button" id="filterClose" aria-label="Close filters">
           <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4.6" y1="4.6" x2="19.4" y2="19.4"></line><line x1="19.4" y1="4.6" x2="4.6" y2="19.4"></line></svg>
         </button>
       </div>
       <div class="filters__group">
-        <h3 class="filters__title">Category</h3>
+        <h3 class="filters__title" data-i18n="category">Category</h3>
         <ul class="filters__cats" id="filterCats"></ul>
       </div>
 
       <div class="filters__group filters__price">
-        <h3 class="filters__title">Price</h3>
+        <h3 class="filters__title" data-i18n="price">Price</h3>
         <input type="range" class="filters__range" id="priceRange" min="500" max="20000" step="100" value="20000" aria-label="Maximum price" />
         <div class="filters__price-labels">
           <span>EGP 0</span>
@@ -73,7 +75,7 @@
       </div>
 
       <div class="filters__group">
-        <h3 class="filters__title">Color</h3>
+        <h3 class="filters__title" data-i18n="color">Color</h3>
         <div class="filters__swatches" id="colorSwatches">
           <button type="button" class="filters__swatch" style="background:#D9C8AC" aria-pressed="false" aria-label="beige" data-color="beige"></button>
           <button type="button" class="filters__swatch" style="background:#6B4A32" aria-pressed="false" aria-label="brown" data-color="brown"></button>
@@ -84,19 +86,19 @@
       </div>
 
       <div class="filters__group">
-        <h3 class="filters__title">Material</h3>
+        <h3 class="filters__title" data-i18n="material">Material</h3>
         <div class="filters__check" id="materialChecks">
-          <label><input type="checkbox" value="ceramic" />Ceramic</label>
-          <label><input type="checkbox" value="glass" />Glass</label>
-          <label><input type="checkbox" value="metal" />Metal</label>
-          <label><input type="checkbox" value="wood" />Wood</label>
-          <label><input type="checkbox" value="marble" />Marble</label>
-          <label><input type="checkbox" value="stone" />Stone</label>
-          <label><input type="checkbox" value="fabric" />Fabric</label>
+          <label><input type="checkbox" value="ceramic" /><span data-i18n="materialCeramic">Ceramic</span></label>
+          <label><input type="checkbox" value="glass" /><span data-i18n="materialGlass">Glass</span></label>
+          <label><input type="checkbox" value="metal" /><span data-i18n="materialMetal">Metal</span></label>
+          <label><input type="checkbox" value="wood" /><span data-i18n="materialWood">Wood</span></label>
+          <label><input type="checkbox" value="marble" /><span data-i18n="materialMarble">Marble</span></label>
+          <label><input type="checkbox" value="stone" /><span data-i18n="materialStone">Stone</span></label>
+          <label><input type="checkbox" value="fabric" /><span data-i18n="materialFabric">Fabric</span></label>
         </div>
       </div>
 
-      <button type="button" class="filters__clear js-clear-filters" id="clearFilters">Clear Filters</button>
+      <button type="button" class="filters__clear js-clear-filters" id="clearFilters" data-i18n="clearFilters">Clear Filters</button>
     </aside>
 
     <div>

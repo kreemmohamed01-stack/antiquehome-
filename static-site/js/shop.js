@@ -3,18 +3,23 @@
 // including that category's banner section from category/[slug]/page.tsx's BANNER map.
 (function () {
   const PAGE_SIZE = 8;
+  // Shorthand for AH_I18N.t — falls back to the English string untouched
+  // when i18n.js hasn't loaded yet or the site is in English mode.
+  function t(key, fallbackEn) {
+    return window.AH_I18N ? window.AH_I18N.t(key, fallbackEn) : fallbackEn;
+  }
 
   const CATEGORY_LIST = [
-    { slug: "all", label: "All Products" },
-    { slug: "bleu-blanc", label: "Bleu Blanc" },
-    { slug: "lighting", label: "Lighting" },
-    { slug: "accessories", label: "Accessories" },
-    { slug: "antiques", label: "Antiques" },
-    { slug: "artificial-plants-garden-stool", label: "Artificial Plants & Garden Stool" },
-    { slug: "wall-art-plates", label: "Wall Art & Plates" },
-    { slug: "murano-glass", label: "Murano Glass" },
-    { slug: "furniture", label: "Furniture" },
-    { slug: "sale", label: "Sale" },
+    { slug: "all", label: "All Products", key: "allProducts" },
+    { slug: "bleu-blanc", label: "Bleu Blanc", key: "banner:bleu-blancTitle" },
+    { slug: "lighting", label: "Lighting", key: "banner:lightingTitle" },
+    { slug: "accessories", label: "Accessories", key: "banner:accessoriesTitle" },
+    { slug: "antiques", label: "Antiques", key: "banner:antiquesTitle" },
+    { slug: "artificial-plants-garden-stool", label: "Artificial Plants & Garden Stool", key: "banner:artificial-plants-garden-stoolTitle" },
+    { slug: "wall-art-plates", label: "Wall Art & Plates", key: "banner:wall-art-platesTitle" },
+    { slug: "murano-glass", label: "Murano Glass", key: "banner:murano-glassTitle" },
+    { slug: "furniture", label: "Furniture", key: "banner:furnitureTitle" },
+    { slug: "sale", label: "Sale", key: "banner:saleTitle" },
   ];
 
   const BANNER = {
@@ -38,6 +43,12 @@
     "photo-frame": { title: "PHOTO FRAMES", text: "Frames crafted to hold your favourite moments beautifully.", img: "/sec 3/category 3.png" },
   };
 
+  const SORT_LABELS_KEYS = {
+    newest: "sortNewest",
+    "price-asc": "sortPriceAsc",
+    "price-desc": "sortPriceDesc",
+    "name-asc": "sortNameAsc",
+  };
   const SORT_LABELS = {
     newest: "Newest",
     "price-asc": "Price: Low to High",
@@ -47,6 +58,7 @@
 
   const params = new URLSearchParams(window.location.search);
   const activeCategory = params.get("category") || "all";
+  const searchQuery = params.get("q") || "";
 
   const state = {
     sort: "newest",
@@ -84,7 +96,7 @@
             </a>
             <button class="icon-btn menu-btn" type="button" id="menuBtn" aria-haspopup="true" aria-expanded="false" aria-controls="sideMenu" aria-label="Open menu">
               <span class="menu-btn__lines" aria-hidden="true"><span></span><span></span><span></span></span>
-              <span class="menu-btn__label">Menu</span>
+              <span class="menu-btn__label">${t("menu", "Menu")}</span>
             </button>
             <nav class="header__actions" aria-label="Utilities">
               <button class="icon-btn" type="button" id="searchBtn" aria-haspopup="true" aria-expanded="false" aria-controls="searchDrawer" aria-label="Search">
@@ -94,38 +106,44 @@
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 7.8h12.8l1 12.4H4.6z"></path><path d="M8.9 9.6V6.6a3.1 3.1 0 0 1 6.2 0v3"></path></svg>
                 <span class="cart-btn__count">0</span>
               </button>
+              <button class="icon-btn lang-btn" type="button" id="langBtn" aria-label="Switch language">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.4"></circle><path d="M2.6 12h18.8"></path><path d="M12 2.6c2.6 2.6 4 5.9 4 9.4s-1.4 6.8-4 9.4c-2.6-2.6-4-5.9-4-9.4s1.4-6.8 4-9.4Z"></path></svg>
+                <span class="lang-btn__label" id="langBtnLabel"></span>
+              </button>
             </nav>
           </header>
 
           <nav class="shop-nav shop-nav--hero" aria-label="Primary">
-            <a href="/">Home</a>
-            <a href="/shop.html" class="is-active">Shop</a>
-            <a href="/#collection">Collections</a>
-            <a href="/about.html">About Us</a>
-            <a href="/#contact">Contact</a>
+            <a href="/">${t("home", "Home")}</a>
+            <a href="/shop.html" class="is-active">${t("shop", "Shop")}</a>
+            <a href="/#collection">${t("collections", "Collections")}</a>
+            <a href="/about.html">${t("aboutUs", "About Us")}</a>
+            <a href="/#contact">${t("contact", "Contact")}</a>
           </nav>
 
           <div class="shop-hero__inner">
             <p class="crumb">
-              <a href="/">Home</a>
+              <a href="/">${t("home", "Home")}</a>
               <span class="crumb__sep" aria-hidden="true">&rsaquo;</span>
-              <span class="crumb__here">All Products</span>
+              <span class="crumb__here">${t("allProducts", "All Products")}</span>
             </p>
-            <p class="shop-hero__eyebrow">Discover Our Collection</p>
-            <h1 class="shop-hero__title">All Products</h1>
-            <p class="shop-hero__text">Curated pieces for a more beautiful home.</p>
+            <p class="shop-hero__eyebrow">${t("discoverCollection", "Discover Our Collection")}</p>
+            <h1 class="shop-hero__title">${t("allProducts", "All Products")}</h1>
+            <p class="shop-hero__text">${t("curatedPieces", "Curated pieces for a more beautiful home.")}</p>
           </div>
         </section>`;
       railSlot.innerHTML = catRailHtml("all");
     } else {
       const banner = BANNER[activeCategory] || { title: activeCategory.toUpperCase(), text: "", img: "/sec 3/category 1.png" };
+      const bannerTitle = t(`banner:${activeCategory}Title`, banner.title);
+      const bannerText = t(`banner:${activeCategory}Text`, banner.text);
       document.title = `${banner.title.charAt(0)}${banner.title.slice(1).toLowerCase()} — Antique Home`;
       heroSlot.innerHTML = `
         <div class="shop-topbar-wrap">
           <div class="shop-topbar">
             <span class="shop-topbar__ship">
               <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M2.6 8.4h14v12.8h-14z"></path><path d="M16.6 12.4h6.6l4.2 4.2v4.6h-10.8z"></path><circle cx="9.2" cy="24" r="2.6"></circle><circle cx="22.6" cy="24" r="2.6"></circle></svg>
-              Free Delivery Across Egypt
+              ${t("freeDelivery", "Free Delivery Across Egypt")}
             </span>
             <span class="shop-topbar__right"><span>EGP</span><span>|</span><span>EN</span></span>
           </div>
@@ -137,7 +155,7 @@
               </a>
               <button class="icon-btn menu-btn" type="button" id="menuBtn" aria-haspopup="true" aria-expanded="false" aria-controls="sideMenu" aria-label="Open menu">
                 <span class="menu-btn__lines" aria-hidden="true"><span></span><span></span><span></span></span>
-                <span class="menu-btn__label">Menu</span>
+                <span class="menu-btn__label">${t("menu", "Menu")}</span>
               </button>
               <nav class="header__actions" aria-label="Utilities">
                 <button class="icon-btn" type="button" id="searchBtn" aria-haspopup="true" aria-expanded="false" aria-controls="searchDrawer" aria-label="Search">
@@ -147,14 +165,18 @@
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 7.8h12.8l1 12.4H4.6z"></path><path d="M8.9 9.6V6.6a3.1 3.1 0 0 1 6.2 0v3"></path></svg>
                   <span class="cart-btn__count">0</span>
                 </button>
+                <button class="icon-btn lang-btn" type="button" id="langBtn" aria-label="Switch language">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.4"></circle><path d="M2.6 12h18.8"></path><path d="M12 2.6c2.6 2.6 4 5.9 4 9.4s-1.4 6.8-4 9.4c-2.6-2.6-4-5.9-4-9.4s1.4-6.8 4-9.4Z"></path></svg>
+                  <span class="lang-btn__label" id="langBtnLabel"></span>
+                </button>
               </nav>
             </header>
             <nav class="shop-nav" aria-label="Primary">
-              <a href="/">Home</a>
-              <a href="/shop.html">Shop</a>
-              <a href="/#collection">Collections</a>
-              <a href="/about.html">About</a>
-              <a href="/#contact">Contact</a>
+              <a href="/">${t("home", "Home")}</a>
+              <a href="/shop.html">${t("shop", "Shop")}</a>
+              <a href="/#collection">${t("collections", "Collections")}</a>
+              <a href="/about.html">${t("aboutUs", "About")}</a>
+              <a href="/#contact">${t("contact", "Contact")}</a>
             </nav>
           </div>
         </div>
@@ -163,15 +185,15 @@
           <div class="shop-banner__bg" aria-hidden="true"><img src="${banner.img}" alt="" loading="lazy" /></div>
           <div class="shop-banner__inner">
             <p class="crumb">
-              <a href="/">Home</a>
+              <a href="/">${t("home", "Home")}</a>
               <span class="crumb__sep" aria-hidden="true">&rsaquo;</span>
-              <a href="/shop.html">Shop</a>
+              <a href="/shop.html">${t("shop", "Shop")}</a>
               <span class="crumb__sep" aria-hidden="true">&rsaquo;</span>
-              <span class="crumb__here">${banner.title.charAt(0)}${banner.title.slice(1).toLowerCase()}</span>
+              <span class="crumb__here">${bannerTitle.charAt(0)}${bannerTitle.slice(1).toLowerCase()}</span>
             </p>
-            <h1 class="shop-banner__title">${banner.title}</h1>
+            <h1 class="shop-banner__title">${bannerTitle}</h1>
             <span class="shop-banner__rule" aria-hidden="true"><i></i><i></i></span>
-            <p class="shop-banner__text">${banner.text}</p>
+            <p class="shop-banner__text">${bannerText}</p>
           </div>
         </section>
         <div id="subcatRailSlot"></div>`;
@@ -203,12 +225,13 @@
       ? [{ slug: parent.slug, name: parent.name, isParent: true }, ...subs]
       : subs;
 
+    const catName = (c) => (window.AH_I18N ? window.AH_I18N.categoryName(c) : c.name);
     slot.innerHTML = `
       <nav class="subcat-rail" aria-label="Shop ${parent.name} by type">
         <div class="subcat-rail__inner">
-          <span class="subcat-rail__label">Shop by type</span>
+          <span class="subcat-rail__label">${t("shopByType", "Shop by type")}</span>
           <div class="subcat-rail__list">
-            ${links.map((s) => `<a class="subcat-rail__pill${s.slug === activeCategory ? " is-active" : ""}${s.isParent ? " subcat-rail__pill--all" : ""}" href="/shop.html?category=${s.slug}">${s.isParent ? "All " + s.name : s.name}</a>`).join("")}
+            ${links.map((s) => `<a class="subcat-rail__pill${s.slug === activeCategory ? " is-active" : ""}${s.isParent ? " subcat-rail__pill--all" : ""}" href="/shop.html?category=${s.slug}">${s.isParent ? t("allCategory", "All") + " " + catName(s) : catName(s)}</a>`).join("")}
           </div>
         </div>
       </nav>`;
@@ -216,21 +239,21 @@
 
   function catRailHtml(active) {
     const ITEMS = [
-      { slug: "bleu-blanc", label: "Bleu Blanc", img: "/sec 3/category 1.png" },
-      { slug: "accessories", label: "Decor Accents", img: "/sec 3/category 3.png" },
-      { slug: "lighting", label: "Lighting", img: "/sec 3/category 2.png" },
-      { slug: "murano-glass", label: "Murano Glass", img: "/sec 3/category 7.png" },
-      { slug: "wall-art-plates", label: "Wall Art", img: "/sec 3/category 6.png" },
-      { slug: "furniture", label: "Furniture", img: "/sec 3/category 8.png" },
-      { slug: "antiques", label: "Antiques", img: "/sec 3/category 4.png" },
-      { slug: "artificial-plants-garden-stool", label: "Trays", img: "/sec 3/category 5.png" },
-      { slug: "sale", label: "Sale", img: "/sec 3/category 9.jpeg" },
+      { slug: "bleu-blanc", key: "catBleuBlanc", label: "Bleu Blanc", img: "/sec 3/category 1.png" },
+      { slug: "accessories", key: "catAccessories", label: "Decor Accents", img: "/sec 3/category 3.png" },
+      { slug: "lighting", key: "catLighting", label: "Lighting", img: "/sec 3/category 2.png" },
+      { slug: "murano-glass", key: "catMurano", label: "Murano Glass", img: "/sec 3/category 7.png" },
+      { slug: "wall-art-plates", key: "catWallArtShort", label: "Wall Art", img: "/sec 3/category 6.png" },
+      { slug: "furniture", key: "catFurniture", label: "Furniture", img: "/sec 3/category 8.png" },
+      { slug: "antiques", key: "catAntiques", label: "Antiques", img: "/sec 3/category 4.png" },
+      { slug: "artificial-plants-garden-stool", key: "catTrays", label: "Trays", img: "/sec 3/category 5.png" },
+      { slug: "sale", key: "catSale", label: "Sale", img: "/sec 3/category 9.jpeg" },
     ];
     const items = ITEMS.map(
       (it) => `
       <a class="catrail__item${active === it.slug ? " catrail__item--active" : ""}" href="/shop.html?category=${it.slug}">
         <span class="catrail__ico"><img src="${it.img}" alt="" loading="lazy" /></span>
-        <span class="catrail__label">${it.label}</span>
+        <span class="catrail__label">${t(it.key, it.label)}</span>
       </a>`
     ).join("");
     return `
@@ -241,7 +264,7 @@
             <span class="catrail__ico catrail__ico--all">
               <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.6" y="3.6" width="7.2" height="7.2" rx="1"></rect><rect x="13.2" y="3.6" width="7.2" height="7.2" rx="1"></rect><rect x="3.6" y="13.2" width="7.2" height="7.2" rx="1"></rect><rect x="13.2" y="13.2" width="7.2" height="7.2" rx="1"></rect></svg>
             </span>
-            <span class="catrail__label">All Products</span>
+            <span class="catrail__label">${t("allProducts", "All Products")}</span>
           </a>
         </div>
       </nav>`;
@@ -254,7 +277,7 @@
       <li data-cat="${c.slug}" class="${activeCategory === c.slug ? "is-active" : ""}">
         <a href="${c.slug === "all" ? "/shop.html" : "/shop.html?category=" + c.slug}">
           <svg viewBox="0 0 12 8" aria-hidden="true"><polyline points="1,1.5 6,6.5 11,1.5"></polyline></svg>
-          ${c.label}
+          ${t(c.key, c.label)}
         </a>
       </li>`
     ).join("");
@@ -265,6 +288,8 @@
       if (Number(p.price) > state.maxPrice) return false;
       if (state.color && !(p.colors || []).includes(state.color)) return false;
       if (state.materials.length && !state.materials.includes((p.material || "").toLowerCase())) return false;
+      if (searchQuery && window.AH_I18N && !window.AH_I18N.productMatchesQuery(p, searchQuery)) return false;
+      if (searchQuery && !window.AH_I18N && !(p.name || "").toLowerCase().includes(searchQuery.toLowerCase())) return false;
       return true;
     });
   }
@@ -281,14 +306,15 @@
     const cat = categoryById.get(p.category_id);
     const pct = effectiveSalePercent(p, siteSale);
     const finalPrice = pct > 0 ? priceWithSale(p.price, pct) : Number(p.price);
-    const saleText = pct > 0 ? (p.sale_label && parseFloat(p.sale_percent || "0") > 0 ? p.sale_label : `Sale ${pct}%`) : "";
+    const saleText = pct > 0 ? (p.sale_label && parseFloat(p.sale_percent || "0") > 0 ? p.sale_label : `${t("saleBadge", "Sale")} ${pct}%`) : "";
     const st = stockState(p);
+    const pname = window.AH_I18N ? window.AH_I18N.productName(p) : p.name;
 
     let badge = "";
     if (pct > 0) badge = `<span class="pcard__badge pcard__badge--sale">${saleText}</span>`;
-    else if (st === "out") badge = `<span class="pcard__badge pcard__badge--sale">Out of Stock</span>`;
-    else if (st === "low") badge = `<span class="pcard__badge" style="background:#D9A441;color:#1C1611">Low Stock</span>`;
-    else if (p.is_new_arrival) badge = `<span class="pcard__badge">New</span>`;
+    else if (st === "out") badge = `<span class="pcard__badge pcard__badge--sale">${t("outOfStock", "Out of Stock")}</span>`;
+    else if (st === "low") badge = `<span class="pcard__badge" style="background:#D9A441;color:#1C1611">${t("lowStock", "Low Stock")}</span>`;
+    else if (p.is_new_arrival) badge = `<span class="pcard__badge">${t("newBadge", "New")}</span>`;
     else if (p.badge) badge = `<span class="pcard__badge">${p.badge}</span>`;
 
     const img = (p.image_urls || [])[0] || "";
@@ -316,12 +342,12 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.4 4.6 13.2a4.6 4.6 0 1 1 7.4-5.3 4.6 4.6 0 1 1 7.4 5.3Z"></path></svg>
           </button>
           <button class="pcard__add" type="button" data-add="${p.name}" data-add-id="${p.slug}" data-add-price="${p.price}" data-add-image="${splitFocal(img).src}" data-add-weight="${p.weight_kg || 0}" aria-label="Add ${p.name} to cart" onclick="event.preventDefault()">
-            <span>Add to Cart</span>
+            <span>${t("addToCart", "Add to Cart")}</span>
           </button>
         </a>
         <div class="pcard__body">
-          <p class="pcard__cat">${p.material || (cat ? cat.name : "")}${p.size_cm ? ` • ${p.size_cm} cm` : ""}</p>
-          <h3 class="pcard__name"><a href="/product.html?slug=${encodeURIComponent(p.slug)}" style="color:inherit;text-decoration:none">${p.name}</a></h3>
+          <p class="pcard__cat">${p.material || (cat ? (window.AH_I18N ? window.AH_I18N.categoryName(cat) : cat.name) : "")}${p.size_cm ? ` • ${p.size_cm} cm` : ""}</p>
+          <h3 class="pcard__name"><a href="/product.html?slug=${encodeURIComponent(p.slug)}" style="color:inherit;text-decoration:none">${pname}</a></h3>
           <span class="pcard__stars" aria-hidden="true">${stars}<em>(${p.review_count || 0})</em></span>
           <p class="pcard__price">${priceHtml}</p>
         </div>
@@ -335,14 +361,14 @@
     state.page = Math.min(state.page, totalPages);
     const visible = sorted.slice((state.page - 1) * PAGE_SIZE, state.page * PAGE_SIZE);
 
-    document.getElementById("shopCount").textContent = `${sorted.length} ${sorted.length === 1 ? "Product" : "Products"}`;
-    document.getElementById("sortLabel").textContent = "Sort By: " + SORT_LABELS[state.sort];
+    document.getElementById("shopCount").textContent = `${sorted.length} ${sorted.length === 1 ? t("productSingular", "Product") : t("products", "Products")}`;
+    document.getElementById("sortLabel").textContent = t("sortBy", "Sort By") + ": " + t(SORT_LABELS_KEYS[state.sort], SORT_LABELS[state.sort]);
     document.querySelectorAll("#sortList button").forEach((b) => b.classList.toggle("is-active", b.dataset.sort === state.sort));
 
     const grid = document.getElementById("shopGrid");
     grid.classList.toggle("is-list", state.view === "list");
     if (!visible.length) {
-      grid.innerHTML = `<p style="padding:40px 0;opacity:.7;grid-column:1/-1">No products found yet — check back soon as we add new pieces.</p>`;
+      grid.innerHTML = `<p style="padding:40px 0;opacity:.7;grid-column:1/-1">${t("noProductsFound", "No products found yet — check back soon as we add new pieces.")}</p>`;
     } else {
       grid.innerHTML = visible.map(productCard).join("");
     }
@@ -466,6 +492,7 @@
 
   async function init() {
     renderChrome();
+    if (window.AH_I18N) window.AH_I18N.wireLangButtons();
     renderFilterCats();
     wireControls();
 
@@ -492,6 +519,14 @@
 
     render();
   }
+
+  document.addEventListener("ah:langchange", () => {
+    renderChrome();
+    if (window.AH_I18N) window.AH_I18N.wireLangButtons();
+    renderFilterCats();
+    renderSubcatRail();
+    render();
+  });
 
   init();
 })();

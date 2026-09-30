@@ -95,7 +95,9 @@ window.AH_DICTIONARY = {
   sortPriceAsc: "السعر: من الأقل للأعلى",
   sortPriceDesc: "السعر: من الأعلى للأقل",
   sortNameAsc: "الاسم: أ-ي",
-  products: "منتج",
+  products: "منتجات",
+  productSingular: "منتج",
+  saleBadge: "تخفيض",
   noProductsFound: "لم يتم العثور على منتجات — تحققي مرة أخرى قريبًا مع إضافتنا لقطع جديدة.",
   addToCart: "أضيفي للسلة",
   outOfStock: "غير متوفر",
@@ -150,4 +152,46 @@ window.AH_DICTIONARY = {
 
   // ---- about page ----
   ourStoryTitle: "قصتنا",
+
+  // ---- shop page: category banner titles + descriptions (shop.js's
+  // BANNER map) — keyed as "banner:<categorySlug>Title"/"Text" ----
+  "banner:bleu-blancTitle": "بلو بلان",
+  "banner:bleu-blancText": "بورسلين بالأزرق والأبيض الكلاسيكي، خالد على كل مائدة.",
+  "banner:lightingTitle": "الإضاءة",
+  "banner:lightingText": "ثريات ومصابيح وأباجورات تضفي توهجًا دافئًا وعتيقًا.",
+  "banner:accessoriesTitle": "الإكسسوارات",
+  "banner:accessoriesText": "قطع تكميلية صغيرة — تماثيل نصفية وصناديق وقطع فنية لكل رف.",
+  "banner:antiquesTitle": "التحف الأثرية",
+  "banner:antiquesText": "قطع نادرة ذات تاريخ حقيقي، كل واحدة منها قصة لمنزلك.",
+  "banner:artificial-plants-garden-stoolTitle": "نباتات صناعية ومقاعد حدائق",
+  "banner:artificial-plants-garden-stoolText": "خضرة مورقة ومقاعد سيراميك لا تحتاج ريًا أبدًا.",
+  "banner:wall-art-platesTitle": "لوحات جدارية وأطباق",
+  "banner:wall-art-platesText": "لوحات مؤطرة وأطباق زخرفية لتزيين كل جدار.",
+  "banner:murano-glassTitle": "زجاج مورانو",
+  "banner:murano-glassText": "زجاج مصنوع يدويًا من البندقية، لون وضوء في قطعة واحدة.",
+  "banner:furnitureTitle": "الأثاث",
+  "banner:furnitureText": "كراسي وطاولات وكونسولات مميزة، صُنعت لتُورَّث.",
+  "banner:saleTitle": "التخفيضات",
+  "banner:saleText": "قطع خالدة بسعر ألطف، لفترة محدودة فقط.",
+  "banner:colored-vasesTitle": "مزهريات ملونة",
+  "banner:colored-vasesText": "مزهريات منتهية يدويًا بألوان غنية وزاهية لكل رف.",
+  "banner:candle-holderTitle": "حاملات الشموع",
+  "banner:candle-holderText": "حاملات نحتية تحمل ضوء الشموع بأناقة هادئة.",
+  "banner:raisinTitle": "الراتنج",
+  "banner:raisinText": "قطع راتنج دقيقة، مصبوبة بملمس ودفء.",
+  "banner:tissue-boxTitle": "علب المناديل",
+  "banner:tissue-boxText": "أساسيات يومية بأغطية زخرفية خالدة.",
+  "banner:ashtrayTitle": "طفايات السجائر",
+  "banner:ashtrayText": "أطباق منتهية بعناية، تصلح أيضًا كقطعة نحتية على الطاولة.",
+  "banner:photo-frameTitle": "إطارات الصور",
+  "banner:photo-frameText": "إطارات صُنعت لتحفظ أجمل لحظاتك بشكل جميل.",
+
+  shopByType: "تسوقي حسب النوع",
+  allCategory: "الكل",
+  freeDelivery: "توصيل مجاني لكل مصر",
+
+  // ---- shop page: catRailHtml icon-rail labels (shorter than banner titles) ----
+  catAccessories: "الإكسسوارات",
+  catWallArtShort: "لوحات جدارية",
+  catTrays: "نباتات ومقاعد",
 };
