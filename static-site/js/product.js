@@ -1,5 +1,8 @@
 // Ported from app/product/[slug]/page.tsx + app/components/ProductDetail.tsx.
 (function () {
+  function t(key, fallbackEn) {
+    return window.AH_I18N ? window.AH_I18N.t(key, fallbackEn) : fallbackEn;
+  }
   const params = new URLSearchParams(window.location.search);
   const slug = params.get("slug");
 
@@ -29,9 +32,9 @@
   function renderNotFound() {
     document.getElementById("pdpSlot").innerHTML = `
       <div style="min-height:60vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:40px 20px;text-align:center">
-        <h1 style="font-family:'Cormorant Garamond',serif;font-size:28px">Product not found</h1>
-        <p style="opacity:.7">This product may have been removed or the link is incorrect.</p>
-        <a class="btn-solid" href="/shop.html"><span>Back to Shop</span></a>
+        <h1 style="font-family:'Cormorant Garamond',serif;font-size:28px">${t("productNotFound", "Product not found")}</h1>
+        <p style="opacity:.7">${t("productNotFoundText", "This product may have been removed or the link is incorrect.")}</p>
+        <a class="btn-solid" href="/shop.html"><span>${t("backToShop", "Back to Shop")}</span></a>
       </div>`;
   }
 
@@ -45,7 +48,9 @@
     const basePrice = selectedVariant ? Number(selectedVariant.price) : Number(product.price);
     const salePct = effectiveSalePercent(product, siteSale);
     const price = salePct > 0 ? priceWithSale(basePrice, salePct) : basePrice;
-    const saleText = salePct > 0 ? (product.sale_label && product.sale_percent ? product.sale_label : `Sale ${salePct}%`) : "";
+    const saleText = salePct > 0 ? (product.sale_label && product.sale_percent ? product.sale_label : `${t("saleBadge", "Sale")} ${salePct}%`) : "";
+    const pname = window.AH_I18N ? window.AH_I18N.productName(product) : product.name;
+    const pdesc = window.AH_I18N ? window.AH_I18N.productDescription(product) : product.description;
     const compareAt = product.compare_at_price ? Number(product.compare_at_price) : null;
     const off = salePct > 0 ? salePct : compareAt && compareAt > basePrice ? Math.round(((compareAt - basePrice) / compareAt) * 100) : null;
 
@@ -66,12 +71,12 @@
 
     let eyebrow = "";
     if (salePct > 0) eyebrow = `<p class="pdp__eyebrow" style="color:#A93B29">${saleText}</p>`;
-    else if (product.is_new_arrival) eyebrow = `<p class="pdp__eyebrow">New Arrival</p>`;
+    else if (product.is_new_arrival) eyebrow = `<p class="pdp__eyebrow">${t("newArrival", "New Arrival")}</p>`;
     else if (product.badge) eyebrow = `<p class="pdp__eyebrow">${product.badge}</p>`;
 
     const colorHtml = colorOptions.length
       ? `<div class="pdp__option">
-          <p class="pdp__option-label">Color${colorOptions[state.colorIdx] ? ": " + colorOptions[state.colorIdx].name : ""}</p>
+          <p class="pdp__option-label">${t("color", "Color")}${colorOptions[state.colorIdx] ? ": " + colorOptions[state.colorIdx].name : ""}</p>
           <div class="pdp__swatches">
             ${colorOptions
               .map(
@@ -84,14 +89,14 @@
 
     const sizesHtml = variants.length
       ? `<div class="pdp__option">
-          <p class="pdp__option-label">Size</p>
+          <p class="pdp__option-label">${t("size", "Size")}</p>
           <div class="pdp__sizes">
             ${variants
               .map((v, i) => {
                 const vOut = Number(v.stock) <= 0;
                 const vPrice = salePct > 0 ? priceWithSale(v.price, salePct) : Number(v.price);
                 return `<button type="button" class="pdp__size${i === state.variantIdx ? " is-active" : ""}" data-variant-idx="${i}" ${vOut ? 'disabled style="opacity:.45;cursor:not-allowed"' : ""}>
-                  ${v.label}<small>${vOut ? "Sold out" : "EGP " + vPrice.toLocaleString("en-US")}</small>
+                  ${v.label}<small>${vOut ? t("soldOut", "Sold out") : "EGP " + vPrice.toLocaleString("en-US")}</small>
                 </button>`;
               })
               .join("")}
@@ -104,9 +109,9 @@
       .join("");
 
     const accs = [
-      { title: "Product Details", body: `${product.description || ""}${product.size_cm ? `\nDimensions: ${product.size_cm}` : ""}${product.sku ? `\nSKU: ${product.sku}` : ""}` },
-      { title: "Materials & Care", body: `${product.material || "Quality materials"}. Wipe clean with a soft, dry cloth. Avoid harsh chemicals and prolonged direct sunlight.` },
-      { title: "Shipping & Returns", body: "Delivery across Egypt with standard or express shipping, priced by governorate at checkout. Easy returns within 14 days of delivery, provided the item is unused and in its original packaging." },
+      { title: t("productDetails", "Product Details"), body: `${pdesc || ""}${product.size_cm ? `\n${t("dimensions", "Dimensions")}: ${product.size_cm}` : ""}${product.sku ? `\nSKU: ${product.sku}` : ""}` },
+      { title: t("materialsAndCare", "Materials & Care"), body: `${product.material || t("qualityMaterials", "Quality materials")}. ${t("careInstructions", "Wipe clean with a soft, dry cloth. Avoid harsh chemicals and prolonged direct sunlight.")}` },
+      { title: t("shippingAndReturns", "Shipping & Returns"), body: t("shippingReturnsText", "Delivery across Egypt with standard or express shipping, priced by governorate at checkout. Easy returns within 14 days of delivery, provided the item is unused and in its original packaging.") },
     ];
     const accsHtml = accs
       .map(
@@ -132,23 +137,23 @@
       <div class="pdp__inner">
         <div class="pdp__topbar">
           <p class="crumb">
-            <a href="/">Home</a>
+            <a href="/">${t("home", "Home")}</a>
             <span class="crumb__sep" aria-hidden="true">&rsaquo;</span>
-            <a href="/shop.html">Shop</a>
+            <a href="/shop.html">${t("shop", "Shop")}</a>
             <span class="crumb__sep" aria-hidden="true">&rsaquo;</span>
-            <span class="crumb__here">${product.name}</span>
+            <span class="crumb__here">${pname}</span>
           </p>
           <nav class="pdp__nav" aria-label="Other products">
             ${
               prevSlug
-                ? `<a class="pdp__nav-link" href="/product.html?slug=${encodeURIComponent(prevSlug)}"><svg viewBox="0 0 20 14" aria-hidden="true"><line x1="19" y1="7" x2="2" y2="7"></line><polyline points="7.4,1.6 1.6,7 7.4,12.4"></polyline></svg>Prev</a>`
-                : `<span class="pdp__nav-link" style="opacity:.4">Prev</span>`
+                ? `<a class="pdp__nav-link" href="/product.html?slug=${encodeURIComponent(prevSlug)}"><svg viewBox="0 0 20 14" aria-hidden="true"><line x1="19" y1="7" x2="2" y2="7"></line><polyline points="7.4,1.6 1.6,7 7.4,12.4"></polyline></svg>${t("prev", "Prev")}</a>`
+                : `<span class="pdp__nav-link" style="opacity:.4">${t("prev", "Prev")}</span>`
             }
             <span class="pdp__nav-sep" aria-hidden="true">|</span>
             ${
               nextSlug
-                ? `<a class="pdp__nav-link" href="/product.html?slug=${encodeURIComponent(nextSlug)}">Next<svg viewBox="0 0 20 14" aria-hidden="true"><line x1="1" y1="7" x2="18" y2="7"></line><polyline points="12.6,1.6 18.4,7 12.6,12.4"></polyline></svg></a>`
-                : `<span class="pdp__nav-link" style="opacity:.4">Next</span>`
+                ? `<a class="pdp__nav-link" href="/product.html?slug=${encodeURIComponent(nextSlug)}">${t("next", "Next")}<svg viewBox="0 0 20 14" aria-hidden="true"><line x1="1" y1="7" x2="18" y2="7"></line><polyline points="12.6,1.6 18.4,7 12.6,12.4"></polyline></svg></a>`
+                : `<span class="pdp__nav-link" style="opacity:.4">${t("next", "Next")}</span>`
             }
           </nav>
         </div>
@@ -158,7 +163,7 @@
             <div class="pdp__thumbs">${thumbsHtml}</div>
 
             <figure class="pdp__main">
-              <img id="pdpMainImg" src="${cldUrl(activeImg, 900)}" alt="${product.name}" loading="eager" />
+              <img id="pdpMainImg" src="${cldUrl(activeImg, 900)}" alt="${pname}" loading="eager" />
               <span class="pdp__count">
                 <em>${String(state.activeIdx + 1).padStart(2, "0")}</em><i></i><b>${String(imgs.length).padStart(2, "0")}</b>
               </span>
@@ -177,7 +182,7 @@
 
           <div class="pdp__info">
             ${eyebrow}
-            <h1 class="pdp__title">${product.name}</h1>
+            <h1 class="pdp__title">${pname}</h1>
 
             <div class="pdp__priceRow">
               <span class="pdp__price"${salePct > 0 ? ' style="color:#A93B29"' : ""}>EGP ${price.toLocaleString("en-US")}</span>
@@ -188,22 +193,22 @@
                   ? `<span class="pdp__compare">EGP ${compareAt.toLocaleString("en-US")}</span>`
                   : ""
               }
-              ${off ? `<span class="pdp__off">${off}% OFF</span>` : ""}
+              ${off ? `<span class="pdp__off">${off}% ${t("off", "OFF")}</span>` : ""}
             </div>
 
             ${
               setSize
-                ? `<p style="margin:-6px 0 14px;font-size:12.5px;color:var(--ink-600)">Sold as a set of ${setSize}${perPiece ? ` — EGP ${perPiece.toLocaleString("en-US")} per piece` : ""}</p>`
+                ? `<p style="margin:-6px 0 14px;font-size:12.5px;color:var(--ink-600)">${t("soldAsSet", "Sold as a set of {n}").replace("{n}", setSize)}${perPiece ? ` — EGP ${perPiece.toLocaleString("en-US")} ${t("perPiece", "per piece")}` : ""}</p>`
                 : ""
             }
 
             <div class="pdp__rating">
               <span class="pdp__stars" aria-hidden="true">${stars}</span>
               <span class="pdp__rating-num">${Number(product.rating || 0).toFixed(1)}</span>
-              <span class="pdp__rating-count">(${product.review_count || 0} reviews)</span>
+              <span class="pdp__rating-count">(${product.review_count || 0} ${t("reviews", "reviews")})</span>
             </div>
 
-            <p class="pdp__desc">${product.description || ""}</p>
+            <p class="pdp__desc">${pdesc || ""}</p>
 
             <span class="pdp__rule" aria-hidden="true"></span>
 
@@ -212,7 +217,7 @@
 
             <div class="pdp__qtyRow">
               <div>
-                <p class="pdp__option-label">Quantity:</p>
+                <p class="pdp__option-label">${t("quantity", "Quantity")}:</p>
                 <div class="qty pdp__qty" role="group" aria-label="Quantity">
                   <button type="button" class="qty__btn" id="pdpQtyDec" aria-label="Decrease quantity"><svg viewBox="0 0 16 16" aria-hidden="true"><line x1="3" y1="8" x2="13" y2="8"></line></svg></button>
                   <span class="qty__num">${state.qty}</span>
@@ -221,15 +226,15 @@
               </div>
               <p class="pdp__stock">
                 <span class="pdp__stock-dot" style="background:${st === "out" ? "#A93B29" : st === "low" ? "#D9A441" : "#5C6B4A"}" aria-hidden="true"></span>
-                ${st === "out" ? "Out of Stock" : st === "low" ? "Low Stock" : "In Stock"}
+                ${st === "out" ? t("outOfStock", "Out of Stock") : st === "low" ? t("lowStock", "Low Stock") : t("inStock", "In Stock")}
                 <br />
-                <small>${st === "out" ? "Restocking soon" : st === "low" ? `Only ${stockQty} left` : "Ready to ship"}</small>
+                <small>${st === "out" ? t("restockingSoon", "Restocking soon") : st === "low" ? t("onlyLeft", "Only {n} left").replace("{n}", stockQty) : t("readyToShip", "Ready to ship")}</small>
               </p>
             </div>
 
             <div class="pdp__actions">
               <button type="button" class="pdp-btn pdp-btn--dark" id="pdpAddBtn" ${st === "out" ? "disabled" : ""}>
-                <span>${st === "out" ? "Out of Stock" : state.added ? "Added to Cart ✓" : `Add to Cart — <span>EGP ${(price * state.qty).toLocaleString("en-US")}</span>`}</span>
+                <span>${st === "out" ? t("outOfStock", "Out of Stock") : state.added ? t("addedToCart", "Added to Cart ✓") : `${t("addToCartPrice", "Add to Cart —")} <span>EGP ${(price * state.qty).toLocaleString("en-US")}</span>`}</span>
               </button>
               <button type="button" class="pdp-fav" id="pdpFavBtn" aria-label="Save to wishlist" aria-pressed="${state.fav}">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.4 4.6 13.2a4.6 4.6 0 1 1 7.4-5.3 4.6 4.6 0 1 1 7.4 5.3Z"></path></svg>
@@ -237,9 +242,9 @@
             </div>
 
             <ul class="pdp__trust">
-              <li><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M2.6 8.4h14v12.8h-14z"></path><path d="M16.6 12.4h6.6l4.2 4.2v4.6h-10.8z"></path><circle cx="9.2" cy="24" r="2.6"></circle><circle cx="22.6" cy="24" r="2.6"></circle></svg><span>Free Delivery<br />Across Egypt</span></li>
-              <li><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4.4 9.8A12 12 0 1 1 4 16"></path><polyline points="4.4,4.2 4.4,9.8 10,9.8"></polyline></svg><span>Easy Returns<br />Within 14 Days</span></li>
-              <li><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="6.4" y="14" width="19.2" height="14" rx="2.4"></rect><path d="M10.8 14V10a5.2 5.2 0 0 1 10.4 0v4"></path><circle cx="16" cy="21" r="1.6"></circle></svg><span>Secure Payment<br />100% Safe</span></li>
+              <li><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M2.6 8.4h14v12.8h-14z"></path><path d="M16.6 12.4h6.6l4.2 4.2v4.6h-10.8z"></path><circle cx="9.2" cy="24" r="2.6"></circle><circle cx="22.6" cy="24" r="2.6"></circle></svg><span>${t("freeDeliveryShort", "Free Delivery<br />Across Egypt")}</span></li>
+              <li><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4.4 9.8A12 12 0 1 1 4 16"></path><polyline points="4.4,4.2 4.4,9.8 10,9.8"></polyline></svg><span>${t("easyReturns", "Easy Returns<br />Within 14 Days")}</span></li>
+              <li><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="6.4" y="14" width="19.2" height="14" rx="2.4"></rect><path d="M10.8 14V10a5.2 5.2 0 0 1 10.4 0v4"></path><circle cx="16" cy="21" r="1.6"></circle></svg><span>${t("securePayment", "Secure Payment<br />100% Safe")}</span></li>
             </ul>
 
             <span class="pdp__rule" aria-hidden="true"></span>
@@ -249,13 +254,13 @@
         </div>
 
         <section class="pdp__story">
-          <p class="pdp__story-kicker">Handcrafted With Purpose</p>
-          <h2 class="pdp__story-title">Natural Texture,<br />Timeless Beauty.</h2>
-          <p class="pdp__story-text">Each piece is carefully handcrafted, featuring a unique texture and earthy tones that make it a perfect addition to any interior style.</p>
+          <p class="pdp__story-kicker">${t("handcraftedTitle", "Handcrafted With Purpose")}</p>
+          <h2 class="pdp__story-title" data-i18n-html="naturalTexture">Natural Texture,<br />Timeless Beauty.</h2>
+          <p class="pdp__story-text">${t("handcraftedText", "Each piece is carefully handcrafted, featuring a unique texture and earthy tones that make it a perfect addition to any interior style.")}</p>
           <ul class="pdp__features">
-            <li><span class="pdp__feature-ico" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 4c6 6 6 14 0 24-6-10-6-18 0-24Z"></path></svg></span><strong>100%</strong><span>Handcrafted</span></li>
-            <li><span class="pdp__feature-ico" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 3 27 12l-11 17L5 12Z"></path></svg></span><strong>Premium</strong><span>${product.material || "Quality"} Material</span></li>
-            <li><span class="pdp__feature-ico" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M6 12v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V12"></path></svg></span><strong>Unique</strong><span>Each Piece is One of a Kind</span></li>
+            <li><span class="pdp__feature-ico" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 4c6 6 6 14 0 24-6-10-6-18 0-24Z"></path></svg></span><strong>${t("handcraftedPct", "100%")}</strong><span>${t("handcrafted", "Handcrafted")}</span></li>
+            <li><span class="pdp__feature-ico" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 3 27 12l-11 17L5 12Z"></path></svg></span><strong>${t("premium", "Premium")}</strong><span>${product.material || t("qualityMaterials", "Quality")} ${t("materialSuffix", "Material")}</span></li>
+            <li><span class="pdp__feature-ico" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M6 12v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V12"></path></svg></span><strong>${t("uniquePiece", "Unique")}</strong><span>${t("uniquePieceText", "Each Piece is One of a Kind")}</span></li>
           </ul>
         </section>
       </div>
@@ -263,7 +268,7 @@
       <div class="pdp-lightbox" id="pdpLightbox" data-open="${state.lightboxOpen ? "true" : "false"}" aria-hidden="${!state.lightboxOpen}">
         <button type="button" class="pdp-lightbox__scrim" id="pdpLightboxScrim" tabindex="-1" aria-label="Close zoom"></button>
         <div class="pdp-lightbox__stage">
-          <img id="pdpLightboxImg" src="${cldUrl(activeImg, 1600)}" alt="${product.name}" />
+          <img id="pdpLightboxImg" src="${cldUrl(activeImg, 1600)}" alt="${pname}" />
           <button type="button" class="pdp-lightbox__close" id="pdpLightboxClose" aria-label="Close zoom">
             <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4.6" y1="4.6" x2="19.4" y2="19.4"></line><line x1="19.4" y1="4.6" x2="4.6" y2="19.4"></line></svg>
           </button>
@@ -392,7 +397,8 @@
           (colorOptions[state.colorIdx] ? "::" + colorOptions[state.colorIdx].name : "");
         const variantLabel = [colorOptions[state.colorIdx] && colorOptions[state.colorIdx].name, selectedVariant && selectedVariant.label].filter(Boolean).join(" · ") || undefined;
 
-        Cart.add({ id, name: product.name, price, image: splitFocal(imgs[0]).src, variant: variantLabel, weightKg: product.weight_kg ? Number(product.weight_kg) : 0 }, state.qty);
+        const cartName = window.AH_I18N ? window.AH_I18N.productName(product) : product.name;
+        Cart.add({ id, name: cartName, price, image: splitFocal(imgs[0]).src, variant: variantLabel, weightKg: product.weight_kg ? Number(product.weight_kg) : 0 }, state.qty);
         state.added = true;
         render();
         setTimeout(() => {
@@ -447,7 +453,7 @@
       const [prod, sale] = await Promise.all([API.get("/api/products?slug=" + encodeURIComponent(slug)), API.get("/api/settings?key=site_sale")]);
       product = prod;
       siteSale = sale;
-      document.title = `${product.name} — Antique Home`;
+      document.title = `${window.AH_I18N ? window.AH_I18N.productName(product) : product.name} — Antique Home`;
 
       // neighbors: same category, newest-first (fetch the full active catalog
       // and filter/sort client-side — /api/products?category= takes a slug,
@@ -470,6 +476,14 @@
       renderNotFound();
     }
   }
+
+  document.addEventListener("ah:langchange", () => {
+    if (product) {
+      document.title = `${window.AH_I18N ? window.AH_I18N.productName(product) : product.name} — Antique Home`;
+      render();
+    }
+  });
+  if (window.AH_I18N) window.AH_I18N.wireLangButtons();
 
   init();
 })();
