@@ -96,6 +96,92 @@ function cldUrl(url, width) {
   return src.slice(0, i + marker.length) + transform + "/" + src.slice(i + marker.length);
 }
 
+// Each category's built-in photo, used whenever no custom image has been
+// uploaded for it in Dashboard → Categories (categories.image_url empty).
+// Subcategories without their own image borrow their parent's look.
+const CATEGORY_DEFAULT_IMAGES = {
+  "bleu-blanc": "/sec 3/category 1.webp",
+  lighting: "/sec 3/category 2.webp",
+  accessories: "/sec 3/category 3.webp",
+  antiques: "/sec 3/category 4.webp",
+  "artificial-plants-garden-stool": "/sec 3/category 5.webp",
+  "wall-art-plates": "/sec 3/category 6.webp",
+  "murano-glass": "/sec 3/category 7.webp",
+  furniture: "/sec 3/category 8.webp",
+  sale: "/sec 3/category 9.jpeg",
+  "colored-vases": "/sec 3/category 3.webp",
+  "candle-holder": "/sec 3/category 3.webp",
+  raisin: "/sec 3/category 3.webp",
+  "tissue-box": "/sec 3/category 3.webp",
+  ashtray: "/sec 3/category 3.webp",
+  "photo-frame": "/sec 3/category 3.webp",
+};
+
+// The image to show for a category: its uploaded image (sized via
+// Cloudinary) if one is set, else its built-in default. `categories` is
+// the /api/categories list (or null while it's still loading).
+function categoryImageUrl(slug, categories, width) {
+  const c = (categories || []).find((x) => x.slug === slug);
+  if (c && c.image_url) return cldUrl(c.image_url, width);
+  return CATEGORY_DEFAULT_IMAGES[slug] || "/sec 3/category 3.webp";
+}
+
+// Admin photo upload, shared by the product and category editors.
+// Vercel rejects any request body over 4.5MB, and a normal phone/camera
+// photo (3-12MB, plus ~33% for base64) blows straight past that, which
+// is what made uploads fail. So every image is first shrunk in the
+// browser to at most 2400px on its long side and re-encoded as a
+// high-quality JPEG (typically 300-900KB, still far sharper than any
+// spot the site displays it), stepping quality/size down further only
+// if it's somehow still too big. Returns the uploaded Cloudinary URL.
+const UPLOAD_MAX_DATAURL = 3.5 * 1024 * 1024;
+
+function loadImageFile(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("unreadable")); };
+    img.src = url;
+  });
+}
+
+async function compressImageFile(file) {
+  let img;
+  try {
+    img = await loadImageFile(file);
+  } catch {
+    throw new Error(`"${file.name}" isn't a photo format this browser can open (e.g. HEIC). Please save it as JPG or PNG and try again.`);
+  }
+  const attempts = [[2400, 0.86], [2000, 0.8], [1600, 0.75], [1200, 0.7]];
+  let dataUrl = "";
+  for (const [maxDim, quality] of attempts) {
+    const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
+    const w = Math.max(1, Math.round(img.naturalWidth * scale));
+    const h = Math.max(1, Math.round(img.naturalHeight * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#ffffff"; // JPEG has no transparency — keep transparent PNG areas white, not black
+    ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(img, 0, 0, w, h);
+    dataUrl = canvas.toDataURL("image/jpeg", quality);
+    if (dataUrl.length <= UPLOAD_MAX_DATAURL) return dataUrl;
+  }
+  return dataUrl;
+}
+
+async function uploadImageFile(file, folder) {
+  const dataUrl = await compressImageFile(file);
+  try {
+    const { url } = await API.post("/api/upload", { dataUrl, folder });
+    return url;
+  } catch (err) {
+    throw new Error(`Couldn't upload "${file.name}": ${err.message || "upload failed"}. Please try again.`);
+  }
+}
+
 // Small "Added to Cart" toast, shared by every add-to-cart path (product
 // cards, the PDP button, homepage rail) since they all funnel through
 // Cart.add() below.

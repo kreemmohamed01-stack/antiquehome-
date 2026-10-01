@@ -23,24 +23,24 @@
   ];
 
   const BANNER = {
-    "bleu-blanc": { title: "BLEU BLANC", text: "Porcelain in classic blue and white, timeless on every table.", img: "/sec 3/category 1.webp" },
-    lighting: { title: "LIGHTING", text: "Chandeliers, lamps and sconces that cast a warm, antique glow.", img: "/sec 3/category 2.webp" },
-    accessories: { title: "ACCESSORIES", text: "Small finishing pieces — busts, boxes and objets for every shelf.", img: "/sec 3/category 3.webp" },
-    antiques: { title: "ANTIQUES", text: "Rare finds with real history, each one a story for your home.", img: "/sec 3/category 4.webp" },
-    "artificial-plants-garden-stool": { title: "ARTIFICIAL PLANTS & GARDEN STOOL", text: "Lush greenery and ceramic stools that never need watering.", img: "/sec 3/category 5.webp" },
-    "wall-art-plates": { title: "WALL ART & PLATES", text: "Framed pieces and decorative plates to dress every wall.", img: "/sec 3/category 6.webp" },
-    "murano-glass": { title: "MURANO GLASS", text: "Hand-blown glass from Venice, colour and light in one form.", img: "/sec 3/category 7.webp" },
-    furniture: { title: "FURNITURE", text: "Statement chairs, consoles and tables built to be inherited.", img: "/sec 3/category 8.webp" },
-    sale: { title: "SALE", text: "Timeless pieces at a kinder price, for a limited time only.", img: "/sec 3/category 9.jpeg" },
+    "bleu-blanc": { title: "BLEU BLANC", text: "Porcelain in classic blue and white, timeless on every table." },
+    lighting: { title: "LIGHTING", text: "Chandeliers, lamps and sconces that cast a warm, antique glow." },
+    accessories: { title: "ACCESSORIES", text: "Small finishing pieces — busts, boxes and objets for every shelf." },
+    antiques: { title: "ANTIQUES", text: "Rare finds with real history, each one a story for your home." },
+    "artificial-plants-garden-stool": { title: "ARTIFICIAL PLANTS & GARDEN STOOL", text: "Lush greenery and ceramic stools that never need watering." },
+    "wall-art-plates": { title: "WALL ART & PLATES", text: "Framed pieces and decorative plates to dress every wall." },
+    "murano-glass": { title: "MURANO GLASS", text: "Hand-blown glass from Venice, colour and light in one form." },
+    furniture: { title: "FURNITURE", text: "Statement chairs, consoles and tables built to be inherited." },
+    sale: { title: "SALE", text: "Timeless pieces at a kinder price, for a limited time only." },
     // Accessories subcategories — share its category photo until each
     // gets its own; the shop grid below still filters to only that
     // subcategory's products.
-    "colored-vases": { title: "COLORED VASES", text: "Hand-finished vases in rich, saturated colour for every shelf.", img: "/sec 3/category 3.webp" },
-    "candle-holder": { title: "CANDLE HOLDERS", text: "Sculptural holders that carry candlelight with quiet elegance.", img: "/sec 3/category 3.webp" },
-    raisin: { title: "RAISIN", text: "Delicate resin pieces, cast with texture and warmth.", img: "/sec 3/category 3.webp" },
-    "tissue-box": { title: "TISSUE BOXES", text: "Everyday essentials dressed in timeless, decorative covers.", img: "/sec 3/category 3.webp" },
-    ashtray: { title: "ASHTRAYS", text: "Finely finished trays that double as tabletop sculpture.", img: "/sec 3/category 3.webp" },
-    "photo-frame": { title: "PHOTO FRAMES", text: "Frames crafted to hold your favourite moments beautifully.", img: "/sec 3/category 3.webp" },
+    "colored-vases": { title: "COLORED VASES", text: "Hand-finished vases in rich, saturated colour for every shelf." },
+    "candle-holder": { title: "CANDLE HOLDERS", text: "Sculptural holders that carry candlelight with quiet elegance." },
+    raisin: { title: "RAISIN", text: "Delicate resin pieces, cast with texture and warmth." },
+    "tissue-box": { title: "TISSUE BOXES", text: "Everyday essentials dressed in timeless, decorative covers." },
+    ashtray: { title: "ASHTRAYS", text: "Finely finished trays that double as tabletop sculpture." },
+    "photo-frame": { title: "PHOTO FRAMES", text: "Frames crafted to hold your favourite moments beautifully." },
   };
 
   const SORT_LABELS_KEYS = {
@@ -71,8 +71,24 @@
 
   let allProducts = [];
   let categories = [];
+  let categoriesLoaded = false; // until /api/categories answers, category <img>s render without src (no flash of the wrong photo)
   let categoryById = new Map();
   let siteSale = { active: false, percent: 0, label: "" };
+
+  // Category photos (banner background + rail icons) come from Dashboard →
+  // Categories when an image was uploaded there, else the built-in default
+  // (see categoryImageUrl in api.js). Each <img> is tagged with its slug so
+  // applyCategoryImages() can fill/refresh them once categories arrive.
+  function catImgAttrs(slug, width) {
+    const src = categoriesLoaded ? ` src="${categoryImageUrl(slug, categories, width)}"` : "";
+    return `data-cat-img="${slug}" data-cat-w="${width}"${src}`;
+  }
+  function applyCategoryImages() {
+    document.querySelectorAll("img[data-cat-img]").forEach((img) => {
+      const url = categoryImageUrl(img.dataset.catImg, categories, Number(img.dataset.catW));
+      if (img.getAttribute("src") !== url) img.src = url;
+    });
+  }
 
   function renderChrome() {
     const heroSlot = document.getElementById("shopHeroSlot");
@@ -86,12 +102,12 @@
           path: "/shop.html",
         });
       } else {
-        const b = BANNER[activeCategory] || { title: activeCategory.toUpperCase(), text: "", img: "/sec 3/category 1.webp" };
+        const b = BANNER[activeCategory] || { title: activeCategory.toUpperCase(), text: "" };
         window.AH_SEO.setMeta({
           title: `${b.title.charAt(0)}${b.title.slice(1).toLowerCase()} — Antique Home`,
           description: b.text || `Shop ${b.title.toLowerCase()} at Antique Home — curated pieces for every room.`,
           path: `/shop.html?category=${encodeURIComponent(activeCategory)}`,
-          image: b.img,
+          image: categoryImageUrl(activeCategory, categories, 1200),
         });
       }
     }
@@ -152,7 +168,7 @@
         </section>`;
       railSlot.innerHTML = catRailHtml("all");
     } else {
-      const banner = BANNER[activeCategory] || { title: activeCategory.toUpperCase(), text: "", img: "/sec 3/category 1.webp" };
+      const banner = BANNER[activeCategory] || { title: activeCategory.toUpperCase(), text: "" };
       const bannerTitle = t(`banner:${activeCategory}Title`, banner.title);
       const bannerText = t(`banner:${activeCategory}Text`, banner.text);
       heroSlot.innerHTML = `
@@ -199,7 +215,7 @@
         </div>
 
         <section class="shop shop-banner">
-          <div class="shop-banner__bg" aria-hidden="true"><img src="${banner.img}" alt="" loading="lazy" /></div>
+          <div class="shop-banner__bg" aria-hidden="true"><img ${catImgAttrs(activeCategory, 1600)} alt="" fetchpriority="high" /></div>
           <div class="shop-banner__inner">
             <p class="crumb rv rv--left" data-rv>
               <a href="/">${t("home", "Home")}</a>
@@ -258,20 +274,20 @@
 
   function catRailHtml(active) {
     const ITEMS = [
-      { slug: "bleu-blanc", key: "catBleuBlanc", label: "Bleu Blanc", img: "/sec 3/category 1.webp" },
-      { slug: "accessories", key: "catAccessories", label: "Decor Accents", img: "/sec 3/category 3.webp" },
-      { slug: "lighting", key: "catLighting", label: "Lighting", img: "/sec 3/category 2.webp" },
-      { slug: "murano-glass", key: "catMurano", label: "Murano Glass", img: "/sec 3/category 7.webp" },
-      { slug: "wall-art-plates", key: "catWallArtShort", label: "Wall Art", img: "/sec 3/category 6.webp" },
-      { slug: "furniture", key: "catFurniture", label: "Furniture", img: "/sec 3/category 8.webp" },
-      { slug: "antiques", key: "catAntiques", label: "Antiques", img: "/sec 3/category 4.webp" },
-      { slug: "artificial-plants-garden-stool", key: "catTrays", label: "Trays", img: "/sec 3/category 5.webp" },
-      { slug: "sale", key: "catSale", label: "Sale", img: "/sec 3/category 9.jpeg" },
+      { slug: "bleu-blanc", key: "catBleuBlanc", label: "Bleu Blanc" },
+      { slug: "accessories", key: "catAccessories", label: "Decor Accents" },
+      { slug: "lighting", key: "catLighting", label: "Lighting" },
+      { slug: "murano-glass", key: "catMurano", label: "Murano Glass" },
+      { slug: "wall-art-plates", key: "catWallArtShort", label: "Wall Art" },
+      { slug: "furniture", key: "catFurniture", label: "Furniture" },
+      { slug: "antiques", key: "catAntiques", label: "Antiques" },
+      { slug: "artificial-plants-garden-stool", key: "catTrays", label: "Trays" },
+      { slug: "sale", key: "catSale", label: "Sale" },
     ];
     const items = ITEMS.map(
       (it) => `
       <a class="catrail__item${active === it.slug ? " catrail__item--active" : ""}" href="/shop.html?category=${it.slug}">
-        <span class="catrail__ico"><img src="${it.img}" alt="" loading="lazy" /></span>
+        <span class="catrail__ico"><img ${catImgAttrs(it.slug, 160)} alt="" loading="lazy" /></span>
         <span class="catrail__label">${t(it.key, it.label)}</span>
       </a>`
     ).join("");
@@ -521,6 +537,12 @@
     renderFilterCats();
     wireControls();
 
+    // Products are requested at the same time as categories/sale settings
+    // rather than after them.
+    const productsReq = API.get(activeCategory === "all"
+      ? "/api/products?status=active"
+      : "/api/products?category=" + encodeURIComponent(activeCategory)).catch(() => []);
+
     try {
       const [cats, sale] = await Promise.all([API.get("/api/categories"), API.get("/api/settings?key=site_sale")]);
       categories = cats;
@@ -530,17 +552,11 @@
       categories = [];
       siteSale = { active: false, percent: 0, label: "" };
     }
+    categoriesLoaded = true;
+    applyCategoryImages();
     renderSubcatRail();
 
-    try {
-      if (activeCategory === "all") {
-        allProducts = await API.get("/api/products?status=active");
-      } else {
-        allProducts = await API.get("/api/products?category=" + encodeURIComponent(activeCategory));
-      }
-    } catch {
-      allProducts = [];
-    }
+    allProducts = await productsReq;
 
     render();
   }

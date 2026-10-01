@@ -160,9 +160,22 @@
     }
   }
 
+  // Category tiles: swap in any image uploaded in Dashboard → Categories.
+  // The markup ships the built-in default as src (lazy-loaded, below the
+  // fold), so in the normal case this replaces it before it ever downloads.
+  async function loadCategoryImages() {
+    let categories = [];
+    try { categories = await API.get("/api/categories"); } catch { return; }
+    document.querySelectorAll("img[data-cat-img]").forEach((img) => {
+      const url = categoryImageUrl(img.dataset.catImg, categories, Number(img.dataset.catW));
+      if (img.getAttribute("src") !== url) img.src = url;
+    });
+  }
+
   ready(function () {
     loadArrivals();
     loadSaleBanner();
     loadHeroContent();
+    loadCategoryImages();
   });
 })();
