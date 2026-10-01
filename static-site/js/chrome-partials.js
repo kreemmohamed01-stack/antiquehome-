@@ -12,8 +12,8 @@
   var CHROME_HTML = `
 <footer class="foot" id="contact">
   <picture class="foot__bg">
-    <source media="(min-width: 900px)" srcset="/footer/background%20footer%20desk.jpeg" />
-    <img src="/footer/background footer mop.jpeg" alt="" loading="lazy" />
+    <source media="(min-width: 900px)" srcset="/footer/background%20footer%20desk.webp" />
+    <img src="/footer/background footer mop.webp" alt="" loading="lazy" />
   </picture>
 
   <div class="foot__inner">

@@ -42,7 +42,7 @@
      a lighter one so the artwork actually reads. */
   background:
     linear-gradient(180deg, rgba(250,246,238,.55), rgba(250,246,238,.72)),
-    url("/خلفيه منيو.png") center / cover no-repeat;
+    url("/خلفيه منيو.webp") center / cover no-repeat;
   box-shadow:
     30px 0 70px rgba(0,0,0,.35),
     inset -1px 0 0 rgba(120,96,58,.18);

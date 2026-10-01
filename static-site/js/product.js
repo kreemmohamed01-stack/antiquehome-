@@ -131,7 +131,7 @@
     document.getElementById("pdpSlot").innerHTML = `
     <main class="pdp">
       <div class="pdp__bg" aria-hidden="true">
-        <img src="/خلفيه منتجات.png" alt="" loading="eager" />
+        <img src="/خلفيه منتجات.webp" alt="" loading="eager" />
       </div>
 
       <div class="pdp__inner">

@@ -23,24 +23,24 @@
   ];
 
   const BANNER = {
-    "bleu-blanc": { title: "BLEU BLANC", text: "Porcelain in classic blue and white, timeless on every table.", img: "/sec 3/category 1.png" },
-    lighting: { title: "LIGHTING", text: "Chandeliers, lamps and sconces that cast a warm, antique glow.", img: "/sec 3/category 2.png" },
-    accessories: { title: "ACCESSORIES", text: "Small finishing pieces — busts, boxes and objets for every shelf.", img: "/sec 3/category 3.png" },
-    antiques: { title: "ANTIQUES", text: "Rare finds with real history, each one a story for your home.", img: "/sec 3/category 4.png" },
-    "artificial-plants-garden-stool": { title: "ARTIFICIAL PLANTS & GARDEN STOOL", text: "Lush greenery and ceramic stools that never need watering.", img: "/sec 3/category 5.png" },
-    "wall-art-plates": { title: "WALL ART & PLATES", text: "Framed pieces and decorative plates to dress every wall.", img: "/sec 3/category 6.png" },
-    "murano-glass": { title: "MURANO GLASS", text: "Hand-blown glass from Venice, colour and light in one form.", img: "/sec 3/category 7.png" },
-    furniture: { title: "FURNITURE", text: "Statement chairs, consoles and tables built to be inherited.", img: "/sec 3/category 8.png" },
+    "bleu-blanc": { title: "BLEU BLANC", text: "Porcelain in classic blue and white, timeless on every table.", img: "/sec 3/category 1.webp" },
+    lighting: { title: "LIGHTING", text: "Chandeliers, lamps and sconces that cast a warm, antique glow.", img: "/sec 3/category 2.webp" },
+    accessories: { title: "ACCESSORIES", text: "Small finishing pieces — busts, boxes and objets for every shelf.", img: "/sec 3/category 3.webp" },
+    antiques: { title: "ANTIQUES", text: "Rare finds with real history, each one a story for your home.", img: "/sec 3/category 4.webp" },
+    "artificial-plants-garden-stool": { title: "ARTIFICIAL PLANTS & GARDEN STOOL", text: "Lush greenery and ceramic stools that never need watering.", img: "/sec 3/category 5.webp" },
+    "wall-art-plates": { title: "WALL ART & PLATES", text: "Framed pieces and decorative plates to dress every wall.", img: "/sec 3/category 6.webp" },
+    "murano-glass": { title: "MURANO GLASS", text: "Hand-blown glass from Venice, colour and light in one form.", img: "/sec 3/category 7.webp" },
+    furniture: { title: "FURNITURE", text: "Statement chairs, consoles and tables built to be inherited.", img: "/sec 3/category 8.webp" },
     sale: { title: "SALE", text: "Timeless pieces at a kinder price, for a limited time only.", img: "/sec 3/category 9.jpeg" },
     // Accessories subcategories — share its category photo until each
     // gets its own; the shop grid below still filters to only that
     // subcategory's products.
-    "colored-vases": { title: "COLORED VASES", text: "Hand-finished vases in rich, saturated colour for every shelf.", img: "/sec 3/category 3.png" },
-    "candle-holder": { title: "CANDLE HOLDERS", text: "Sculptural holders that carry candlelight with quiet elegance.", img: "/sec 3/category 3.png" },
-    raisin: { title: "RAISIN", text: "Delicate resin pieces, cast with texture and warmth.", img: "/sec 3/category 3.png" },
-    "tissue-box": { title: "TISSUE BOXES", text: "Everyday essentials dressed in timeless, decorative covers.", img: "/sec 3/category 3.png" },
-    ashtray: { title: "ASHTRAYS", text: "Finely finished trays that double as tabletop sculpture.", img: "/sec 3/category 3.png" },
-    "photo-frame": { title: "PHOTO FRAMES", text: "Frames crafted to hold your favourite moments beautifully.", img: "/sec 3/category 3.png" },
+    "colored-vases": { title: "COLORED VASES", text: "Hand-finished vases in rich, saturated colour for every shelf.", img: "/sec 3/category 3.webp" },
+    "candle-holder": { title: "CANDLE HOLDERS", text: "Sculptural holders that carry candlelight with quiet elegance.", img: "/sec 3/category 3.webp" },
+    raisin: { title: "RAISIN", text: "Delicate resin pieces, cast with texture and warmth.", img: "/sec 3/category 3.webp" },
+    "tissue-box": { title: "TISSUE BOXES", text: "Everyday essentials dressed in timeless, decorative covers.", img: "/sec 3/category 3.webp" },
+    ashtray: { title: "ASHTRAYS", text: "Finely finished trays that double as tabletop sculpture.", img: "/sec 3/category 3.webp" },
+    "photo-frame": { title: "PHOTO FRAMES", text: "Frames crafted to hold your favourite moments beautifully.", img: "/sec 3/category 3.webp" },
   };
 
   const SORT_LABELS_KEYS = {
@@ -83,8 +83,8 @@
         <section class="shop-hero" id="shopHero">
           <div class="shop-hero__media" aria-hidden="true">
             <picture>
-              <source media="(min-width: 900px)" srcset="/هيرو شوب ناو لاب .png" />
-              <img src="/هيرو شوب ناو موبيل .png" alt="" loading="eager" />
+              <source media="(min-width: 900px)" srcset="/هيرو شوب ناو لاب .webp" />
+              <img src="/هيرو شوب ناو موبيل .webp" alt="" loading="eager" />
             </picture>
             <div class="shop-hero__tint"></div>
           </div>
@@ -134,7 +134,7 @@
         </section>`;
       railSlot.innerHTML = catRailHtml("all");
     } else {
-      const banner = BANNER[activeCategory] || { title: activeCategory.toUpperCase(), text: "", img: "/sec 3/category 1.png" };
+      const banner = BANNER[activeCategory] || { title: activeCategory.toUpperCase(), text: "", img: "/sec 3/category 1.webp" };
       const bannerTitle = t(`banner:${activeCategory}Title`, banner.title);
       const bannerText = t(`banner:${activeCategory}Text`, banner.text);
       document.title = `${banner.title.charAt(0)}${banner.title.slice(1).toLowerCase()} — Antique Home`;
@@ -239,14 +239,14 @@
 
   function catRailHtml(active) {
     const ITEMS = [
-      { slug: "bleu-blanc", key: "catBleuBlanc", label: "Bleu Blanc", img: "/sec 3/category 1.png" },
-      { slug: "accessories", key: "catAccessories", label: "Decor Accents", img: "/sec 3/category 3.png" },
-      { slug: "lighting", key: "catLighting", label: "Lighting", img: "/sec 3/category 2.png" },
-      { slug: "murano-glass", key: "catMurano", label: "Murano Glass", img: "/sec 3/category 7.png" },
-      { slug: "wall-art-plates", key: "catWallArtShort", label: "Wall Art", img: "/sec 3/category 6.png" },
-      { slug: "furniture", key: "catFurniture", label: "Furniture", img: "/sec 3/category 8.png" },
-      { slug: "antiques", key: "catAntiques", label: "Antiques", img: "/sec 3/category 4.png" },
-      { slug: "artificial-plants-garden-stool", key: "catTrays", label: "Trays", img: "/sec 3/category 5.png" },
+      { slug: "bleu-blanc", key: "catBleuBlanc", label: "Bleu Blanc", img: "/sec 3/category 1.webp" },
+      { slug: "accessories", key: "catAccessories", label: "Decor Accents", img: "/sec 3/category 3.webp" },
+      { slug: "lighting", key: "catLighting", label: "Lighting", img: "/sec 3/category 2.webp" },
+      { slug: "murano-glass", key: "catMurano", label: "Murano Glass", img: "/sec 3/category 7.webp" },
+      { slug: "wall-art-plates", key: "catWallArtShort", label: "Wall Art", img: "/sec 3/category 6.webp" },
+      { slug: "furniture", key: "catFurniture", label: "Furniture", img: "/sec 3/category 8.webp" },
+      { slug: "antiques", key: "catAntiques", label: "Antiques", img: "/sec 3/category 4.webp" },
+      { slug: "artificial-plants-garden-stool", key: "catTrays", label: "Trays", img: "/sec 3/category 5.webp" },
       { slug: "sale", key: "catSale", label: "Sale", img: "/sec 3/category 9.jpeg" },
     ];
     const items = ITEMS.map(

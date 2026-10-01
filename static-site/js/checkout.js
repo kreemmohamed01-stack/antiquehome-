@@ -146,7 +146,7 @@
 
     document.getElementById("checkoutSlot").innerHTML = `
       <div class="chk__bg" aria-hidden="true">
-        <img src="/خلفيه منتجات.png" alt="" loading="eager" />
+        <img src="/خلفيه منتجات.webp" alt="" loading="eager" />
       </div>
 
       <header class="chk__topbar">
@@ -279,7 +279,7 @@
 
         <div class="chk__col chk__col--right">
           <figure class="chk__promoPanel">
-            <img src="/sec 2/pic 11.jpeg" alt="" loading="lazy" />
+            <img src="/sec 2/pic 11.webp" alt="" loading="lazy" />
             <figcaption>
               <h3>${t("promoPanelTitle", "Pieces That<br />Tell a Story")}</h3>
               <span class="chk__promoBrand">ANTIQUE HOME</span>

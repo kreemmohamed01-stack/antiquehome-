@@ -78,7 +78,7 @@
 
     document.getElementById("ocSlot").innerHTML = `
       <div class="chk__bg" aria-hidden="true">
-        <img src="/خلفيه منتجات.png" alt="" />
+        <img src="/خلفيه منتجات.webp" alt="" />
       </div>
 
       <header class="chk__topbar">
