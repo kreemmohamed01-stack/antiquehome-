@@ -824,6 +824,36 @@ html[dir="rtl"] .lang-btn__label{ font-family: "Tajawal", sans-serif; letter-spa
 }
 
 /* =========================================================
+   SCROLL REVEAL
+   Shared by every page (including checkout/order-confirmation,
+   which don't load sections.css) — an element marked data-rv
+   fades/slides into view the first time it scrolls into the
+   viewport; direction comes from the rv--* modifier class, timing
+   from js/site-chrome.js's AH_REVEAL (an IntersectionObserver that
+   adds .in once and then stops watching that element). Stagger a
+   group via each element's own --rd custom property.
+   ========================================================= */
+
+.rv{
+  opacity:0;
+  transition:
+    opacity 1.05s cubic-bezier(.16,.84,.26,1) var(--rd, 0s),
+    transform 1.05s cubic-bezier(.16,.84,.26,1) var(--rd, 0s),
+    filter 1.05s cubic-bezier(.16,.84,.26,1) var(--rd, 0s);
+  will-change: opacity, transform;
+}
+.rv--up   { transform: translateY(28px); }
+.rv--left { transform: translateX(-38px); }
+.rv--right{ transform: translateX(38px); }
+.rv--zoom { transform: scale(1.06); filter: blur(2px); }
+
+.rv.in{
+  opacity:1;
+  transform:none;
+  filter:none;
+}
+
+/* =========================================================
    ACCESSIBILITY
    ========================================================= */
 
@@ -840,5 +870,11 @@ html[dir="rtl"] .lang-btn__label{ font-family: "Tajawal", sans-serif; letter-spa
     transform:none !important;
   }
   .hero__video{ animation:none; transform:none; }
+  .rv{
+    opacity:1 !important;
+    transform:none !important;
+    filter:none !important;
+    transition:none !important;
+  }
   *{ transition-duration:.01ms !important; }
 }

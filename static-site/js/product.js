@@ -19,6 +19,11 @@
 
   let product = null;
   let siteSale = { active: false, percent: 0, label: "" };
+  // Scroll-reveal only plays on the page's first render — render() runs
+  // again on every quantity/color/size click, and replaying the fade-in
+  // on the info block each time would look like a glitch rather than an
+  // entrance, so the rv classes are only added once.
+  let firstRenderDone = false;
   let prevSlug = null;
   let nextSlug = null;
 
@@ -36,6 +41,20 @@
         <p style="opacity:.7">${t("productNotFoundText", "This product may have been removed or the link is incorrect.")}</p>
         <a class="btn-solid" href="/shop.html"><span>${t("backToShop", "Back to Shop")}</span></a>
       </div>`;
+  }
+
+  // Returns the class names + data-rv attribute for a reveal-on-load
+  // element, but only on the page's first render (see firstRenderDone
+  // above) — on every later re-render (quantity/color/size clicks all
+  // call render() again) it returns inert strings, so the element just
+  // appears normally instead of replaying its entrance animation.
+  function rvClass() {
+    if (firstRenderDone) return "";
+    return ` rv rv--left`;
+  }
+  function rvAttr(delay) {
+    if (firstRenderDone) return "";
+    return delay ? ` data-rv style="--rd:${delay}s"` : ` data-rv`;
   }
 
   function render() {
@@ -181,10 +200,10 @@
           </div>
 
           <div class="pdp__info">
-            ${eyebrow}
-            <h1 class="pdp__title">${pname}</h1>
+            <div class="${rvClass()}"${rvAttr()}>${eyebrow}</div>
+            <h1 class="pdp__title${rvClass()}"${rvAttr(0.06)}>${pname}</h1>
 
-            <div class="pdp__priceRow">
+            <div class="pdp__priceRow${rvClass()}"${rvAttr(0.12)}>
               <span class="pdp__price"${salePct > 0 ? ' style="color:#A93B29"' : ""}>EGP ${price.toLocaleString("en-US")}</span>
               ${
                 salePct > 0
@@ -202,13 +221,13 @@
                 : ""
             }
 
-            <div class="pdp__rating">
+            <div class="pdp__rating${rvClass()}"${rvAttr(0.18)}>
               <span class="pdp__stars" aria-hidden="true">${stars}</span>
               <span class="pdp__rating-num">${Number(product.rating || 0).toFixed(1)}</span>
               <span class="pdp__rating-count">(${product.review_count || 0} ${t("reviews", "reviews")})</span>
             </div>
 
-            <p class="pdp__desc">${pdesc || ""}</p>
+            <p class="pdp__desc${rvClass()}"${rvAttr(0.24)}>${pdesc || ""}</p>
 
             <span class="pdp__rule" aria-hidden="true"></span>
 
@@ -277,6 +296,8 @@
     </main>`;
 
     wireEvents();
+    if (!firstRenderDone && window.AH_REVEAL) window.AH_REVEAL.scan(document.getElementById("pdpSlot"));
+    firstRenderDone = true;
   }
 
   function wireEvents() {

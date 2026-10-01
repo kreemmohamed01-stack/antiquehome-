@@ -6,6 +6,46 @@
   function t(key, fallbackEn) {
     return window.AH_I18N ? window.AH_I18N.t(key, fallbackEn) : fallbackEn;
   }
+  // Scroll-reveal only plays on the page's first render — render() runs
+  // again on nearly every field edit/radio click (checkout is fully
+  // state-driven), and replaying each card's fade-in on every keystroke
+  // would look like a glitch rather than an entrance, so the rv classes
+  // are only added once.
+  let firstRenderDone = false;
+  function rvClass() {
+    return firstRenderDone ? "" : " rv rv--left";
+  }
+  function rvAttr(delay) {
+    if (firstRenderDone) return "";
+    return delay ? ` data-rv style="--rd:${delay}s"` : ` data-rv`;
+  }
+
+  // checkout.html doesn't load site-chrome.js (it has no header/footer
+  // chrome), so AH_REVEAL doesn't exist here — a small self-contained
+  // observer standing in for it, same behavior as site-chrome.js's.
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let revealIo = null;
+  function scanReveal(root) {
+    const targets = Array.prototype.slice.call((root || document).querySelectorAll("[data-rv]:not([data-rv-seen])"));
+    if (!targets.length) return;
+    if (reducedMotion || !("IntersectionObserver" in window)) {
+      targets.forEach((el) => { el.classList.add("in"); el.setAttribute("data-rv-seen", ""); });
+      return;
+    }
+    if (!revealIo) {
+      revealIo = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add("in");
+            revealIo.unobserve(entry.target);
+          });
+        },
+        { rootMargin: "0px 0px -10% 0px", threshold: 0.05 }
+      );
+    }
+    targets.forEach((el) => { el.setAttribute("data-rv-seen", ""); revealIo.observe(el); });
+  }
   const FALLBACK_STANDARD = 100;
   const FALLBACK_EXPRESS = 150;
 
@@ -170,7 +210,7 @@
 
       <div class="chk__wrap">
         <div class="chk__col chk__col--left">
-          <section class="chk__card">
+          <section class="chk__card${rvClass()}"${rvAttr()}>
             <h2 class="chk__heading">${t("contactInfoHeading", "1. Contact Information")}</h2>
             <p class="chk__sub">${t("contactInfoSub", "We&rsquo;ll use this information to keep you updated about your order.")}</p>
             <label class="chk__field">
@@ -179,7 +219,7 @@
             </label>
           </section>
 
-          <section class="chk__card">
+          <section class="chk__card${rvClass()}"${rvAttr(0.08)}>
             <h2 class="chk__heading">${t("shippingDetailsHeading", "2. Shipping Details")}</h2>
             <p class="chk__sub">${t("shippingDetailsSub", "Enter your delivery information.")}</p>
             <div class="chk__row2">
@@ -212,7 +252,7 @@
             </label>
           </section>
 
-          <section class="chk__card">
+          <section class="chk__card${rvClass()}"${rvAttr(0.16)}>
             <h2 class="chk__heading">${t("deliveryOptionsHeading", "3. Delivery Options")}</h2>
             <p class="chk__sub">${t("deliveryOptionsSub", "Choose how you want to receive your order.")}</p>
             <div class="chk__delivery">
@@ -261,7 +301,7 @@
             }
           </section>
 
-          <section class="chk__card">
+          <section class="chk__card${rvClass()}"${rvAttr(0.24)}>
             <h2 class="chk__heading">${t("orderSummaryHeading", "4. Order Summary")}</h2>
             <p class="chk__sub">${t("orderSummarySub", "Review your items before placing the order.")}</p>
             ${itemsHtml}
@@ -286,7 +326,7 @@
             </figcaption>
           </figure>
 
-          <section class="chk__card">
+          <section class="chk__card${rvClass()}"${rvAttr(0.08)}>
             <h2 class="chk__heading">${t("paymentMethodHeading", "5. Payment Method")}</h2>
             <p class="chk__sub">${t("paymentMethodSub", "Choose your preferred payment method.")}</p>
             <div class="chk__payList">
@@ -367,7 +407,7 @@
               : ""
           }
 
-          <section class="chk__card">
+          <section class="chk__card${rvClass()}"${rvAttr(0.16)}>
             <h2 class="chk__heading">${t("additionalNotesHeading", "6. Additional Notes")} <small>${t("optionalLabel", "(Optional)")}</small></h2>
             <label class="chk__field chk__field--textarea">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.4h8.4l4 4v13.2H6Z"></path></svg>
@@ -399,6 +439,8 @@
     `;
 
     wireEvents();
+    if (!firstRenderDone) scanReveal(document.getElementById("checkoutSlot"));
+    firstRenderDone = true;
   }
 
   function wireEvents() {

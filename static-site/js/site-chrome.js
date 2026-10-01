@@ -10,8 +10,48 @@
     return window.AH_I18N ? window.AH_I18N.t(key, fallbackEn) : fallbackEn;
   }
 
+  // ---- scroll reveal ----
+  // Any element marked data-rv fades/slides into view the first time it
+  // scrolls into the viewport (direction set by its rv--up/rv--left/
+  // rv--zoom class, see sections.css). Exposed as window.AH_REVEAL so
+  // pages that build their content in JS after this file's own ready()
+  // pass (shop.js, product.js, checkout.js, order-confirmation.js) can
+  // call AH_REVEAL.scan() once their markup exists, to pick up the
+  // data-rv elements it just added — scan() is safe to call repeatedly,
+  // it only ever observes elements it hasn't seen yet.
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let revealIo = null;
+  function ensureRevealObserver() {
+    if (revealIo || reduced || !("IntersectionObserver" in window)) return;
+    revealIo = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("in");
+          revealIo.unobserve(entry.target);
+        });
+      },
+      { rootMargin: "0px 0px -10% 0px", threshold: 0.05 }
+    );
+  }
+  function scanReveal(root) {
+    const scope = root || document;
+    const targets = Array.prototype.slice.call(scope.querySelectorAll("[data-rv]:not([data-rv-seen])"));
+    if (!targets.length) return;
+    if (reduced || !("IntersectionObserver" in window)) {
+      targets.forEach((el) => { el.classList.add("in"); el.setAttribute("data-rv-seen", ""); });
+      return;
+    }
+    ensureRevealObserver();
+    targets.forEach((el) => {
+      el.setAttribute("data-rv-seen", "");
+      revealIo.observe(el);
+    });
+  }
+  window.AH_REVEAL = { scan: scanReveal };
+
   ready(function () {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    scanReveal(document);
 
     // ---- shared scroll lock ----
     let lockCount = 0;
@@ -22,25 +62,6 @@
     function unlockScroll() {
       lockCount = Math.max(0, lockCount - 1);
       if (lockCount === 0) document.body.style.overflow = "";
-    }
-
-    // ---- scroll reveal ----
-    const targets = Array.prototype.slice.call(document.querySelectorAll("[data-rv]"));
-    let io;
-    if (reduced || !("IntersectionObserver" in window)) {
-      targets.forEach((el) => el.classList.add("in"));
-    } else {
-      io = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (!entry.isIntersecting) return;
-            entry.target.classList.add("in");
-            io.unobserve(entry.target);
-          });
-        },
-        { rootMargin: "0px 0px -10% 0px", threshold: 0.05 }
-      );
-      targets.forEach((el) => io.observe(el));
     }
 
     // ---- fav / add to cart pop ----

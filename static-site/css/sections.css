@@ -28,26 +28,10 @@
   --shell:      1280px;
 }
 
-/* ---------------------------------------------------------
-   scroll reveal — sections 02–05 only, driven by script.js
-   --------------------------------------------------------- */
-
-.rv{
-  opacity:0;
-  transition:
-    opacity .9s var(--ease) var(--rd, 0s),
-    transform .9s var(--ease) var(--rd, 0s),
-    filter .9s var(--ease) var(--rd, 0s);
-  will-change: opacity, transform;
-}
-.rv--up   { transform: translateY(26px); }
-.rv--zoom { transform: scale(1.06); filter: blur(2px); }
-
-.rv.in{
-  opacity:1;
-  transform:none;
-  filter:none;
-}
+/* Scroll-reveal (.rv / .rv--up / .rv--left / .rv--right / .rv--zoom)
+   now lives in styles.css, since styles.css loads on every page
+   (including checkout/order-confirmation, which never loaded this
+   file) while this file's own effects elsewhere were homepage-only. */
 
 /* ---------------------------------------------------------
    primitives
@@ -1686,12 +1670,6 @@
    ========================================================= */
 
 @media (prefers-reduced-motion: reduce){
-  .rv{
-    opacity:1 !important;
-    transform:none !important;
-    filter:none !important;
-    transition:none !important;
-  }
   .fav.pop,
   .add.pop{ animation:none !important; }
 }

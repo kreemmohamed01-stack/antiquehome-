@@ -4,6 +4,47 @@
   function t(key, fallbackEn) {
     return window.AH_I18N ? window.AH_I18N.t(key, fallbackEn) : fallbackEn;
   }
+
+  // render() runs once up front and again on every ah:langchange (see
+  // bottom of file) — only let the entrance animation play the first
+  // time, same reasoning as checkout.js/product.js; on later re-renders
+  // rvClass()/rvAttr() return nothing so the elements just appear.
+  let firstRenderDone = false;
+  function rvClass(direction) {
+    return firstRenderDone ? "" : ` rv rv--${direction || "left"}`;
+  }
+  function rvAttr(delay) {
+    if (firstRenderDone) return "";
+    return delay ? ` data-rv style="--rd:${delay}s"` : ` data-rv`;
+  }
+
+  // order-confirmation.html doesn't load site-chrome.js, so AH_REVEAL
+  // doesn't exist here — a small self-contained observer standing in
+  // for it, same behavior as site-chrome.js's.
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let revealIo = null;
+  function scanReveal(root) {
+    const targets = Array.prototype.slice.call((root || document).querySelectorAll("[data-rv]:not([data-rv-seen])"));
+    if (!targets.length) return;
+    if (reducedMotion || !("IntersectionObserver" in window)) {
+      targets.forEach((el) => { el.classList.add("in"); el.setAttribute("data-rv-seen", ""); });
+      return;
+    }
+    if (!revealIo) {
+      revealIo = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add("in");
+            revealIo.unobserve(entry.target);
+          });
+        },
+        { rootMargin: "0px 0px -10% 0px", threshold: 0.05 }
+      );
+    }
+    targets.forEach((el) => { el.setAttribute("data-rv-seen", ""); revealIo.observe(el); });
+  }
+
   const params = new URLSearchParams(window.location.search);
   const id = params.get("id");
 
@@ -102,14 +143,14 @@
 
       <main class="oc">
         <section class="oc__success no-print">
-          <span class="oc__check" aria-hidden="true">
+          <span class="oc__check${rvClass("zoom")}"${rvAttr()} aria-hidden="true">
             <svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"></circle><polyline points="14,27 22,35 39,17"></polyline></svg>
           </span>
-          <p class="kicker kicker--center kicker--gold">${t("thankYou", "Thank You")}</p>
-          <h1 class="oc__title">${t("orderConfirmed", "Your Order is Confirmed")}</h1>
-          <p class="oc__text">${t("orderConfirmedText", "We&rsquo;ve received your order and we&rsquo;re getting it ready. A confirmation has been sent to your email.")}</p>
+          <p class="kicker kicker--center kicker--gold${rvClass()}"${rvAttr(0.1)}>${t("thankYou", "Thank You")}</p>
+          <h1 class="oc__title${rvClass()}"${rvAttr(0.16)}>${t("orderConfirmed", "Your Order is Confirmed")}</h1>
+          <p class="oc__text${rvClass()}"${rvAttr(0.22)}>${t("orderConfirmedText", "We&rsquo;ve received your order and we&rsquo;re getting it ready. A confirmation has been sent to your email.")}</p>
 
-          <div class="oc__actions">
+          <div class="oc__actions${rvClass()}"${rvAttr(0.28)}>
             <a class="oc-btn oc-btn--whatsapp" href="${buildWhatsAppMessage(order, items)}" target="_blank" rel="noopener noreferrer">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347M12.05 21.785h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413"/></svg>
               <span>${t("sendOrderWhatsapp", "Send Order to WhatsApp")}</span>
@@ -129,7 +170,7 @@
           </div>
         </section>
 
-        <section class="receipt" id="receipt">
+        <section class="receipt${rvClass("up")}" id="receipt"${rvAttr(0.1)}>
           <header class="receipt__head">
             <div class="receipt__brand">
               <span class="receipt__logoMark" aria-hidden="true">
@@ -212,6 +253,11 @@
 
     document.querySelectorAll("[data-print]").forEach((btn) => btn.addEventListener("click", () => window.print()));
     if (window.AH_I18N) window.AH_I18N.wireLangButtons();
+    // render() also re-runs on a language switch (see ah:langchange
+    // below) — only let the entrance animation play once, same reasoning
+    // as checkout.js/product.js.
+    if (!firstRenderDone) scanReveal(document.getElementById("ocSlot"));
+    firstRenderDone = true;
   }
 
   let lastOrder = null;

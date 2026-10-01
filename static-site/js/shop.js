@@ -122,14 +122,14 @@
           </nav>
 
           <div class="shop-hero__inner">
-            <p class="crumb">
+            <p class="crumb rv rv--left" data-rv>
               <a href="/">${t("home", "Home")}</a>
               <span class="crumb__sep" aria-hidden="true">&rsaquo;</span>
               <span class="crumb__here">${t("allProducts", "All Products")}</span>
             </p>
-            <p class="shop-hero__eyebrow">${t("discoverCollection", "Discover Our Collection")}</p>
-            <h1 class="shop-hero__title">${t("allProducts", "All Products")}</h1>
-            <p class="shop-hero__text">${t("curatedPieces", "Curated pieces for a more beautiful home.")}</p>
+            <p class="shop-hero__eyebrow rv rv--left" data-rv style="--rd:.06s">${t("discoverCollection", "Discover Our Collection")}</p>
+            <h1 class="shop-hero__title rv rv--left" data-rv style="--rd:.12s">${t("allProducts", "All Products")}</h1>
+            <p class="shop-hero__text rv rv--left" data-rv style="--rd:.18s">${t("curatedPieces", "Curated pieces for a more beautiful home.")}</p>
           </div>
         </section>`;
       railSlot.innerHTML = catRailHtml("all");
@@ -184,22 +184,24 @@
         <section class="shop shop-banner">
           <div class="shop-banner__bg" aria-hidden="true"><img src="${banner.img}" alt="" loading="lazy" /></div>
           <div class="shop-banner__inner">
-            <p class="crumb">
+            <p class="crumb rv rv--left" data-rv>
               <a href="/">${t("home", "Home")}</a>
               <span class="crumb__sep" aria-hidden="true">&rsaquo;</span>
               <a href="/shop.html">${t("shop", "Shop")}</a>
               <span class="crumb__sep" aria-hidden="true">&rsaquo;</span>
               <span class="crumb__here">${bannerTitle.charAt(0)}${bannerTitle.slice(1).toLowerCase()}</span>
             </p>
-            <h1 class="shop-banner__title">${bannerTitle}</h1>
+            <h1 class="shop-banner__title rv rv--left" data-rv style="--rd:.08s">${bannerTitle}</h1>
             <span class="shop-banner__rule" aria-hidden="true"><i></i><i></i></span>
-            <p class="shop-banner__text">${bannerText}</p>
+            <p class="shop-banner__text rv rv--left" data-rv style="--rd:.16s">${bannerText}</p>
           </div>
         </section>
         <div id="subcatRailSlot"></div>`;
       railSlot.innerHTML = "";
       renderSubcatRail();
     }
+
+    if (window.AH_REVEAL) window.AH_REVEAL.scan(heroSlot);
   }
 
   // When the current category has real subcategories (fetched live from
@@ -302,8 +304,12 @@
     return copy;
   }
 
-  function productCard(p) {
+  function productCard(p, idx) {
     const cat = categoryById.get(p.category_id);
+    // Stagger each card's reveal by its position in the grid, cycling
+    // every 4 cards (one row on most breakpoints) so the whole page
+    // doesn't wait on a long tail of delays for a big catalog.
+    const rd = ((idx || 0) % 4) * 0.08;
     const pct = effectiveSalePercent(p, siteSale);
     const finalPrice = pct > 0 ? priceWithSale(p.price, pct) : Number(p.price);
     const saleText = pct > 0 ? (p.sale_label && parseFloat(p.sale_percent || "0") > 0 ? p.sale_label : `${t("saleBadge", "Sale")} ${pct}%`) : "";
@@ -334,7 +340,7 @@
     }
 
     return `
-      <article class="pcard" data-name="${p.name}" data-price="${p.price}" data-size="${p.size_cm || ""}" data-material="${(p.material || "").toLowerCase()}" data-color="${(p.colors || []).join(",")}">
+      <article class="pcard rv rv--zoom" data-rv style="--rd:${rd}s" data-name="${p.name}" data-price="${p.price}" data-size="${p.size_cm || ""}" data-material="${(p.material || "").toLowerCase()}" data-color="${(p.colors || []).join(",")}">
         <a class="pcard__media" href="/product.html?slug=${encodeURIComponent(p.slug)}">
           ${badge}
           <img src="${cldUrl(img, 480)}" alt="${p.name}" loading="lazy" style="object-position:${splitFocal(img).position};--zoom:${splitFocal(img).zoom}" />
@@ -370,7 +376,7 @@
     if (!visible.length) {
       grid.innerHTML = `<p style="padding:40px 0;opacity:.7;grid-column:1/-1">${t("noProductsFound", "No products found yet — check back soon as we add new pieces.")}</p>`;
     } else {
-      grid.innerHTML = visible.map(productCard).join("");
+      grid.innerHTML = visible.map((p, i) => productCard(p, i)).join("");
     }
 
     const pager = document.getElementById("pager");
@@ -390,6 +396,8 @@
       pager.style.display = "none";
       pager.innerHTML = "";
     }
+
+    if (window.AH_REVEAL) window.AH_REVEAL.scan(grid);
   }
 
   function wireControls() {
