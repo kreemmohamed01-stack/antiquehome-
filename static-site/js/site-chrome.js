@@ -6,6 +6,9 @@
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
     else fn();
   }
+  function t(key, fallbackEn) {
+    return window.AH_I18N ? window.AH_I18N.t(key, fallbackEn) : fallbackEn;
+  }
 
   ready(function () {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -156,8 +159,24 @@
           const btn = e.target.closest && e.target.closest(".sm__opt");
           if (!btn) return;
           group.querySelectorAll(".sm__opt").forEach((o) => o.classList.toggle("is-active", o === btn));
+          // the Language switch (data-lang) drives the real site-wide
+          // language toggle; Currency (data-currency) stays cosmetic for
+          // now since EGP is the only currency the storefront supports.
+          if (btn.dataset.lang && window.AH_I18N) window.AH_I18N.setLang(btn.dataset.lang);
         });
       });
+      // keep the side menu's own EN/AR buttons in sync when the language
+      // changes from elsewhere (the header's #langBtn, or this same
+      // switch on another open instance of the menu).
+      function syncSideMenuLangSwitch() {
+        if (!window.AH_I18N) return;
+        const lang = window.AH_I18N.getLang();
+        sideWrap.querySelectorAll('.sm__switch [data-lang]').forEach((o) => {
+          o.classList.toggle("is-active", o.dataset.lang === lang);
+        });
+      }
+      document.addEventListener("ah:langchange", syncSideMenuLangSwitch);
+      syncSideMenuLangSwitch();
     }
 
     // ---- generic drawer (cart/search) ----
@@ -286,14 +305,14 @@
           <div class="citem__body">
             <div class="citem__top">
               <h3 class="citem__name">${l.name}</h3>
-              <button class="citem__remove" type="button" data-remove="${l.id}" aria-label="Remove ${l.name} from cart">
+              <button class="citem__remove" type="button" data-remove="${l.id}" aria-label="${t("removeFromCart", "Remove {name} from cart").replace("{name}", l.name)}">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.4"></circle><line x1="8.8" y1="8.8" x2="15.2" y2="15.2"></line><line x1="15.2" y1="8.8" x2="8.8" y2="15.2"></line></svg>
               </button>
             </div>
             ${l.variant ? `<p class="citem__variant">${l.variant}</p>` : ""}
             <div class="citem__bottom">
               <p class="citem__price">EGP <span class="citem__price-num">${(l.price * l.qty).toLocaleString("en-US")}</span></p>
-              <div class="qty" role="group" aria-label="Quantity for ${l.name}">
+              <div class="qty" role="group" aria-label="${t("quantityForItem", "Quantity for {name}").replace("{name}", l.name)}">
                 <button type="button" class="qty__btn" data-step="-1" data-qty-id="${l.id}" aria-label="Decrease quantity"><svg viewBox="0 0 16 16" aria-hidden="true"><line x1="3" y1="8" x2="13" y2="8"></line></svg></button>
                 <span class="qty__num">${l.qty}</span>
                 <button type="button" class="qty__btn" data-step="1" data-qty-id="${l.id}" aria-label="Increase quantity"><svg viewBox="0 0 16 16" aria-hidden="true"><line x1="8" y1="3" x2="8" y2="13"></line><line x1="3" y1="8" x2="13" y2="8"></line></svg></button>
@@ -311,7 +330,7 @@
       if (summary) summary.style.display = lines.length === 0 ? "none" : "";
       if (checkoutBtn) checkoutBtn.style.display = lines.length === 0 ? "none" : "";
 
-      if (countLine) countLine.textContent = lines.length === 0 ? "Your cart is empty" : totalQty === 1 ? "1 item in your cart" : totalQty + " items in your cart";
+      if (countLine) countLine.textContent = lines.length === 0 ? t("cartEmptyShort", "Your cart is empty") : totalQty === 1 ? t("oneItemInCart", "1 item in your cart") : t("itemsInCart", "{n} items in your cart").replace("{n}", totalQty);
 
       const qualifies = subtotal >= FREE_SHIPPING_AT;
       const pct = Math.max(0, Math.min(100, (subtotal / FREE_SHIPPING_AT) * 100));
@@ -319,15 +338,15 @@
       if (shipEl) shipEl.classList.toggle("is-full", qualifies);
       if (shipText) {
         shipText.innerHTML = qualifies
-          ? "You&rsquo;ve unlocked <strong>free shipping</strong>!"
-          : "You are <strong>" + money(FREE_SHIPPING_AT - subtotal) + "</strong> away from free shipping";
+          ? t("unlockedFreeShipping", "You&rsquo;ve unlocked <strong>free shipping</strong>!")
+          : t("awayFromFreeShipping", "You are <strong>{amount}</strong> away from free shipping").replace("{amount}", money(FREE_SHIPPING_AT - subtotal));
       }
 
       const shippingFee = qualifies || lines.length === 0 ? 0 : SHIPPING_FEE;
       const coupon = getAppliedCoupon();
       const discount = coupon ? Math.round(subtotal * (coupon.percent / 100) * 100) / 100 : 0;
       if (sumSub) sumSub.textContent = money(subtotal);
-      if (sumShip) sumShip.textContent = shippingFee === 0 ? "Free" : money(shippingFee);
+      if (sumShip) sumShip.textContent = shippingFee === 0 ? t("freeLabel", "Free") : money(shippingFee);
       if (sumTotal) sumTotal.textContent = money(Math.max(0, subtotal - discount) + shippingFee);
 
       // discount row — inserted right before the shipping row so it's
@@ -341,7 +360,7 @@
             discountRow.className = "summary__row summary__row--discount";
             summaryEl.insertBefore(discountRow, summaryEl.querySelector(".summary__total"));
           }
-          discountRow.innerHTML = `<span>Discount (${coupon.code})</span><span>-${money(discount)}</span>`;
+          discountRow.innerHTML = `<span>${t("discountCoupon", "Discount ({code})").replace("{code}", coupon.code)}</span><span>-${money(discount)}</span>`;
         } else if (discountRow) {
           discountRow.remove();
         }
@@ -350,7 +369,7 @@
       // promo box state: show the applied code, or the entry form
       const promoRow = document.getElementById("promoToggle");
       const promoLabel = promoRow && promoRow.querySelector(".promo__label");
-      if (promoLabel) promoLabel.textContent = coupon ? `Code "${coupon.code}" applied — ${coupon.percent}% off` : "Add Promo Code";
+      if (promoLabel) promoLabel.textContent = coupon ? t("couponApplied2", 'Code "{code}" applied — {percent}% off').replace("{code}", coupon.code).replace("{percent}", coupon.percent) : t("addPromoCode", "Add Promo Code");
       if (promoRow) promoRow.classList.toggle("is-applied", Boolean(coupon));
     }
 
@@ -382,6 +401,7 @@
     cartItemsEl && cartItemsEl.addEventListener("click", onCartListClick);
 
     document.addEventListener("cart:changed", renderCart);
+    document.addEventListener("ah:langchange", renderCart);
     renderCart();
     // Pick up the dashboard's featured coupon on load, and keep checking
     // periodically so turning it on/off in the admin shows up live in an
@@ -413,15 +433,15 @@
         e.preventDefault();
         const code = (promoInputEl && promoInputEl.value.trim()) || "";
         if (!code) return;
-        if (promoNoteEl) { promoNoteEl.textContent = "Checking…"; promoNoteEl.className = "promo__note"; }
+        if (promoNoteEl) { promoNoteEl.textContent = t("checking", "Checking…"); promoNoteEl.className = "promo__note"; }
         try {
           const data = await API.post("/api/coupons", { code });
           setAppliedCoupon({ code: data.code, percent: data.percent });
-          if (promoNoteEl) { promoNoteEl.textContent = `Applied — ${data.percent}% off`; promoNoteEl.className = "promo__note"; }
+          if (promoNoteEl) { promoNoteEl.textContent = t("couponAppliedShort", "Applied — {percent}% off").replace("{percent}", data.percent); promoNoteEl.className = "promo__note"; }
           renderCart();
         } catch (err) {
           setAppliedCoupon(null);
-          if (promoNoteEl) { promoNoteEl.textContent = (err.data && err.data.error) || "This code isn't valid."; promoNoteEl.className = "promo__note err"; }
+          if (promoNoteEl) { promoNoteEl.textContent = (err.data && err.data.error) || t("couponInvalid", "This code isn't valid."); promoNoteEl.className = "promo__note err"; }
           renderCart();
         }
       });
@@ -458,10 +478,10 @@
         }
         try {
           await API.post("/api/customers?newsletter=1", { email: value });
-          if (note) { note.textContent = "Thank you — you are on the list."; note.classList.remove("err"); }
+          if (note) { note.textContent = t("newsletterSuccess", "Thank you — you are on the list."); note.classList.remove("err"); }
           form.reset();
         } catch {
-          if (note) { note.textContent = "Something went wrong — please try again."; note.classList.add("err"); }
+          if (note) { note.textContent = t("newsletterError", "Something went wrong — please try again."); note.classList.add("err"); }
         }
       });
       input &&
@@ -473,8 +493,8 @@
         });
     }
 
-    wireNewsletterForm("inspireForm", "inspireEmail", "inspireNote", "Please enter a valid email address.");
-    wireNewsletterForm("footForm", "footEmail", "footNote", "Please enter a valid email address.");
+    wireNewsletterForm("inspireForm", "inspireEmail", "inspireNote", t("invalidEmail", "Please enter a valid email address."));
+    wireNewsletterForm("footForm", "footEmail", "footNote", t("invalidEmail", "Please enter a valid email address."));
 
     // ---- music player ----
     (function musicPlayer() {

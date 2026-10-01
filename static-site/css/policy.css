@@ -1,0 +1,157 @@
+/* =========================================================
+   POLICY PAGES — Shipping, Returns, Terms, Privacy
+   Simple prose content pages sharing the site's palette/type
+   tokens from styles.css (loaded before this file). RTL-aware
+   via the same html[dir="rtl"] font-token swap as every other page.
+   ========================================================= */
+
+.policy{
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 56px var(--gutter) 90px;
+}
+
+.policy__crumb{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing:.04em;
+  color: var(--warm-brown);
+  opacity:.7;
+  margin-bottom: 28px;
+}
+.policy__crumb a{ color: inherit; text-decoration:none; border-bottom:1px solid transparent; transition: border-color .25s var(--ease); }
+.policy__crumb a:hover{ border-color: currentColor; }
+.policy__crumb svg{ width:9px; height:9px; opacity:.6; }
+html[dir="rtl"] .policy__crumb svg{ transform: scaleX(-1); }
+
+.policy__kicker{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing:.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 14px;
+}
+.policy__kicker i{
+  display:block;
+  width:34px;
+  height:1px;
+  background: currentColor;
+  opacity:.5;
+}
+
+.policy__title{
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(32px, 5.4vw, 48px);
+  line-height: 1.1;
+  color: var(--ink);
+  margin: 0 0 18px;
+}
+html[dir="rtl"] .policy__title{ font-weight:600; }
+
+.policy__intro{
+  font-family: var(--sans);
+  font-size: 14.5px;
+  line-height: 1.8;
+  color: var(--warm-brown);
+  max-width: 62ch;
+  margin: 0 0 44px;
+}
+
+.policy__section{
+  padding: 28px 0;
+  border-top: 1px solid rgba(28,22,17,.1);
+}
+.policy__section:first-of-type{ border-top: 1px solid rgba(28,22,17,.1); }
+
+.policy__section h2{
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 21px;
+  color: var(--ink);
+  margin: 0 0 10px;
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+}
+html[dir="rtl"] .policy__section h2{ font-weight:600; }
+
+.policy__section p{
+  font-family: var(--sans);
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: var(--warm-brown);
+  margin: 0;
+  max-width: 64ch;
+}
+
+.policy__notes{
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.policy__notes li{
+  position: relative;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--warm-brown);
+  padding-inline-start: 20px;
+  max-width: 64ch;
+}
+.policy__notes li::before{
+  content:"";
+  position:absolute;
+  inset-inline-start: 0;
+  top: 9px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+.policy__closing{
+  margin-top: 34px;
+  padding: 22px 26px;
+  background: var(--cream);
+  border: 1px solid var(--champagne);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+html[dir="rtl"] .policy__closing{ font-style: normal; }
+
+.policy__contactLink{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin-top:10px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing:.04em;
+  color: var(--ink);
+  text-decoration:none;
+  border-bottom: 1px solid var(--gold);
+  padding-bottom: 2px;
+  transition: opacity .25s var(--ease);
+}
+.policy__contactLink:hover{ opacity:.65; }
+.policy__contactLink svg{ width:14px; height:14px; flex:none; }
+
+@media (max-width: 480px){
+  .policy{ padding-top: 40px; }
+  .policy__title{ font-size: clamp(27px, 7.5vw, 34px); }
+}

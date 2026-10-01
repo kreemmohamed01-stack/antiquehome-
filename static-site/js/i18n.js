@@ -130,7 +130,7 @@
     return haystacks.some((h) => h.includes(q));
   }
 
-  window.AH_I18N = { getLang, setLang, t, productName, productDescription, categoryName, productMatchesQuery };
+  window.AH_I18N = { getLang, setLang, applyLang, t, productName, productDescription, categoryName, productMatchesQuery };
 
   // Apply immediately (before DOMContentLoaded) to avoid a flash of the
   // wrong direction/font on reload when Arabic was already selected.
