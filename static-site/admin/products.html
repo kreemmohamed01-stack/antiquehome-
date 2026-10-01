@@ -159,7 +159,12 @@
     });
     listEl.querySelectorAll("[data-delete]").forEach((btn) => {
       btn.addEventListener("click", async () => {
-        if (!confirm(`Delete "${btn.dataset.name}"? This cannot be undone.`)) return;
+        const ok = await AdminShell.confirm({
+          title: "Delete this product?",
+          message: `"${btn.dataset.name}" will be permanently deleted. This cannot be undone.`,
+          confirmLabel: "Delete",
+        });
+        if (!ok) return;
         try {
           await API.del(`/api/products?id=${btn.dataset.delete}`);
           await load();
@@ -221,7 +226,7 @@
         <div id="mediaGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-bottom:10px"></div>
         <input type="file" id="mediaFileInput" accept="image/*" multiple style="display:none">
         <button type="button" class="admin__btn" id="mediaAddBtn">+ Add Photos</button>
-        <p class="admin__hint">Select as many photos as you want at once. Click a photo to make it the main one shown on cards — images are auto-resized. Click anywhere on a photo to set the part that stays in view when it's cropped (the white dot marks it).</p>
+        <p class="admin__hint">Select as many photos as you want at once. Click anywhere on a photo to set the part that stays in view when it's cropped (the white dot marks it) — this also moves that photo to the MAIN spot. To reorder without changing the crop, drag a photo onto another, or press and hold a photo for 3 seconds to arm it, then tap a second photo to swap the two.</p>
       </div>
 
       <div class="admin__formSection">
@@ -435,6 +440,52 @@
           renderMedia();
         });
       });
+
+      // ---- long-press to swap ----
+      // Press and hold a photo for ~3s to "arm" it (it highlights), then
+      // click any other photo to swap the two positions — an alternative
+      // to drag-and-drop that works well on touch/tablet. Swapping into
+      // slot 0 makes that photo the new MAIN image. Tap the armed photo
+      // again, or anywhere else, to cancel without swapping.
+      let armedIdx = null;
+      let pressTimer = null;
+      function setArmed(idx) {
+        armedIdx = idx;
+        grid.querySelectorAll(".admin__mediaTile").forEach((t) => {
+          t.classList.toggle("is-armed", Number(t.dataset.idx) === idx);
+        });
+      }
+      function clearPressTimer() {
+        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+      }
+      grid.querySelectorAll(".admin__mediaTile").forEach((tile) => {
+        const idx = Number(tile.dataset.idx);
+        const startPress = (e) => {
+          if (e.target.closest("[data-remove]") || e.target.closest("[data-zoom]")) return;
+          clearPressTimer();
+          pressTimer = setTimeout(() => setArmed(idx), 3000);
+        };
+        const cancelPress = () => clearPressTimer();
+        tile.addEventListener("mousedown", startPress);
+        tile.addEventListener("touchstart", startPress, { passive: true });
+        ["mouseup", "mouseleave", "touchend", "touchcancel"].forEach((ev) => tile.addEventListener(ev, cancelPress));
+
+        tile.addEventListener("click", (e) => {
+          if (armedIdx === null) return;
+          // the focal-point click handler on the image itself already
+          // handles its own click when nothing is armed — once armed,
+          // intercept clicks (including on the image) to perform the
+          // swap instead, and stop the focal-point handler from firing.
+          if (armedIdx === idx) { setArmed(null); return; } // tap self = cancel
+          e.stopPropagation();
+          e.preventDefault();
+          const a = armedIdx, b = idx;
+          [media[a], media[b]] = [media[b], media[a]];
+          armedIdx = null;
+          renderMedia();
+        }, true);
+      });
+
       renderColorPhotoPickers();
     }
     renderMedia();
@@ -540,6 +591,15 @@
     document.getElementById("saveProductBtn").addEventListener("click", async () => {
       const saveBtn = document.getElementById("saveProductBtn");
       if (saveBtn.disabled) return; // guards against a double-click firing two overlapping saves
+      const ok = await AdminShell.confirm({
+        title: isNew ? "Add this product?" : "Save these changes?",
+        message: isNew
+          ? "This will create the product and make it visible per its status."
+          : "This will overwrite the product's current saved details.",
+        confirmLabel: isNew ? "Add Product" : "Save Changes",
+        danger: false,
+      });
+      if (!ok) return;
       saveBtn.disabled = true;
       const originalLabel = saveBtn.textContent;
       saveBtn.textContent = "Saving…";
@@ -597,7 +657,12 @@
 
     const deleteBtn = document.getElementById("deleteProductBtn");
     deleteBtn && deleteBtn.addEventListener("click", async () => {
-      if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
+      const ok = await AdminShell.confirm({
+        title: "Delete this product?",
+        message: `"${p.name}" will be permanently deleted. This cannot be undone.`,
+        confirmLabel: "Delete",
+      });
+      if (!ok) return;
       try {
         await API.del(`/api/products?id=${p.id}`);
         closeForm();

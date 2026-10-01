@@ -632,6 +632,19 @@
   border:1px solid var(--a-border);
   cursor:grab;
   background: var(--a-panel-2);
+  transition: box-shadow .15s ease, border-color .15s ease;
+}
+.admin__mediaTile.is-armed{
+  border-color: var(--a-gold);
+  box-shadow: 0 0 0 2px var(--a-gold);
+  cursor: pointer;
+}
+.admin__mediaTile.is-armed::after{
+  content:"Tap another photo to swap";
+  position:absolute; inset:auto 0 0 0; z-index:3;
+  background: var(--a-gold); color:#fff;
+  font-size:9px; font-weight:700; letter-spacing:.02em; text-align:center;
+  padding:3px 4px;
 }
 .admin__mediaCrop{
   position:relative;

@@ -130,4 +130,47 @@ const AdminShell = {
 
     return { email, orderCount };
   },
+
+  // Styled "are you sure?" dialog matching the admin's dark/gold theme —
+  // used instead of the browser's native confirm() anywhere an action
+  // can't be undone (delete, overwriting a save, etc). Returns a Promise
+  // that resolves true if the person confirms, false otherwise (Cancel,
+  // the scrim, or Escape).
+  confirm(opts) {
+    const o = typeof opts === "string" ? { message: opts } : (opts || {});
+    const title = o.title || "Are you sure?";
+    const message = o.message || "This action cannot be undone.";
+    const confirmLabel = o.confirmLabel || "Confirm";
+    const cancelLabel = o.cancelLabel || "Cancel";
+    const danger = o.danger !== false; // red confirm button by default
+
+    return new Promise((resolve) => {
+      const wrap = document.createElement("div");
+      wrap.className = "admin";
+      wrap.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:10050;display:flex;align-items:center;justify-content:center;padding:20px";
+      wrap.innerHTML = `
+        <div style="max-width:380px;width:100%;background:var(--a-panel);border:1px solid var(--a-border);border-radius:4px;padding:24px;color:var(--a-text)">
+          <h3 style="margin:0 0 10px;font-family:var(--serif);font-size:19px">${title}</h3>
+          <p style="margin:0 0 20px;font-size:13.5px;color:var(--a-text-dim);line-height:1.5">${message}</p>
+          <div style="display:flex;gap:10px">
+            <button type="button" class="admin__btn admin__btn--outline" id="adminConfirmCancel" style="flex:1">${cancelLabel}</button>
+            <button type="button" class="admin__btn ${danger ? "admin__btn--danger" : "admin__btn--gold"}" id="adminConfirmOk" style="flex:1">${confirmLabel}</button>
+          </div>
+        </div>`;
+      document.body.appendChild(wrap);
+      document.body.style.overflow = "hidden";
+
+      function cleanup(result) {
+        document.body.removeChild(wrap);
+        document.body.style.overflow = "";
+        document.removeEventListener("keydown", onKey);
+        resolve(result);
+      }
+      function onKey(e) { if (e.key === "Escape") cleanup(false); }
+      document.addEventListener("keydown", onKey);
+      wrap.addEventListener("click", (e) => { if (e.target === wrap) cleanup(false); });
+      wrap.querySelector("#adminConfirmCancel").addEventListener("click", () => cleanup(false));
+      wrap.querySelector("#adminConfirmOk").addEventListener("click", () => cleanup(true));
+    });
+  },
 };
