@@ -226,7 +226,7 @@
         <div id="mediaGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-bottom:10px"></div>
         <input type="file" id="mediaFileInput" accept="image/*" multiple style="display:none">
         <button type="button" class="admin__btn" id="mediaAddBtn">+ Add Photos</button>
-        <p class="admin__hint">Select as many photos as you want at once. Click the crop icon on a photo to drag and zoom it freely in a bigger view (the white dot marks the current crop point) — applying it also moves that photo to the MAIN spot. To reorder without changing the crop, drag a photo onto another, or press and hold a photo for 3 seconds to arm it, then tap a second photo to swap the two.</p>
+        <p class="admin__hint">Select as many photos as you want at once. Click the crop icon on a photo to drag and zoom it freely in a bigger view (the white dot marks the current crop point) — applying it also moves that photo to the MAIN spot. To swap two photos, click "Swap" on one (it highlights), then click "Swap" on the other — whichever lands in the first spot becomes MAIN. You can also just drag a photo onto another to reorder it.</p>
       </div>
 
       <div class="admin__formSection">
@@ -391,6 +391,10 @@
               </button>
             </div>
             <button type="button" class="admin__mediaRemove" data-remove="${i}">×</button>
+            <button type="button" class="admin__mediaSwapBtn" data-swap="${i}">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8 3 12l4 4"></path><path d="M3 12h13.5a3.5 3.5 0 0 0 0-7H16"></path><path d="M17 16l4-4-4-4"></path><path d="M21 12H7.5a3.5 3.5 0 0 0 0 7H8"></path></svg>
+              <span>Swap</span>
+            </button>
             <label class="admin__mediaZoom">
               <span>Zoom</span>
               <input type="range" min="1" max="2.5" step="0.05" value="${zoom}" data-zoom="${i}">
@@ -438,48 +442,34 @@
         });
       });
 
-      // ---- long-press to swap ----
-      // Press and hold a photo for ~3s to "arm" it (it highlights), then
-      // click any other photo to swap the two positions — an alternative
-      // to drag-and-drop that works well on touch/tablet. Swapping into
-      // slot 0 makes that photo the new MAIN image. Tap the armed photo
-      // again, or anywhere else, to cancel without swapping.
+      // ---- Swap button ----
+      // Tap "Swap" on a photo to arm it (it highlights and its button
+      // becomes "Tap target"), then tap the Swap button on any OTHER
+      // photo to swap the two positions — a clear, explicit alternative
+      // to drag-and-drop for touch/tablet. Swapping a photo into slot 0
+      // makes it the new MAIN image. Tapping the armed photo's own Swap
+      // button again cancels without swapping.
       let armedIdx = null;
-      let pressTimer = null;
       function setArmed(idx) {
         armedIdx = idx;
         grid.querySelectorAll(".admin__mediaTile").forEach((t) => {
-          t.classList.toggle("is-armed", Number(t.dataset.idx) === idx);
+          const isArmed = Number(t.dataset.idx) === idx;
+          t.classList.toggle("is-armed", isArmed);
+          const label = t.querySelector("[data-swap] span");
+          if (label) label.textContent = armedIdx === null ? "Swap" : isArmed ? "Cancel" : "Tap to swap";
         });
       }
-      function clearPressTimer() {
-        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-      }
-      grid.querySelectorAll(".admin__mediaTile").forEach((tile) => {
-        const idx = Number(tile.dataset.idx);
-        const startPress = (e) => {
-          if (e.target.closest("[data-remove]") || e.target.closest("[data-zoom]") || e.target.closest("[data-crop]")) return;
-          clearPressTimer();
-          pressTimer = setTimeout(() => setArmed(idx), 3000);
-        };
-        const cancelPress = () => clearPressTimer();
-        tile.addEventListener("mousedown", startPress);
-        tile.addEventListener("touchstart", startPress, { passive: true });
-        ["mouseup", "mouseleave", "touchend", "touchcancel"].forEach((ev) => tile.addEventListener(ev, cancelPress));
-
-        tile.addEventListener("click", (e) => {
-          if (armedIdx === null) return;
-          // once a tile is armed, intercept the next click anywhere on
-          // any tile (including its crop button) to perform the swap
-          // instead of that control's normal action.
-          if (armedIdx === idx) { setArmed(null); return; } // tap self = cancel
+      grid.querySelectorAll("[data-swap]").forEach((btn) => {
+        const idx = Number(btn.dataset.swap);
+        btn.addEventListener("click", (e) => {
           e.stopPropagation();
-          e.preventDefault();
+          if (armedIdx === null) { setArmed(idx); return; }
+          if (armedIdx === idx) { setArmed(null); return; } // cancel
           const a = armedIdx, b = idx;
           [media[a], media[b]] = [media[b], media[a]];
           armedIdx = null;
           renderMedia();
-        }, true);
+        });
       });
 
       renderColorPhotoPickers();
