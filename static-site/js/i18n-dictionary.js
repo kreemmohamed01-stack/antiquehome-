@@ -276,6 +276,30 @@ window.AH_DICTIONARY = {
 
   // ---- about page ----
   ourStoryTitle: "قصتنا",
+  theArtOfLiving: "فن العيش",
+  livingBeautifully: "بأناقة",
+  aboutHeroText: "في Antique Home، نؤمن أن المنزل أكثر من مجرد مكان — إنه انعكاس لحكايتكِ، وذوقكِ، واللحظات الأهم في حياتكِ.",
+  ourJourney: "رحلتنا",
+  bornFromPassion: "وُلدت من شغف<br />بالمساحات الخالدة",
+  aboutJourneyText: "بدأت Antique Home بفكرة بسيطة — إحضار قطع فريدة وعالية الجودة تجمع بين الأناقة والوظيفة والطابع المميز. نختار كل قطعة بعناية لمساعدتكِ على تكوين منزل يشعركِ بالدفء والأصالة والجمال بلا عناء.",
+  uniquePiecesStat: "قطعة فريدة",
+  happyHomes: "منزل سعيد",
+  yearsOfTrust: "سنوات من الثقة",
+  ourPhilosophy: "فلسفتنا",
+  moreThanFurniture: "أكثر من مجرد أثاث،<br />أسلوب حياة",
+  aboutPhilosophyText: "نؤمن بالمساحات التي تروي حكاية — مساحات مليئة بالملمس والانسجام والتفاصيل ذات المعنى. كل قطعة نختارها مصممة لتضفي جمالًا خالدًا وراحة دائمة على حياتكِ اليومية.",
+  homeQuote: "&ldquo;المنزل يجب أن يكون مجموعة<br />مما تحبينه.&rdquo;",
+  featureCuratedTitle: "مُختارة بعناية",
+  featureCuratedText: "قطع مُنتقاة بعناية<br />بطابع وجودة.",
+  featureTimelessTitle: "تصميم خالد",
+  featureTimelessText: "أساليب لا تخرج<br />عن الموضة أبدًا.",
+  featureEveryHomeTitle: "لكل منزل",
+  featureEveryHomeText: "قطع تناسب أسلوب<br />حياتكِ ومساحتكِ.",
+  featureQualityTitle: "جودة تثقين بها",
+  featureQualityText: "صُنعت لتدوم، وصُنعت لتُحب.",
+  exploreCollection: "اكتشفي مجموعتنا",
+  bringVisionToLife: "حققي رؤيتكِ<br />على أرض الواقع",
+  aboutCtaText: "اكتشفي مجموعاتنا المُختارة بعناية، وابحثي عن قطع تجعل منزلكِ يشعركِ وكأنه موطنكِ الحقيقي.",
 
   // ---- shop page: category banner titles + descriptions (shop.js's
   // BANNER map) — keyed as "banner:<categorySlug>Title"/"Text" ----
