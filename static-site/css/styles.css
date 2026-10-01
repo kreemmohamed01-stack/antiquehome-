@@ -824,6 +824,31 @@ html[dir="rtl"] .lang-btn__label{ font-family: "Tajawal", sans-serif; letter-spa
 }
 
 /* =========================================================
+   PAGE TRANSITIONS
+   Native cross-document View Transitions: when navigating between
+   two pages of this site, the browser keeps the old page on screen
+   until the new one is ready, then crossfades (with a slight upward
+   settle) instead of flashing to white. Pure CSS, zero JS; browsers
+   without support (older Safari/Firefox) simply navigate as before.
+   ========================================================= */
+
+@view-transition { navigation: auto; }
+
+::view-transition-old(root){
+  animation: ah-page-out .26s cubic-bezier(.4,0,.2,1) both;
+}
+::view-transition-new(root){
+  animation: ah-page-in .46s cubic-bezier(.16,.84,.26,1) both;
+}
+@keyframes ah-page-out{ to{ opacity:0; } }
+@keyframes ah-page-in{ from{ opacity:0; transform: translateY(10px); } }
+
+@media (prefers-reduced-motion: reduce){
+  ::view-transition-old(root),
+  ::view-transition-new(root){ animation:none; }
+}
+
+/* =========================================================
    SCROLL REVEAL
    Shared by every page (including checkout/order-confirmation,
    which don't load sections.css) — an element marked data-rv

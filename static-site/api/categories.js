@@ -1,4 +1,4 @@
-const { sql } = require("./_db.js");
+const { sql, edgeCache } = require("./_db.js");
 const { getSession } = require("./_auth.js");
 
 function slugify(name) {
@@ -20,6 +20,7 @@ module.exports = async (req, res) => {
   try {
     if (req.method === "GET") {
       const rows = await sql`SELECT * FROM categories ORDER BY sort_order ASC, name ASC`;
+      edgeCache(res);
       res.status(200).json(rows);
       return;
     }

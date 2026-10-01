@@ -102,7 +102,7 @@
           <div class="shop-hero__media" aria-hidden="true">
             <picture>
               <source media="(min-width: 900px)" srcset="/هيرو شوب ناو لاب .webp" />
-              <img src="/هيرو شوب ناو موبيل .webp" alt="" loading="eager" />
+              <img src="/هيرو شوب ناو موبيل .webp" alt="" loading="eager" fetchpriority="high" />
             </picture>
             <div class="shop-hero__tint"></div>
           </div>

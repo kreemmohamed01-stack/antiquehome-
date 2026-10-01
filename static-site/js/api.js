@@ -1,6 +1,12 @@
 // Small fetch helpers shared by every storefront/admin page.
 const API = {
   async get(path) {
+    // Public GETs are edge-cached for ~60s (see api/_db.js edgeCache).
+    // The dashboard must always see its own edits immediately, so every
+    // GET made from an /admin/* page gets a unique param = cache miss.
+    if (location.pathname.startsWith("/admin")) {
+      path += (path.includes("?") ? "&" : "?") + "_fresh=" + Date.now();
+    }
     const res = await fetch(path, { credentials: "same-origin" });
     if (!res.ok) throw new Error("Request failed: " + res.status);
     return res.json();

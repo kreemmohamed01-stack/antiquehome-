@@ -50,6 +50,35 @@
   }
   window.AH_REVEAL = { scan: scanReveal };
 
+  // ---- instant navigation: prefetch on hover ----
+  // Speculation Rules: when a visitor hovers (or starts tapping) an
+  // internal link, the browser quietly downloads that page's HTML, so the
+  // click itself feels instant. "prefetch" (not "prerender") on purpose —
+  // it runs no JavaScript, so it never fires a fake page-view beacon or
+  // plays the next page's scroll-reveal animations off-screen. Browsers
+  // without support ignore the script tag entirely.
+  (function speculate() {
+    try {
+      if (!HTMLScriptElement.supports || !HTMLScriptElement.supports("speculationrules")) return;
+      const s = document.createElement("script");
+      s.type = "speculationrules";
+      s.textContent = JSON.stringify({
+        prefetch: [{
+          where: {
+            and: [
+              { href_matches: "/*" },
+              { not: { href_matches: "/admin/*" } },
+              { not: { href_matches: "/api/*" } },
+              { not: { selector_matches: "[target=_blank], [download]" } },
+            ],
+          },
+          eagerness: "moderate",
+        }],
+      });
+      document.head.appendChild(s);
+    } catch {}
+  })();
+
   ready(function () {
     scanReveal(document);
 
@@ -585,6 +614,28 @@
         };
         document.addEventListener(evt, handler, { passive: true });
       });
+    })();
+
+    // ---- journey video (homepage, far below the fold) ----
+    // Ships with data-src + preload="none" so its ~1.7MB isn't downloaded
+    // during the initial page load; starts loading ~600px before it scrolls
+    // into view, and pauses while off-screen to save CPU/battery.
+    (function journeyVideo() {
+      const video = document.getElementById("journeyVideo");
+      if (!video || !video.dataset.src) return;
+      const play = () => { const p = video.play(); if (p && p.catch) p.catch(() => {}); };
+      if (!("IntersectionObserver" in window)) { video.src = video.dataset.src; play(); return; }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            if (!video.getAttribute("src")) video.src = video.dataset.src;
+            play();
+          } else if (video.getAttribute("src")) {
+            video.pause();
+          }
+        });
+      }, { rootMargin: "600px 0px" });
+      io.observe(video);
     })();
 
     // ---- product rail nav (homepage) ----

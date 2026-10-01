@@ -1,4 +1,4 @@
-const { sql } = require("./_db.js");
+const { sql, edgeCache } = require("./_db.js");
 const { getSession } = require("./_auth.js");
 
 function slugify(name) {
@@ -44,6 +44,10 @@ module.exports = async (req, res) => {
   try {
     if (req.method === "GET") {
       const { slug, id, category, status } = req.query;
+      // Storefront reads (single product by slug, a category listing, or
+      // the active catalog) are edge-cached; the bare admin listing (no
+      // query params) is not.
+      if (slug || (category && category !== "all") || status === "active") edgeCache(res);
 
       if (slug) {
         const rows = await sql`SELECT * FROM products WHERE slug = ${slug}`;

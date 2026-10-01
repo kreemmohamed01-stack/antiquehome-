@@ -1,4 +1,4 @@
-const { sql } = require("./_db.js");
+const { sql, edgeCache } = require("./_db.js");
 const { getSession } = require("./_auth.js");
 
 async function readBody(req) {
@@ -26,6 +26,7 @@ module.exports = async (req, res) => {
     // storefront never needs a session just to render the banner.
     if (req.method === "GET" && req.query.featured) {
       const rows = await sql`SELECT code, percent FROM coupons WHERE active = true ORDER BY created_at DESC LIMIT 1`;
+      edgeCache(res);
       res.status(200).json(rows.length ? { code: rows[0].code, percent: parseFloat(rows[0].percent) } : null);
       return;
     }

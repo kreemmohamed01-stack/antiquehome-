@@ -57,6 +57,25 @@
     return delay ? ` data-rv style="--rd:${delay}s"` : ` data-rv`;
   }
 
+  // Prev/next links — kept as its own function so init() can patch just
+  // this <nav> in place once the neighbouring products arrive, instead of
+  // holding the whole page back on a full-catalog fetch.
+  function navInnerHtml() {
+    return `
+            ${
+              prevSlug
+                ? `<a class="pdp__nav-link" href="/product.html?slug=${encodeURIComponent(prevSlug)}"><svg viewBox="0 0 20 14" aria-hidden="true"><line x1="19" y1="7" x2="2" y2="7"></line><polyline points="7.4,1.6 1.6,7 7.4,12.4"></polyline></svg>${t("prev", "Prev")}</a>`
+                : `<span class="pdp__nav-link" style="opacity:.4">${t("prev", "Prev")}</span>`
+            }
+            <span class="pdp__nav-sep" aria-hidden="true">|</span>
+            ${
+              nextSlug
+                ? `<a class="pdp__nav-link" href="/product.html?slug=${encodeURIComponent(nextSlug)}">${t("next", "Next")}<svg viewBox="0 0 20 14" aria-hidden="true"><line x1="1" y1="7" x2="18" y2="7"></line><polyline points="12.6,1.6 18.4,7 12.6,12.4"></polyline></svg></a>`
+                : `<span class="pdp__nav-link" style="opacity:.4">${t("next", "Next")}</span>`
+            }
+`;
+  }
+
   function render() {
     const colorOptions = product.color_options || [];
     const variants = product.variants || [];
@@ -162,19 +181,7 @@
             <span class="crumb__sep" aria-hidden="true">&rsaquo;</span>
             <span class="crumb__here">${pname}</span>
           </p>
-          <nav class="pdp__nav" aria-label="Other products">
-            ${
-              prevSlug
-                ? `<a class="pdp__nav-link" href="/product.html?slug=${encodeURIComponent(prevSlug)}"><svg viewBox="0 0 20 14" aria-hidden="true"><line x1="19" y1="7" x2="2" y2="7"></line><polyline points="7.4,1.6 1.6,7 7.4,12.4"></polyline></svg>${t("prev", "Prev")}</a>`
-                : `<span class="pdp__nav-link" style="opacity:.4">${t("prev", "Prev")}</span>`
-            }
-            <span class="pdp__nav-sep" aria-hidden="true">|</span>
-            ${
-              nextSlug
-                ? `<a class="pdp__nav-link" href="/product.html?slug=${encodeURIComponent(nextSlug)}">${t("next", "Next")}<svg viewBox="0 0 20 14" aria-hidden="true"><line x1="1" y1="7" x2="18" y2="7"></line><polyline points="12.6,1.6 18.4,7 12.6,12.4"></polyline></svg></a>`
-                : `<span class="pdp__nav-link" style="opacity:.4">${t("next", "Next")}</span>`
-            }
-          </nav>
+          <nav class="pdp__nav" aria-label="Other products">${navInnerHtml()}</nav>
         </div>
 
         <div class="pdp__top">
@@ -182,7 +189,7 @@
             <div class="pdp__thumbs">${thumbsHtml}</div>
 
             <figure class="pdp__main">
-              <img id="pdpMainImg" src="${cldUrl(activeImg, 900)}" alt="${pname}" loading="eager" />
+              <img id="pdpMainImg" src="${cldUrl(activeImg, 900)}" alt="${pname}" loading="eager" fetchpriority="high" />
               <span class="pdp__count">
                 <em>${String(state.activeIdx + 1).padStart(2, "0")}</em><i></i><b>${String(imgs.length).padStart(2, "0")}</b>
               </span>
@@ -287,7 +294,7 @@
       <div class="pdp-lightbox" id="pdpLightbox" data-open="${state.lightboxOpen ? "true" : "false"}" aria-hidden="${!state.lightboxOpen}">
         <button type="button" class="pdp-lightbox__scrim" id="pdpLightboxScrim" tabindex="-1" aria-label="Close zoom"></button>
         <div class="pdp-lightbox__stage">
-          <img id="pdpLightboxImg" src="${cldUrl(activeImg, 1600)}" alt="${pname}" />
+          <img id="pdpLightboxImg" ${state.lightboxOpen ? `src="${cldUrl(activeImg, 1600)}"` : ""} alt="${pname}" />
           <button type="button" class="pdp-lightbox__close" id="pdpLightboxClose" aria-label="Close zoom">
             <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4.6" y1="4.6" x2="19.4" y2="19.4"></line><line x1="19.4" y1="4.6" x2="4.6" y2="19.4"></line></svg>
           </button>
@@ -476,9 +483,11 @@
       siteSale = sale;
       applyProductSeo();
 
-      // neighbors: same category, newest-first (fetch the full active catalog
-      // and filter/sort client-side — /api/products?category= takes a slug,
-      // not the numeric category_id we have here).
+      // Show the product right away; prev/next neighbours (same category,
+      // newest-first — needs the active catalog, since ?category= takes a
+      // slug, not the numeric category_id we have here) fill in after,
+      // patching only the small <nav> so nothing re-animates.
+      render();
       try {
         let pool = await API.get("/api/products?status=active");
         pool = pool.slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -487,12 +496,9 @@
         const idx = filteredPool.findIndex((p) => p.id === product.id);
         prevSlug = idx > 0 ? filteredPool[idx - 1].slug : null;
         nextSlug = idx >= 0 && idx < filteredPool.length - 1 ? filteredPool[idx + 1].slug : null;
-      } catch {
-        prevSlug = null;
-        nextSlug = null;
-      }
-
-      render();
+        const navEl = document.querySelector(".pdp__nav");
+        if (navEl) navEl.innerHTML = navInnerHtml();
+      } catch {}
     } catch {
       renderNotFound();
     }

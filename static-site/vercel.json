@@ -1,8 +1,10 @@
 {
-  "cleanUrls": true,
+  "cleanUrls": false,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/sitemap.xml", "destination": "/api/sitemap" }
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+    { "source": "/admin", "destination": "/admin/index.html" },
+    { "source": "/:path((?!api/)[^.]+)", "destination": "/:path.html" }
   ],
   "headers": [
     {

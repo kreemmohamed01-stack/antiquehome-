@@ -1,4 +1,4 @@
-const { sql } = require("./_db.js");
+const { sql, edgeCache } = require("./_db.js");
 const { getSession } = require("./_auth.js");
 
 // Generic key/value site-settings store, backed by the existing `settings`
@@ -41,6 +41,7 @@ module.exports = async (req, res) => {
 
     if (req.method === "GET") {
       const rows = await sql`SELECT value FROM settings WHERE key = ${key}`;
+      edgeCache(res);
       res.status(200).json(rows.length ? rows[0].value : (DEFAULTS[key] ?? null));
       return;
     }

@@ -35,4 +35,14 @@ async function getSiteSale() {
   }
 }
 
-module.exports = { sql, stockState, effectiveSalePercent, priceWithSale, getSiteSale };
+// Lets Vercel's edge CDN serve a public, read-only GET response for 60s
+// (and keep serving it for up to 10 more minutes while it refreshes in
+// the background) instead of waking a function + querying Postgres on
+// every single page view. Only used on storefront reads; admin pages
+// bypass it because js/api.js adds a unique cache-busting param to every
+// GET made from /admin/*, so edits always show up instantly there.
+function edgeCache(res) {
+  res.setHeader("Cache-Control", "public, max-age=0, s-maxage=60, stale-while-revalidate=600");
+}
+
+module.exports = { sql, stockState, effectiveSalePercent, priceWithSale, getSiteSale, edgeCache };

@@ -1,10 +1,11 @@
-const { sql } = require("./_db.js");
+const { sql, edgeCache } = require("./_db.js");
 const { getSession } = require("./_auth.js");
 
 module.exports = async (req, res) => {
   try {
     if (req.method === "GET") {
       const rows = await sql`SELECT * FROM shipping_rates ORDER BY sort_order`;
+      edgeCache(res);
       res.status(200).json({ rates: rows });
       return;
     }
