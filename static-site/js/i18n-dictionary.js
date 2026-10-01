@@ -384,7 +384,7 @@ window.AH_DICTIONARY = {
   oneItemInCart: "قطعة واحدة في سلتكِ",
   itemsInCart: "{n} قطع في سلتكِ",
   awayFromFreeShipping: "أنتِ على بعد <strong>{amount}</strong> من الشحن المجاني",
-  freeShippingGoal: "شحن مجاني<br /><strong>{amount}</strong>",
+  freeShippingGoal: "شحن مجاني<br /><strong>EGP 15,000</strong>",
   cartEmptyLong: "سلتكِ فارغة — حان وقت اكتشاف شيء خالد.",
   addPromoCode: "إضافة كود خصم",
   promoCodePlaceholder: "أدخلي كود الخصم",
