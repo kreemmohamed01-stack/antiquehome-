@@ -223,7 +223,7 @@
 
       <div class="admin__formSection">
         <h3>Product Images</h3>
-        <div id="mediaGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-bottom:10px"></div>
+        <div id="mediaGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:10px"></div>
         <input type="file" id="mediaFileInput" accept="image/*" multiple style="display:none">
         <button type="button" class="admin__btn" id="mediaAddBtn">+ Add Photos</button>
         <p class="admin__hint">Select as many photos as you want at once. Click the crop icon on a photo to drag and zoom it freely in a bigger view (the white dot marks the current crop point) — applying it also moves that photo to the MAIN spot. To swap two photos, click "Swap" on one (it highlights), then click "Swap" on the other — whichever lands in the first spot becomes MAIN. You can also just drag a photo onto another to reorder it.</p>
@@ -384,7 +384,7 @@
           <div class="admin__mediaTile" draggable="true" data-idx="${i}">
             ${i === 0 ? `<span class="admin__mediaHero">MAIN</span>` : ""}
             <div class="admin__mediaCrop">
-              <img src="${cldUrl(src, 220)}" data-focal-img="${i}" style="object-position:${x}% ${y}%;transform:scale(${zoom})">
+              <img src="${cldUrl(src, 420)}" data-focal-img="${i}" style="object-position:${x}% ${y}%;transform:scale(${zoom})">
               <span class="admin__mediaDot" style="left:${x}%;top:${y}%"></span>
               <button type="button" class="admin__mediaCropBtn" data-crop="${i}" aria-label="Edit crop">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2v14a2 2 0 0 0 2 2h14"></path><path d="M18 22V8a2 2 0 0 0-2-2H2"></path></svg>
