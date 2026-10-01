@@ -86,6 +86,21 @@ module.exports = async (req, res) => {
       return;
     }
 
+    // DELETE /api/orders?demo=1 — wipes the seeded demo orders/products
+    // (admin dashboard's "Clear Demo Data" button). Was its own
+    // api/demo.js function; merged in here to stay under the Hobby
+    // plan's 12-serverless-functions-per-deployment limit once
+    // api/sitemap.js was added.
+    if (req.method === "DELETE" && req.query.demo) {
+      const session = getSession(req);
+      if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
+      await sql`DELETE FROM order_items WHERE order_id IN (SELECT id FROM orders WHERE is_demo = true)`;
+      const removed = await sql`DELETE FROM orders WHERE is_demo = true RETURNING id`;
+      await sql`DELETE FROM products WHERE is_demo = true`;
+      res.status(200).json({ ok: true, removed: removed.length });
+      return;
+    }
+
     res.status(405).json({ error: "Method not allowed" });
   } catch (err) {
     console.error(err);

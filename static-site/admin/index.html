@@ -117,7 +117,7 @@
       document.getElementById("removeDemoBtn").addEventListener("click", async () => {
         if (!confirm(`Remove all ${data.demoCount} demo orders? Real orders are never touched.`)) return;
         try {
-          await API.del("/api/demo");
+          await API.del("/api/orders?demo=1");
           location.reload();
         } catch {
           alert("Failed to remove demo data.");
