@@ -167,8 +167,10 @@
     let categories = [];
     try { categories = await API.get("/api/categories"); } catch { return; }
     document.querySelectorAll("img[data-cat-img]").forEach((img) => {
-      const url = categoryImageUrl(img.dataset.catImg, categories, Number(img.dataset.catW));
-      if (img.getAttribute("src") !== url) img.src = url;
+      const { src, position, zoom } = categoryImageUrl(img.dataset.catImg, categories, Number(img.dataset.catW), img.dataset.catShape);
+      if (img.getAttribute("src") !== src) img.src = src;
+      img.style.objectPosition = position;
+      img.style.setProperty("--cat-zoom", zoom);
     });
   }
 

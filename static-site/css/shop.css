@@ -306,7 +306,7 @@
   display:flex; align-items:center; justify-content:center;
   transition: border-color .25s var(--ease), transform .25s var(--ease);
 }
-.catrail__ico img{ width:100%; height:100%; object-fit:cover; }
+.catrail__ico img{ width:100%; height:100%; object-fit:cover; --cat-zoom: 1; transform: scale(var(--cat-zoom)); }
 .catrail__ico--all{ color: var(--ink-600); }
 .catrail__ico--all svg{ width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.4; }
 
@@ -362,7 +362,9 @@
 .shop-banner__bg img{
   width:100%; height:100%;
   object-fit:cover;
-  object-position:center 38%;
+  object-position:center 38%; /* overridden inline per category once a custom crop is set */
+  --cat-zoom: 1;
+  transform: scale(var(--cat-zoom));
 }
 /* no scrim at all — the photo stays fully visible; only a hairline
    edge to separate it from the paper surface */

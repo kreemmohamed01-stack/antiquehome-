@@ -86,6 +86,143 @@ function splitFocal(url) {
   };
 }
 
+// Opens a draggable/zoomable crop editor on `src`, inside a box shaped
+// like `aspectRatio` (e.g. "1" for a square, "21/9" for a wide banner) —
+// matches whatever container the photo actually appears in on the
+// storefront, so what the admin sees while dragging is what visitors
+// see. Starts from startX/startY/startZoom (a previous focal point, or
+// 50/50/1 for a fresh photo) and calls onApply(x, y, zoom) once Apply is
+// clicked; Cancel/the close button/clicking outside the dialog discard
+// changes. Shared by the product editor (always a 1:1 stage) and the
+// category editor (matches whichever of the 3 shapes it's currently
+// previewing).
+function openFocalCropEditor({ src, startX = 50, startY = 50, startZoom = 1, aspectRatio = "1", onApply }) {
+  let x = startX, y = startY, zoom = startZoom;
+
+  const overlay = document.createElement("div");
+  overlay.className = "admin";
+  overlay.id = "cropEditorOverlay";
+  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:10060;display:flex;align-items:center;justify-content:center;padding:20px";
+  overlay.innerHTML = `
+    <div style="max-width:560px;width:100%;background:var(--a-panel);border:1px solid var(--a-border);border-radius:4px;padding:22px;color:var(--a-text)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <h3 style="margin:0;font-family:var(--serif);font-size:18px">Edit Crop</h3>
+        <button type="button" id="cropCloseBtn" class="admin__iconAct" aria-label="Close" style="border-radius:50%">
+          <svg viewBox="0 0 24 24"><line x1="4.6" y1="4.6" x2="19.4" y2="19.4"></line><line x1="19.4" y1="4.6" x2="4.6" y2="19.4"></line></svg>
+        </button>
+      </div>
+      <div id="cropStage" style="position:relative;width:100%;aspect-ratio:${aspectRatio};overflow:hidden;border:1px solid var(--a-border);background:#000;cursor:grab;touch-action:none">
+        <img id="cropImg" src="${cldUrl(src, 1200)}" draggable="false" style="position:absolute;max-width:none;user-select:none;pointer-events:none">
+      </div>
+      <label class="admin__mediaZoom" style="margin-top:14px">
+        <span>Zoom</span>
+        <input type="range" id="cropZoom" min="1" max="2.5" step="0.01" value="${zoom}">
+      </label>
+      <p class="admin__hint">Drag the photo to reposition it. Use the slider (or scroll/pinch) to zoom. The frame shown here is exactly what visitors will see.</p>
+      <div style="display:flex;gap:10px;margin-top:6px">
+        <button type="button" class="admin__btn admin__btn--outline" id="cropCancelBtn" style="flex:1">Cancel</button>
+        <button type="button" class="admin__btn admin__btn--gold" id="cropApplyBtn" style="flex:1">Apply</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  document.body.style.overflow = "hidden";
+
+  const stage = overlay.querySelector("#cropStage");
+  const img = overlay.querySelector("#cropImg");
+  const zoomSlider = overlay.querySelector("#cropZoom");
+
+  // Matches object-position's semantics: x/y (0-100%) is the point of the
+  // image that should align with that same % point of the frame. The
+  // image is first scaled like object-fit:cover (so it fully covers the
+  // frame regardless of its own aspect ratio or the frame's), then
+  // `zoom` scales further on top of that, then it's positioned so the
+  // (x%, y%) point of the image lines up with the (x%, y%) point of the
+  // frame.
+  function paint() {
+    const stageRect = stage.getBoundingClientRect();
+    const natW = img.naturalWidth || stageRect.width;
+    const natH = img.naturalHeight || stageRect.height;
+    const coverScale = Math.max(stageRect.width / natW, stageRect.height / natH);
+    const scale = coverScale * zoom;
+    const imgW = natW * scale;
+    const imgH = natH * scale;
+    const left = stageRect.width * (x / 100) - imgW * (x / 100);
+    const top = stageRect.height * (y / 100) - imgH * (y / 100);
+    img.style.width = `${imgW}px`;
+    img.style.height = `${imgH}px`;
+    img.style.left = `${left}px`;
+    img.style.top = `${top}px`;
+    img.style.transform = "none";
+  }
+  if (img.complete && img.naturalWidth) paint();
+  else img.addEventListener("load", paint);
+  window.addEventListener("resize", paint);
+
+  let dragging = false;
+  let lastClientX = 0, lastClientY = 0;
+  function onDown(e) {
+    dragging = true;
+    stage.style.cursor = "grabbing";
+    const p = e.touches ? e.touches[0] : e;
+    lastClientX = p.clientX;
+    lastClientY = p.clientY;
+  }
+  function onMove(e) {
+    if (!dragging) return;
+    const p = e.touches ? e.touches[0] : e;
+    const dx = p.clientX - lastClientX;
+    const dy = p.clientY - lastClientY;
+    lastClientX = p.clientX;
+    lastClientY = p.clientY;
+    const stageRect = stage.getBoundingClientRect();
+    const natW = img.naturalWidth || stageRect.width;
+    const natH = img.naturalHeight || stageRect.height;
+    const coverScale = Math.max(stageRect.width / natW, stageRect.height / natH);
+    const imgW = natW * coverScale * zoom;
+    const imgH = natH * coverScale * zoom;
+    // Dragging the photo right means the focal point moves left (toward
+    // 0%), and vice versa — invert the delta.
+    x = Math.min(100, Math.max(0, x - (dx / imgW) * 100));
+    y = Math.min(100, Math.max(0, y - (dy / imgH) * 100));
+    paint();
+    if (e.touches) e.preventDefault();
+  }
+  function onUp() { dragging = false; stage.style.cursor = "grab"; }
+  stage.addEventListener("mousedown", onDown);
+  window.addEventListener("mousemove", onMove);
+  window.addEventListener("mouseup", onUp);
+  stage.addEventListener("touchstart", onDown, { passive: true });
+  stage.addEventListener("touchmove", onMove, { passive: false });
+  stage.addEventListener("touchend", onUp);
+
+  stage.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    zoom = Math.min(2.5, Math.max(1, zoom - e.deltaY * 0.0015));
+    zoomSlider.value = zoom;
+    paint();
+  }, { passive: false });
+
+  zoomSlider.addEventListener("input", () => {
+    zoom = Number(zoomSlider.value);
+    paint();
+  });
+
+  function closeEditor() {
+    window.removeEventListener("mousemove", onMove);
+    window.removeEventListener("mouseup", onUp);
+    window.removeEventListener("resize", paint);
+    document.body.removeChild(overlay);
+    document.body.style.overflow = "";
+  }
+  overlay.querySelector("#cropCloseBtn").addEventListener("click", closeEditor);
+  overlay.querySelector("#cropCancelBtn").addEventListener("click", closeEditor);
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) closeEditor(); });
+  overlay.querySelector("#cropApplyBtn").addEventListener("click", () => {
+    onApply(x, y, zoom);
+    closeEditor();
+  });
+}
+
 function cldUrl(url, width) {
   const { src } = splitFocal(url);
   if (!src) return "";
@@ -117,13 +254,54 @@ const CATEGORY_DEFAULT_IMAGES = {
   "photo-frame": "/sec 3/category 3.webp",
 };
 
-// The image to show for a category: its uploaded image (sized via
-// Cloudinary) if one is set, else its built-in default. `categories` is
-// the /api/categories list (or null while it's still loading).
-function categoryImageUrl(slug, categories, width) {
+// A category's uploaded image can have a different crop per shape it
+// appears in (shop banner / homepage tile / round category-bar icon),
+// so all three can be centered well even though they're different
+// aspect ratios. Stored as up to 3 "#x,y,zoom" suffixes on one URL,
+// joined by "|" — e.g. "...jpg#40,30,1.2|60,50,1|50,45,1.4" — one entry
+// per shape, in (banner, tile, rail) order; a shape with no entry (an
+// older save, or a freshly-uploaded photo not cropped yet) falls back
+// to centered/no zoom, same as every other focal point on the site.
+const CATEGORY_FOCAL_SHAPES = ["banner", "tile", "rail"];
+function splitCategoryFocals(imageUrl) {
+  const centered = { x: 50, y: 50, zoom: 1 };
+  const out = { banner: { ...centered }, tile: { ...centered }, rail: { ...centered } };
+  if (!imageUrl) return out;
+  const hashIdx = imageUrl.indexOf("#");
+  if (hashIdx === -1) return out;
+  imageUrl.slice(hashIdx + 1).split("|").forEach((part, i) => {
+    const shape = CATEGORY_FOCAL_SHAPES[i];
+    if (!shape) return;
+    const [x, y, zoom] = part.split(",").map(Number);
+    if (isFinite(x) && isFinite(y)) out[shape] = { x, y, zoom: isFinite(zoom) && zoom > 0 ? zoom : 1 };
+  });
+  return out;
+}
+function joinCategoryFocals(src, focals) {
+  const bareSrc = src.includes("#") ? src.slice(0, src.indexOf("#")) : src;
+  const suffix = CATEGORY_FOCAL_SHAPES.map((shape) => {
+    const f = focals[shape] || { x: 50, y: 50, zoom: 1 };
+    return `${Math.round(f.x)},${Math.round(f.y)},${(f.zoom || 1).toFixed(2)}`;
+  }).join("|");
+  return `${bareSrc}#${suffix}`;
+}
+
+// The image to show for a category in a given shape ("banner" | "tile" |
+// "rail"): its uploaded image (sized via Cloudinary, cropped with that
+// shape's own focal point) if one is set, else its built-in default
+// (shown centered — the source photos were already chosen/framed for
+// this site, so they don't carry per-shape crops). `categories` is the
+// /api/categories list (or null while it's still loading). Returns
+// { src, position, zoom } — position/zoom are ready-to-use CSS values,
+// same shape as splitFocal()'s return.
+function categoryImageUrl(slug, categories, width, shape) {
   const c = (categories || []).find((x) => x.slug === slug);
-  if (c && c.image_url) return cldUrl(c.image_url, width);
-  return CATEGORY_DEFAULT_IMAGES[slug] || "/sec 3/category 3.webp";
+  if (c && c.image_url) {
+    const focals = splitCategoryFocals(c.image_url);
+    const f = focals[shape] || focals.tile;
+    return { src: cldUrl(c.image_url, width), position: `${f.x}% ${f.y}%`, zoom: f.zoom };
+  }
+  return { src: CATEGORY_DEFAULT_IMAGES[slug] || "/sec 3/category 3.webp", position: "50% 50%", zoom: 1 };
 }
 
 // Admin photo upload, shared by the product and category editors.

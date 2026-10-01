@@ -79,14 +79,17 @@
   // Categories when an image was uploaded there, else the built-in default
   // (see categoryImageUrl in api.js). Each <img> is tagged with its slug so
   // applyCategoryImages() can fill/refresh them once categories arrive.
-  function catImgAttrs(slug, width) {
-    const src = categoriesLoaded ? ` src="${categoryImageUrl(slug, categories, width)}"` : "";
-    return `data-cat-img="${slug}" data-cat-w="${width}"${src}`;
+  function catImgAttrs(slug, width, shape) {
+    if (!categoriesLoaded) return `data-cat-img="${slug}" data-cat-w="${width}" data-cat-shape="${shape}"`;
+    const { src, position, zoom } = categoryImageUrl(slug, categories, width, shape);
+    return `data-cat-img="${slug}" data-cat-w="${width}" data-cat-shape="${shape}" src="${src}" style="object-position:${position};--cat-zoom:${zoom}"`;
   }
   function applyCategoryImages() {
     document.querySelectorAll("img[data-cat-img]").forEach((img) => {
-      const url = categoryImageUrl(img.dataset.catImg, categories, Number(img.dataset.catW));
-      if (img.getAttribute("src") !== url) img.src = url;
+      const { src, position, zoom } = categoryImageUrl(img.dataset.catImg, categories, Number(img.dataset.catW), img.dataset.catShape);
+      if (img.getAttribute("src") !== src) img.src = src;
+      img.style.objectPosition = position;
+      img.style.setProperty("--cat-zoom", zoom);
     });
   }
 
@@ -107,7 +110,7 @@
           title: `${b.title.charAt(0)}${b.title.slice(1).toLowerCase()} — Antique Home`,
           description: b.text || `Shop ${b.title.toLowerCase()} at Antique Home — curated pieces for every room.`,
           path: `/shop.html?category=${encodeURIComponent(activeCategory)}`,
-          image: categoryImageUrl(activeCategory, categories, 1200),
+          image: categoryImageUrl(activeCategory, categories, 1200, "banner").src,
         });
       }
     }
@@ -215,7 +218,7 @@
         </div>
 
         <section class="shop shop-banner">
-          <div class="shop-banner__bg" aria-hidden="true"><img ${catImgAttrs(activeCategory, 1600)} alt="" fetchpriority="high" /></div>
+          <div class="shop-banner__bg" aria-hidden="true"><img ${catImgAttrs(activeCategory, 1600, "banner")} alt="" fetchpriority="high" /></div>
           <div class="shop-banner__inner">
             <p class="crumb rv rv--left" data-rv>
               <a href="/">${t("home", "Home")}</a>
@@ -287,7 +290,7 @@
     const items = ITEMS.map(
       (it) => `
       <a class="catrail__item${active === it.slug ? " catrail__item--active" : ""}" href="/shop.html?category=${it.slug}">
-        <span class="catrail__ico"><img ${catImgAttrs(it.slug, 160)} alt="" loading="lazy" /></span>
+        <span class="catrail__ico"><img ${catImgAttrs(it.slug, 160, "rail")} alt="" loading="lazy" /></span>
         <span class="catrail__label">${t(it.key, it.label)}</span>
       </a>`
     ).join("");

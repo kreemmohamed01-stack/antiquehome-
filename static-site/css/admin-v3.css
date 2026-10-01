@@ -643,6 +643,16 @@
   aspect-ratio:1;
   overflow:hidden;
 }
+.admin__catCropPreview{
+  position:relative;
+  width:100%;
+  overflow:hidden;
+  background: var(--a-panel-2);
+  border:1px solid var(--a-border);
+  transition: border-color .2s ease;
+}
+.admin__catCropPreview:hover{ border-color: var(--a-gold); }
+.admin__catCropPreview img{ display:block; }
 .admin__mediaCrop img{
   width:100%; height:100%;
   object-fit:contain;
