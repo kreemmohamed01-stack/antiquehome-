@@ -78,6 +78,24 @@
     const heroSlot = document.getElementById("shopHeroSlot");
     const railSlot = document.getElementById("catRailSlot");
 
+    if (window.AH_SEO) {
+      if (activeCategory === "all") {
+        window.AH_SEO.setMeta({
+          title: "All Products — Antique Home",
+          description: "Browse our full collection of curated vases, antiques, lighting and home décor — timeless pieces for every room.",
+          path: "/shop.html",
+        });
+      } else {
+        const b = BANNER[activeCategory] || { title: activeCategory.toUpperCase(), text: "", img: "/sec 3/category 1.webp" };
+        window.AH_SEO.setMeta({
+          title: `${b.title.charAt(0)}${b.title.slice(1).toLowerCase()} — Antique Home`,
+          description: b.text || `Shop ${b.title.toLowerCase()} at Antique Home — curated pieces for every room.`,
+          path: `/shop.html?category=${encodeURIComponent(activeCategory)}`,
+          image: b.img,
+        });
+      }
+    }
+
     if (activeCategory === "all") {
       heroSlot.innerHTML = `
         <section class="shop-hero" id="shopHero">
@@ -137,7 +155,6 @@
       const banner = BANNER[activeCategory] || { title: activeCategory.toUpperCase(), text: "", img: "/sec 3/category 1.webp" };
       const bannerTitle = t(`banner:${activeCategory}Title`, banner.title);
       const bannerText = t(`banner:${activeCategory}Text`, banner.text);
-      document.title = `${banner.title.charAt(0)}${banner.title.slice(1).toLowerCase()} — Antique Home`;
       heroSlot.innerHTML = `
         <div class="shop-topbar-wrap">
           <div class="shop-topbar">

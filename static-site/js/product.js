@@ -474,7 +474,7 @@
       const [prod, sale] = await Promise.all([API.get("/api/products?slug=" + encodeURIComponent(slug)), API.get("/api/settings?key=site_sale")]);
       product = prod;
       siteSale = sale;
-      document.title = `${window.AH_I18N ? window.AH_I18N.productName(product) : product.name} — Antique Home`;
+      applyProductSeo();
 
       // neighbors: same category, newest-first (fetch the full active catalog
       // and filter/sort client-side — /api/products?category= takes a slug,
@@ -498,9 +498,60 @@
     }
   }
 
+  // Sets the real per-product title/description/canonical/OG-image and
+  // the Product JSON-LD schema, and removes the <meta robots noindex>
+  // the page ships with by default (a safety net for the brief window
+  // before a product loads, or if it 404s — renderNotFound() never
+  // calls this, so that state stays noindex'd and a search engine never
+  // indexes a page with the generic placeholder title/description).
+  function applyProductSeo() {
+    if (!product || !window.AH_SEO) return;
+    const pname = window.AH_I18N ? window.AH_I18N.productName(product) : product.name;
+    const pdesc = window.AH_I18N ? window.AH_I18N.productDescription(product) : product.description;
+    const img = (product.image_urls || [])[0];
+    window.AH_SEO.setMeta({
+      title: `${pname} — Antique Home`,
+      description: pdesc || `${pname} — a timeless piece from Antique Home's curated collection.`,
+      path: `/product.html?slug=${encodeURIComponent(product.slug)}`,
+      image: img ? cldUrl(img, 1200) : undefined,
+      type: "product",
+    });
+    const robotsEl = document.querySelector('meta[name="robots"]');
+    if (robotsEl) robotsEl.remove();
+
+    const existingLd = document.getElementById("productLd");
+    if (existingLd) existingLd.remove();
+    const ld = document.createElement("script");
+    ld.type = "application/ld+json";
+    ld.id = "productLd";
+    ld.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: pname,
+      description: pdesc || undefined,
+      image: img ? cldUrl(img, 1200) : undefined,
+      sku: product.sku || undefined,
+      offers: {
+        "@type": "Offer",
+        url: window.AH_SEO.SITE_URL + `/product.html?slug=${encodeURIComponent(product.slug)}`,
+        priceCurrency: "EGP",
+        price: Number(product.price),
+        availability: product.stock_qty > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      },
+      ...(product.review_count ? {
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: Number(product.rating || 0),
+          reviewCount: Number(product.review_count),
+        },
+      } : {}),
+    });
+    document.head.appendChild(ld);
+  }
+
   document.addEventListener("ah:langchange", () => {
     if (product) {
-      document.title = `${window.AH_I18N ? window.AH_I18N.productName(product) : product.name} — Antique Home`;
+      applyProductSeo();
       render();
     }
   });
