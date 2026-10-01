@@ -440,7 +440,6 @@
 
     wireEvents();
     if (!firstRenderDone) scanReveal(document.getElementById("checkoutSlot"));
-    firstRenderDone = true;
   }
 
   function wireEvents() {
@@ -642,6 +641,12 @@
       state.rates = [];
     }
     render();
+    // Shipping rates (which can change delivery-price text but not the
+    // card layout itself) are the last thing init() loads — now that
+    // this first real render has happened, later re-renders (every
+    // field edit, radio click, language switch) should just update in
+    // place with no replayed entrance animation.
+    firstRenderDone = true;
   }
 
   document.addEventListener("ah:langchange", render);
