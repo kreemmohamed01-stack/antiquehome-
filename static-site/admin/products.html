@@ -45,7 +45,7 @@
         </select>
       </div>
     </div>
-    <p class="admin__hint" id="reorderHint" style="display:none;margin:-4px 0 10px">Drag <strong>⠿</strong> to set the order products appear in on the storefront for this category — top of the list shows first.</p>
+    <p class="admin__hint" id="reorderHint" style="display:none;margin:-4px 0 10px">Drag <strong>⠿</strong> to set the order products appear in on the storefront for this category — top of the list shows first. Use the edit / view / delete buttons on each row as usual. Draft products are listed too but stay hidden on the shop until they're Active.</p>
     <p class="admin__hint" id="stockFilterHint" style="display:none;margin:-4px 0 10px"></p>
     <div id="productsList"></div>
     <div class="admin__pager" id="pager" style="display:none"></div>
@@ -177,17 +177,7 @@
             <div style="font-size:11px;color:${stockState(p) === "out" ? "var(--a-red)" : stockState(p) === "low" ? "var(--a-amber)" : "var(--a-green)"}">${p.stock_qty} in stock</div>
           </div>
           <div style="flex:none">${stockPillHtml(p)}</div>
-          <div class="admin__prow-actions">
-            <button type="button" class="admin__iconAct" data-edit="${p.id}" aria-label="Edit">
-              <svg viewBox="0 0 24 24"><path d="M4 16.4 15.4 5l3.6 3.6L7.6 20H4Z"></path></svg>
-            </button>
-            <a href="/product.html?slug=${p.slug}" class="admin__iconAct" target="_blank" aria-label="View">
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.8"></circle></svg>
-            </a>
-            <button type="button" class="admin__iconAct admin__iconAct--danger" data-delete="${p.id}" data-name="${p.name}" aria-label="Delete">
-              <svg viewBox="0 0 24 24"><path d="M5.6 7.2h12.8l-1 12.4H6.6Z"></path></svg>
-            </button>
-          </div>
+          ${rowActionsHtml(p)}
         </div>
       `).join("");
     }
@@ -204,6 +194,25 @@
       pagerEl.style.display = "none";
     }
 
+    wireRowActions(listEl);
+  }
+
+  function rowActionsHtml(p) {
+    return `
+      <div class="admin__prow-actions">
+        <button type="button" class="admin__iconAct" data-edit="${p.id}" aria-label="Edit">
+          <svg viewBox="0 0 24 24"><path d="M4 16.4 15.4 5l3.6 3.6L7.6 20H4Z"></path></svg>
+        </button>
+        <a href="/product.html?slug=${p.slug}" class="admin__iconAct" target="_blank" aria-label="View">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.8"></circle></svg>
+        </a>
+        <button type="button" class="admin__iconAct admin__iconAct--danger" data-delete="${p.id}" data-name="${p.name}" aria-label="Delete">
+          <svg viewBox="0 0 24 24"><path d="M5.6 7.2h12.8l-1 12.4H6.6Z"></path></svg>
+        </button>
+      </div>`;
+  }
+
+  function wireRowActions(listEl) {
     listEl.querySelectorAll("[data-edit]").forEach((btn) => {
       btn.addEventListener("click", () => openForm(ALL_PRODUCTS.find((p) => p.id === Number(btn.dataset.edit))));
     });
@@ -235,12 +244,14 @@
     const statusEl = document.getElementById("reorderStatus");
     if (statusEl) statusEl.textContent = "Saving…";
     reorderSaveTimer = setTimeout(async () => {
+      const catId = Number(reorderCategoryId);
       try {
         await API.patch("/api/products?reorder=1", {
-          categoryId: Number(reorderCategoryId),
+          categoryId: catId,
           orderedIds: reorderList.map((p) => p.id),
         });
-        if (statusEl) statusEl.textContent = "Saved";
+        reorderList.forEach((p, i) => { p.category_sorts = { ...(p.category_sorts || {}), [catId]: i + 1 }; });
+        if (statusEl) statusEl.textContent = "Saved — the shop updates within about a minute.";
       } catch {
         if (statusEl) statusEl.textContent = "Failed to save order — try again.";
       }
@@ -260,17 +271,22 @@
           <img src="${cldUrl(p.image_urls?.[0] || "/logo hero.png", 80)}" alt="">
           <div class="admin__prow-main">
             <div class="admin__prow-name">${p.name}</div>
-            <div class="admin__prow-sku">SKU: ${p.sku || "—"}</div>
+            <div class="admin__prow-sku">SKU: ${p.sku || "—"} · ${fmt(p.price)}</div>
           </div>
-          <div style="flex:none;text-align:right;min-width:70px;color:var(--a-text-dim);font-size:12px">#${i + 1}</div>
+          <div style="flex:none;text-align:right;min-width:40px;color:var(--a-text-dim);font-size:12px">#${i + 1}</div>
+          <div style="flex:none">${p.status === "active" ? stockPillHtml(p) : `<span class="admin__pill admin__pill--warn">${p.status === "draft" ? "Draft — hidden" : "Archived — hidden"}</span>`}</div>
+          ${rowActionsHtml(p)}
         </div>
       `).join("");
+
+    wireRowActions(listEl);
 
     let dragIdx = null;
     listEl.querySelectorAll("[data-ridx]").forEach((row) => {
       row.addEventListener("dragstart", () => { dragIdx = Number(row.dataset.ridx); });
       row.addEventListener("dragover", (e) => e.preventDefault());
-      row.addEventListener("drop", () => {
+      row.addEventListener("drop", (e) => {
+        e.preventDefault();
         const dropIdx = Number(row.dataset.ridx);
         if (dragIdx === null || dragIdx === dropIdx) return;
         const [moved] = reorderList.splice(dragIdx, 1);
@@ -792,20 +808,24 @@
 
   async function load() {
     ALL_PRODUCTS = await API.get("/api/products");
+    buildReorderList();
     render();
   }
 
-  async function loadReorderCategory(categoryId) {
+  // Same order the shop uses (this category's sort_order, newest first on
+  // ties), but includes drafts so they can be positioned before going live.
+  function buildReorderList() {
+    const catId = Number(reorderCategoryId);
+    if (!catId) { reorderList = []; return; }
+    const pos = (p) => Number((p.category_sorts || {})[catId]) || 0;
+    reorderList = ALL_PRODUCTS
+      .filter((p) => (p.category_ids || []).includes(catId) || p.category_id === catId)
+      .sort((a, b) => pos(a) - pos(b));
+  }
+
+  function loadReorderCategory(categoryId) {
     reorderCategoryId = categoryId;
-    if (!categoryId) { reorderList = []; render(); return; }
-    const cat = CATEGORIES.find((c) => c.id === Number(categoryId));
-    if (!cat) { reorderList = []; render(); return; }
-    try {
-      reorderList = await API.get(`/api/products?category=${cat.slug}`);
-    } catch {
-      reorderList = [];
-      alert("Failed to load products for this category.");
-    }
+    buildReorderList();
     render();
   }
 

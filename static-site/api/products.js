@@ -47,7 +47,9 @@ module.exports = async (req, res) => {
       // Storefront reads (single product by slug, a category listing, or
       // the active catalog) are edge-cached; the bare admin listing (no
       // query params) is not.
-      if (slug || (category && category !== "all") || status === "active") edgeCache(res);
+      // Short window: a 10-minute stale copy meant dashboard edits (prices,
+      // drag-and-drop order) took up to 10 minutes to show on the shop.
+      if (slug || (category && category !== "all") || status === "active") edgeCache(res, 20, 20);
 
       if (slug) {
         const rows = await sql`SELECT * FROM products WHERE slug = ${slug}`;
@@ -69,11 +71,14 @@ module.exports = async (req, res) => {
         // products only linked via the legacy single category_id (no
         // product_categories row) have no sort_order of their own, so
         // they fall back to oldest-first and sort after any that do.
+        // The join row is scoped to THIS category, so a product linked to
+        // several categories yields one row carrying this category's order.
         rows = await sql`
-          SELECT DISTINCT p.*, COALESCE(pc.sort_order, 0) AS pc_sort_order FROM products p
-          LEFT JOIN product_categories pc ON pc.product_id = p.id
-          LEFT JOIN categories c ON c.id = pc.category_id OR c.id = p.category_id
-          WHERE (c.slug = ${category}) AND p.status = 'active'
+          SELECT p.*, COALESCE(pc.sort_order, 0) AS pc_sort_order
+          FROM categories c
+          JOIN products p ON p.status = 'active'
+          LEFT JOIN product_categories pc ON pc.product_id = p.id AND pc.category_id = c.id
+          WHERE c.slug = ${category} AND (pc.product_id IS NOT NULL OR p.category_id = c.id)
           ORDER BY pc_sort_order ASC, p.created_at DESC
         `;
       } else if (status) {
@@ -84,7 +89,11 @@ module.exports = async (req, res) => {
             COALESCE(
               (SELECT array_agg(pc.category_id) FROM product_categories pc WHERE pc.product_id = p.id),
               ARRAY[]::int[]
-            ) AS category_ids
+            ) AS category_ids,
+            COALESCE(
+              (SELECT json_object_agg(pc.category_id, pc.sort_order) FROM product_categories pc WHERE pc.product_id = p.id),
+              '{}'::json
+            ) AS category_sorts
           FROM products p
           LEFT JOIN categories c ON c.id = p.category_id
           ORDER BY p.created_at DESC
@@ -163,11 +172,13 @@ module.exports = async (req, res) => {
       // UPDATE ... FROM unnest() WITH ORDINALITY assigns each product its
       // 1-based position in the array in one round trip, instead of one
       // UPDATE per row.
+      // Upsert so a product linked only via the legacy products.category_id
+      // (no join row yet) still gets a position instead of staying stuck.
       await sql`
-        UPDATE product_categories pc
-        SET sort_order = ord.position
+        INSERT INTO product_categories (product_id, category_id, sort_order)
+        SELECT ord.product_id, ${categoryId}, ord.position
         FROM unnest(${orderedIds}::int[]) WITH ORDINALITY AS ord(product_id, position)
-        WHERE pc.category_id = ${categoryId} AND pc.product_id = ord.product_id
+        ON CONFLICT (product_id, category_id) DO UPDATE SET sort_order = EXCLUDED.sort_order
       `;
       res.status(200).json({ ok: true });
       return;

@@ -8,6 +8,7 @@
   // short link) rather than a plain text-search query, so it always
   // opens the exact pinned location rather than a "best guess" result.
   var MAPS_URL = "https://maps.google.com/maps?q=2+Mahmoud+Haridy,+El+Nozha,+Cairo+Governorate&ftid=0x145817d7eee8f175:0x984cb1d837b32a46";
+  var FACEBOOK_URL = "https://www.facebook.com/share/196HJ5WoUw/?mibextid=wwXIfr";
 
   var CHROME_HTML = `
 <footer class="foot" id="contact">
@@ -104,18 +105,10 @@
                 <circle cx="12" cy="12" r="3.3" fill="none" stroke="#fff" stroke-width="1.5"/>
                 <circle cx="17.1" cy="6.9" r="1.15" fill="#fff"/>
               </svg></a></li>
-            <li class="fsocial__fb" style="display:none"><a href="#" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+            <li class="fsocial__fb"><a href="${FACEBOOK_URL}" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="12" cy="12" r="11" fill="#1877F2"/>
                 <path fill="#fff" d="M15.1 12.7h-2.1V20h-3v-7.3H8.6v-2.6h1.4V8.7c0-1.9 1-3 3.3-3h2v2.6h-1.3c-.9 0-1 .3-1 1v1.2h2.4l-.3 2.6Z"/>
-              </svg></a></li>
-            <li><a href="#" aria-label="Email us">
-              <svg viewBox="0 0 48 48" aria-hidden="true">
-                <path fill="#4caf50" d="M45 16.2l-5 2.75-5 4.75L35 40h7c1.657 0 3-1.343 3-3V16.2z"/>
-                <path fill="#1e88e5" d="M3 16.2l3.614 1.71L13 23.7V40H6c-1.657 0-3-1.343-3-3V16.2z"/>
-                <polygon fill="#e53935" points="35,11.2 24,19.45 13,11.2 12,17 13,23.7 24,31.95 35,23.7 36,17"/>
-                <path fill="#c62828" d="M3 12.298V16.2l10 7.5V11.2L9.876 8.859A4.298 4.298 0 0 0 7.298 8h0A4.298 4.298 0 0 0 3 12.298z"/>
-                <path fill="#fbc02d" d="M45 12.298V16.2l-10 7.5V11.2l3.124-2.341A4.298 4.298 0 0 1 40.702 8h0A4.298 4.298 0 0 1 45 12.298z"/>
               </svg></a></li>
             <li><a href="${MAPS_URL}" target="_blank" rel="noopener noreferrer" aria-label="Find us on Google Maps">
               <svg viewBox="0 0 48 48" aria-hidden="true">
@@ -288,13 +281,10 @@
           <circle cx="12" cy="12" r="3.3" fill="none" stroke="#fff" stroke-width="1.5"/>
           <circle cx="17.1" cy="6.9" r="1.15" fill="#fff"/>
         </svg></a></li>
-      <li><a href="#" aria-label="Email us">
-        <svg viewBox="0 0 48 48" aria-hidden="true">
-          <path fill="#4caf50" d="M45 16.2l-5 2.75-5 4.75L35 40h7c1.657 0 3-1.343 3-3V16.2z"/>
-          <path fill="#1e88e5" d="M3 16.2l3.614 1.71L13 23.7V40H6c-1.657 0-3-1.343-3-3V16.2z"/>
-          <polygon fill="#e53935" points="35,11.2 24,19.45 13,11.2 12,17 13,23.7 24,31.95 35,23.7 36,17"/>
-          <path fill="#c62828" d="M3 12.298V16.2l10 7.5V11.2L9.876 8.859A4.298 4.298 0 0 0 7.298 8h0A4.298 4.298 0 0 0 3 12.298z"/>
-          <path fill="#fbc02d" d="M45 12.298V16.2l-10 7.5V11.2l3.124-2.341A4.298 4.298 0 0 1 40.702 8h0A4.298 4.298 0 0 1 45 12.298z"/>
+      <li class="fsocial__fb"><a href="${FACEBOOK_URL}" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="11" fill="#1877F2"/>
+          <path fill="#fff" d="M15.1 12.7h-2.1V20h-3v-7.3H8.6v-2.6h1.4V8.7c0-1.9 1-3 3.3-3h2v2.6h-1.3c-.9 0-1 .3-1 1v1.2h2.4l-.3 2.6Z"/>
         </svg></a></li>
       <li><a href="${MAPS_URL}" target="_blank" rel="noopener noreferrer" aria-label="Find us on Google Maps">
         <svg viewBox="0 0 48 48" aria-hidden="true">
@@ -515,7 +505,6 @@
     }
     if (social.facebook) {
       document.querySelectorAll('.fsocial__fb').forEach((li) => {
-        li.style.display = "";
         const a = li.querySelector("a");
         if (a) a.href = social.facebook;
       });

@@ -52,11 +52,16 @@ module.exports = async (req, res) => {
       // admin category form's product picker) instead of editing the
       // category row itself.
       if (req.query.assign) {
+        // Only drops removed links and appends new ones, so products that
+        // stay keep their drag-and-drop position in this category.
         const productIds = Array.isArray(b.productIds) ? b.productIds.map(Number).filter(Boolean) : [];
-        await sql`DELETE FROM product_categories WHERE category_id = ${id}`;
-        for (const pid of productIds) {
-          await sql`INSERT INTO product_categories (product_id, category_id) VALUES (${pid}, ${id}) ON CONFLICT DO NOTHING`;
-        }
+        await sql`DELETE FROM product_categories WHERE category_id = ${id} AND NOT (product_id = ANY(${productIds}::int[]))`;
+        await sql`
+          INSERT INTO product_categories (product_id, category_id, sort_order)
+          SELECT pid, ${id}, (SELECT COALESCE(MAX(sort_order), 0) FROM product_categories WHERE category_id = ${id}) + ord
+          FROM unnest(${productIds}::int[]) WITH ORDINALITY AS t(pid, ord)
+          ON CONFLICT (product_id, category_id) DO NOTHING
+        `;
         res.status(200).json({ ok: true });
         return;
       }
