@@ -144,6 +144,8 @@
       <i class="fsign__rule" aria-hidden="true"></i>
     </div>
 
+    <p class="ffounder rv" data-rv style="--rd:.04s">Founded 2022 &middot; By Karim Saied</p>
+
     <p class="fcopy rv" data-rv style="--rd:.08s" data-i18n="footCopyright">© 2025 Antique Home. All rights reserved.</p>
   </div>
 </footer>

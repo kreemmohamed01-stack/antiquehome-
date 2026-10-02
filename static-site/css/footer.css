@@ -549,6 +549,17 @@
   .fsign__name:hover{ transform: scale(1.07); }
 }
 
+.ffounder{
+  margin: 16px 0 0;
+  text-align:center;
+  font-family: var(--sans);
+  font-size: clamp(10px, 2.6vw, 11.5px);
+  font-weight:500;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color: rgba(92,68,35,.75);
+}
+
 .fcopy{
   margin: 12px 0 0;
   text-align:center;
@@ -628,6 +639,7 @@
   .fsign__rule{ max-width:none; }
   .fsign__label{ font-size:12px; }
   .fsign__name{ font-size:29px; }
+  .ffounder{ font-size:12px; margin-top:18px; }
   .fcopy{ font-size:10.5px; margin-top:14px; }
 }
 
