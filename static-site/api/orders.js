@@ -9,6 +9,39 @@ async function readBody(req) {
   return body || {};
 }
 
+// Free automatic WhatsApp alert to the shop owner via CallMeBot. Does
+// nothing until CALLMEBOT_PHONE and CALLMEBOT_APIKEY are set in Vercel.
+// Awaited (with a short timeout) because Vercel stops the function once
+// the response is sent; a failure here never fails the order itself.
+async function notifyOwnerOnWhatsApp(order, b) {
+  const phone = process.env.CALLMEBOT_PHONE;
+  const apikey = process.env.CALLMEBOT_APIKEY;
+  if (!phone || !apikey) return;
+  const money = (n) => "EGP " + Math.round(Number(n) || 0).toLocaleString("en-US");
+  const items = b.items.map((i) => {
+    const extra = [i.variantLabel, i.colorName].filter(Boolean).join(" / ");
+    return `- ${i.qty} x ${i.name}${extra ? ` (${extra})` : ""} = ${money(Number(i.price) * Number(i.qty))}`;
+  });
+  const text = [
+    `New order ${order.order_number}`,
+    `Name: ${b.fullName}`,
+    `Phone: ${b.phone}`,
+    `Address: ${[b.address, b.city, b.governorate].filter(Boolean).join(", ")}`,
+    `Payment: ${b.payment || "-"}`,
+    "",
+    ...items,
+    "",
+    `Total: ${money(b.total)}`,
+    b.notes ? `Notes: ${b.notes}` : null,
+  ].filter((l) => l !== null).join("\n").slice(0, 1500);
+  const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(phone)}&text=${encodeURIComponent(text)}&apikey=${encodeURIComponent(apikey)}`;
+  try {
+    await fetch(url, { signal: AbortSignal.timeout(6000) });
+  } catch (err) {
+    console.error("WhatsApp notify failed:", err && err.message);
+  }
+}
+
 module.exports = async (req, res) => {
   try {
     // GET /api/orders?id=123  -> single order + items (public, needed by
@@ -68,6 +101,7 @@ module.exports = async (req, res) => {
         }
       }
 
+      await notifyOwnerOnWhatsApp(order, body);
       res.status(200).json({ id: order.id, orderNumber: order.order_number });
       return;
     }
