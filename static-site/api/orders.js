@@ -9,21 +9,25 @@ async function readBody(req) {
   return body || {};
 }
 
-// Free automatic WhatsApp alert to the shop owner via CallMeBot. Does
-// nothing until CALLMEBOT_PHONE and CALLMEBOT_APIKEY are set in Vercel.
-// Awaited (with a short timeout) because Vercel stops the function once
-// the response is sent; a failure here never fails the order itself.
+// Automatic WhatsApp alert to the shop owner via Green API (a WhatsApp
+// account linked through Linked Devices). Does nothing until
+// GREENAPI_ID_INSTANCE, GREENAPI_API_TOKEN and WHATSAPP_NOTIFY_PHONE are
+// set in Vercel; GREENAPI_URL is the instance's "apiUrl" from the Green API
+// console. Awaited (with a short timeout) because Vercel stops the function
+// once the response is sent; a failure here never fails the order itself.
 async function notifyOwnerOnWhatsApp(order, b) {
-  const phone = process.env.CALLMEBOT_PHONE;
-  const apikey = process.env.CALLMEBOT_APIKEY;
-  if (!phone || !apikey) return;
+  const idInstance = process.env.GREENAPI_ID_INSTANCE;
+  const token = process.env.GREENAPI_API_TOKEN;
+  const phone = String(process.env.WHATSAPP_NOTIFY_PHONE || "").replace(/\D/g, "");
+  if (!idInstance || !token || !phone) return;
+  const apiUrl = (process.env.GREENAPI_URL || "https://api.green-api.com").replace(/\/+$/, "");
   const money = (n) => "EGP " + Math.round(Number(n) || 0).toLocaleString("en-US");
   const items = b.items.map((i) => {
     const extra = [i.variantLabel, i.colorName].filter(Boolean).join(" / ");
     return `- ${i.qty} x ${i.name}${extra ? ` (${extra})` : ""} = ${money(Number(i.price) * Number(i.qty))}`;
   });
   const text = [
-    `New order ${order.order_number}`,
+    `*New order ${order.order_number}*`,
     `Name: ${b.fullName}`,
     `Phone: ${b.phone}`,
     `Address: ${[b.address, b.city, b.governorate].filter(Boolean).join(", ")}`,
@@ -33,10 +37,15 @@ async function notifyOwnerOnWhatsApp(order, b) {
     "",
     `Total: ${money(b.total)}`,
     b.notes ? `Notes: ${b.notes}` : null,
-  ].filter((l) => l !== null).join("\n").slice(0, 1500);
-  const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(phone)}&text=${encodeURIComponent(text)}&apikey=${encodeURIComponent(apikey)}`;
+  ].filter((l) => l !== null).join("\n").slice(0, 3000);
   try {
-    await fetch(url, { signal: AbortSignal.timeout(6000) });
+    const r = await fetch(`${apiUrl}/waInstance${idInstance}/sendMessage/${token}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chatId: `${phone}@c.us`, message: text }),
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!r.ok) console.error("WhatsApp notify failed:", r.status, (await r.text()).slice(0, 200));
   } catch (err) {
     console.error("WhatsApp notify failed:", err && err.message);
   }
