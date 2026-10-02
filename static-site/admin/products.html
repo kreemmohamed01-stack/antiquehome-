@@ -68,6 +68,7 @@
   let page = 1;
   const PAGE_SIZE = 10;
   let reorderCategoryId = "";
+  let SHOP_ORDER = []; // product ids in the order the all-products shop page shows them
   let reorderList = []; // products in that category, in current drag order
   let stockFilter = ""; // "", "in", "low", "out" — set by clicking a stock stat card
 
@@ -244,13 +245,16 @@
     const statusEl = document.getElementById("reorderStatus");
     if (statusEl) statusEl.textContent = "Saving…";
     reorderSaveTimer = setTimeout(async () => {
-      const catId = Number(reorderCategoryId);
+      const orderedIds = reorderList.map((p) => p.id);
       try {
-        await API.patch("/api/products?reorder=1", {
-          categoryId: catId,
-          orderedIds: reorderList.map((p) => p.id),
-        });
-        reorderList.forEach((p, i) => { p.category_sorts = { ...(p.category_sorts || {}), [catId]: i + 1 }; });
+        if (reorderCategoryId === "all") {
+          await API.post("/api/settings?key=shop_order", orderedIds);
+          SHOP_ORDER = orderedIds;
+        } else {
+          const catId = Number(reorderCategoryId);
+          await API.patch("/api/products?reorder=1", { categoryId: catId, orderedIds });
+          reorderList.forEach((p, i) => { p.category_sorts = { ...(p.category_sorts || {}), [catId]: i + 1 }; });
+        }
         if (statusEl) statusEl.textContent = "Saved — the shop updates within about a minute.";
       } catch {
         if (statusEl) statusEl.textContent = "Failed to save order — try again.";
@@ -815,6 +819,13 @@
   // Same order the shop uses (this category's sort_order, newest first on
   // ties), but includes drafts so they can be positioned before going live.
   function buildReorderList() {
+    if (reorderCategoryId === "all") {
+      // Products not yet in the saved order (e.g. newly added) go first,
+      // newest first — the same rule the shop page applies.
+      const posMap = new Map(SHOP_ORDER.map((id, i) => [Number(id), i + 1]));
+      reorderList = ALL_PRODUCTS.slice().sort((a, b) => (posMap.get(a.id) || 0) - (posMap.get(b.id) || 0));
+      return;
+    }
     const catId = Number(reorderCategoryId);
     if (!catId) { reorderList = []; return; }
     const pos = (p) => Number((p.category_sorts || {})[catId]) || 0;
@@ -834,10 +845,15 @@
     if (!session) return;
 
     try { CATEGORIES = await API.get("/api/categories"); } catch { CATEGORIES = []; }
+    try {
+      const saved = await API.get("/api/settings?key=shop_order");
+      SHOP_ORDER = Array.isArray(saved) ? saved : [];
+    } catch { SHOP_ORDER = []; }
     await load();
 
     const reorderSelect = document.getElementById("reorderCategorySelect");
     reorderSelect.innerHTML = `<option value="">Reorder within category…</option>` +
+      `<option value="all">★ Shop page — All products</option>` +
       CATEGORIES.map((c) => `<option value="${c.id}">${c.parent_id ? "— " : ""}${c.name}</option>`).join("");
     reorderSelect.addEventListener("change", (e) => loadReorderCategory(e.target.value));
 

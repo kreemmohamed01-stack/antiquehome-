@@ -82,7 +82,18 @@ module.exports = async (req, res) => {
           ORDER BY pc_sort_order ASC, p.created_at DESC
         `;
       } else if (status) {
-        rows = await sql`SELECT * FROM products WHERE status = ${status} ORDER BY created_at DESC`;
+        const [list, saved] = await Promise.all([
+          sql`SELECT * FROM products WHERE status = ${status} ORDER BY created_at DESC`,
+          sql`SELECT value FROM settings WHERE key = 'shop_order'`,
+        ]);
+        rows = list;
+        // Dashboard's "Shop page — All products" drag order. Products not in
+        // the saved list (newly added) stay first, newest first.
+        const order = saved.length && Array.isArray(saved[0].value) ? saved[0].value : [];
+        if (order.length) {
+          const pos = new Map(order.map((id, i) => [Number(id), i + 1]));
+          rows.sort((a, b) => (pos.get(a.id) || 0) - (pos.get(b.id) || 0));
+        }
       } else {
         rows = await sql`
           SELECT p.*, c.name AS category_name,
