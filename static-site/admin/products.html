@@ -39,7 +39,14 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.4"></circle><line x1="15.7" y1="15.7" x2="20.2" y2="20.2"></line></svg>
         <input type="text" id="searchInput" placeholder="Search products…">
       </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <select id="reorderCategorySelect" class="admin__select">
+          <option value="">Reorder within category…</option>
+        </select>
+      </div>
     </div>
+    <p class="admin__hint" id="reorderHint" style="display:none;margin:-4px 0 10px">Drag <strong>⠿</strong> to set the order products appear in on the storefront for this category — top of the list shows first.</p>
+    <p class="admin__hint" id="stockFilterHint" style="display:none;margin:-4px 0 10px"></p>
     <div id="productsList"></div>
     <div class="admin__pager" id="pager" style="display:none"></div>
   </div>
@@ -60,6 +67,9 @@
   let query = "";
   let page = 1;
   const PAGE_SIZE = 10;
+  let reorderCategoryId = "";
+  let reorderList = []; // products in that category, in current drag order
+  let stockFilter = ""; // "", "in", "low", "out" — set by clicking a stock stat card
 
   function fmt(n) { return "EGP " + Math.round(Number(n)).toLocaleString("en-US"); }
 
@@ -84,11 +94,20 @@
 
     document.getElementById("statStrip").innerHTML = `
       <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">Total Products</span></div><div class="admin__stat-value">${ALL_PRODUCTS.length}</div></div>
-      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">In Stock</span></div><div class="admin__stat-value">${inStock}</div></div>
-      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">Low Stock</span></div><div class="admin__stat-value" style="${low ? 'color:var(--a-amber)' : ''}">${low}</div></div>
-      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">Out of Stock</span></div><div class="admin__stat-value" style="${out ? 'color:var(--a-red)' : ''}">${out}</div></div>
+      <button type="button" class="admin__stat admin__stat--btn${stockFilter === "in" ? " is-active" : ""}" data-stock="in"><div class="admin__stat-top"><span class="admin__stat-label">In Stock</span></div><div class="admin__stat-value">${inStock}</div></button>
+      <button type="button" class="admin__stat admin__stat--btn${stockFilter === "low" ? " is-active" : ""}" data-stock="low"><div class="admin__stat-top"><span class="admin__stat-label">Low Stock</span></div><div class="admin__stat-value" style="${low ? 'color:var(--a-amber)' : ''}">${low}</div></button>
+      <button type="button" class="admin__stat admin__stat--btn${stockFilter === "out" ? " is-active" : ""}" data-stock="out"><div class="admin__stat-top"><span class="admin__stat-label">Out of Stock</span></div><div class="admin__stat-value" style="${out ? 'color:var(--a-red)' : ''}">${out}</div></button>
       <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">Avg. Price</span></div><div class="admin__stat-value">${fmt(avg)}</div></div>
     `;
+
+    document.querySelectorAll("[data-stock]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.stock;
+        stockFilter = stockFilter === key ? "" : key; // clicking the active one again clears it
+        page = 1;
+        render();
+      });
+    });
 
     document.getElementById("tabRow").innerHTML = [
       ["all", `All Products (${counts.all})`],
@@ -101,8 +120,35 @@
       btn.addEventListener("click", () => { tab = btn.dataset.tab; page = 1; render(); });
     });
 
+    const listEl = document.getElementById("productsList");
+    const pagerEl = document.getElementById("pager");
+
+    if (reorderCategoryId) {
+      document.getElementById("reorderHint").style.display = "";
+      pagerEl.style.display = "none";
+      renderReorderList();
+      return;
+    }
+    document.getElementById("reorderHint").style.display = "none";
+
+    const stockHintEl = document.getElementById("stockFilterHint");
+    if (stockFilter) {
+      const label = { in: "In Stock", low: "Low Stock", out: "Out of Stock" }[stockFilter];
+      stockHintEl.style.display = "";
+      stockHintEl.innerHTML = `Showing only <strong>${label}</strong> products. <a href="#" id="clearStockFilter">Clear filter</a>`;
+      stockHintEl.querySelector("#clearStockFilter").addEventListener("click", (e) => {
+        e.preventDefault();
+        stockFilter = "";
+        page = 1;
+        render();
+      });
+    } else {
+      stockHintEl.style.display = "none";
+    }
+
     let list = ALL_PRODUCTS;
     if (tab !== "all") list = list.filter((p) => p.status === tab);
+    if (stockFilter) list = list.filter((p) => stockState(p) === stockFilter);
     const needle = query.trim().toLowerCase();
     if (needle) {
       list = list.filter((p) =>
@@ -116,7 +162,6 @@
     const current = Math.min(page, totalPages);
     const visible = list.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
 
-    const listEl = document.getElementById("productsList");
     if (visible.length === 0) {
       listEl.innerHTML = `<div style="text-align:center;padding:50px 20px;color:var(--a-text-dim)"><p style="margin-bottom:16px">No products match this view.</p></div>`;
     } else {
@@ -147,7 +192,6 @@
       `).join("");
     }
 
-    const pagerEl = document.getElementById("pager");
     if (totalPages > 1) {
       pagerEl.style.display = "flex";
       pagerEl.innerHTML = Array.from({ length: totalPages }).map((_, i) =>
@@ -175,6 +219,65 @@
           await API.del(`/api/products?id=${btn.dataset.delete}`);
           await load();
         } catch { alert("Failed to delete product."); }
+      });
+    });
+  }
+
+  // ---- Reorder-within-category view ----
+  // Shows every active-or-not product linked to the selected category, in
+  // their current drag order, with a drag handle per row — same native
+  // HTML5 drag-and-drop pattern as the product photo reorder above. Order
+  // is saved to the server (debounced) after each drop, not on a separate
+  // "Save" click, so it can't be left unsaved by navigating away.
+  let reorderSaveTimer = null;
+  function scheduleReorderSave() {
+    clearTimeout(reorderSaveTimer);
+    const statusEl = document.getElementById("reorderStatus");
+    if (statusEl) statusEl.textContent = "Saving…";
+    reorderSaveTimer = setTimeout(async () => {
+      try {
+        await API.patch("/api/products?reorder=1", {
+          categoryId: Number(reorderCategoryId),
+          orderedIds: reorderList.map((p) => p.id),
+        });
+        if (statusEl) statusEl.textContent = "Saved";
+      } catch {
+        if (statusEl) statusEl.textContent = "Failed to save order — try again.";
+      }
+    }, 500);
+  }
+
+  function renderReorderList() {
+    const listEl = document.getElementById("productsList");
+    if (!reorderList.length) {
+      listEl.innerHTML = `<div style="text-align:center;padding:50px 20px;color:var(--a-text-dim)"><p>No products in this category yet.</p></div>`;
+      return;
+    }
+    listEl.innerHTML = `<div style="display:flex;justify-content:flex-end;margin-bottom:8px"><span id="reorderStatus" style="font-size:11px;color:var(--a-text-dim)"></span></div>` +
+      reorderList.map((p, i) => `
+        <div class="admin__prow" draggable="true" data-ridx="${i}" style="cursor:grab">
+          <span aria-hidden="true" style="flex:none;font-size:18px;color:var(--a-text-dim);padding:0 4px;cursor:grab">⠿</span>
+          <img src="${cldUrl(p.image_urls?.[0] || "/logo hero.png", 80)}" alt="">
+          <div class="admin__prow-main">
+            <div class="admin__prow-name">${p.name}</div>
+            <div class="admin__prow-sku">SKU: ${p.sku || "—"}</div>
+          </div>
+          <div style="flex:none;text-align:right;min-width:70px;color:var(--a-text-dim);font-size:12px">#${i + 1}</div>
+        </div>
+      `).join("");
+
+    let dragIdx = null;
+    listEl.querySelectorAll("[data-ridx]").forEach((row) => {
+      row.addEventListener("dragstart", () => { dragIdx = Number(row.dataset.ridx); });
+      row.addEventListener("dragover", (e) => e.preventDefault());
+      row.addEventListener("drop", () => {
+        const dropIdx = Number(row.dataset.ridx);
+        if (dragIdx === null || dragIdx === dropIdx) return;
+        const [moved] = reorderList.splice(dragIdx, 1);
+        reorderList.splice(dropIdx, 0, moved);
+        dragIdx = null;
+        renderReorderList();
+        scheduleReorderSave();
       });
     });
   }
@@ -692,12 +795,31 @@
     render();
   }
 
+  async function loadReorderCategory(categoryId) {
+    reorderCategoryId = categoryId;
+    if (!categoryId) { reorderList = []; render(); return; }
+    const cat = CATEGORIES.find((c) => c.id === Number(categoryId));
+    if (!cat) { reorderList = []; render(); return; }
+    try {
+      reorderList = await API.get(`/api/products?category=${cat.slug}`);
+    } catch {
+      reorderList = [];
+      alert("Failed to load products for this category.");
+    }
+    render();
+  }
+
   (async () => {
     const session = await AdminShell.init({ active: "products" });
     if (!session) return;
 
     try { CATEGORIES = await API.get("/api/categories"); } catch { CATEGORIES = []; }
     await load();
+
+    const reorderSelect = document.getElementById("reorderCategorySelect");
+    reorderSelect.innerHTML = `<option value="">Reorder within category…</option>` +
+      CATEGORIES.map((c) => `<option value="${c.id}">${c.parent_id ? "— " : ""}${c.name}</option>`).join("");
+    reorderSelect.addEventListener("change", (e) => loadReorderCategory(e.target.value));
 
     document.getElementById("addProductBtn").addEventListener("click", () => openForm(null));
     document.getElementById("searchInput").addEventListener("input", (e) => { query = e.target.value; page = 1; render(); });

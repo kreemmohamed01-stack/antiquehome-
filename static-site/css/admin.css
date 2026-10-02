@@ -560,6 +560,14 @@
     transform: translateY(-2px);
   }
 }
+.admin__stat--btn{
+  display:block; width:100%; text-align:left; cursor:pointer;
+  font-family:inherit; color:inherit;
+}
+.admin__stat--btn.is-active{
+  border-color: var(--a-gold, #d9ae63);
+  box-shadow: 0 0 0 1px var(--a-gold, #d9ae63) inset;
+}
 .admin__stat-top{ display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px; }
 .admin__stat-label{ font-size:11.5px; color: var(--a-text-dim); }
 .admin__stat-icon{

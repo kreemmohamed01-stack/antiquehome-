@@ -64,12 +64,17 @@ module.exports = async (req, res) => {
 
       let rows;
       if (category && category !== "all") {
+        // Ordered by that category's own sort_order on the join row (set
+        // by dragging products in the dashboard's per-category view);
+        // products only linked via the legacy single category_id (no
+        // product_categories row) have no sort_order of their own, so
+        // they fall back to oldest-first and sort after any that do.
         rows = await sql`
-          SELECT DISTINCT p.* FROM products p
+          SELECT DISTINCT p.*, COALESCE(pc.sort_order, 0) AS pc_sort_order FROM products p
           LEFT JOIN product_categories pc ON pc.product_id = p.id
           LEFT JOIN categories c ON c.id = pc.category_id OR c.id = p.category_id
           WHERE (c.slug = ${category}) AND p.status = 'active'
-          ORDER BY p.created_at DESC
+          ORDER BY pc_sort_order ASC, p.created_at DESC
         `;
       } else if (status) {
         rows = await sql`SELECT * FROM products WHERE status = ${status} ORDER BY created_at DESC`;
@@ -146,6 +151,28 @@ module.exports = async (req, res) => {
       return;
     }
 
+    // ?reorder=1 sets the drag-and-drop order of products within one
+    // category (the dashboard's per-category products view) instead of
+    // editing a single product. Takes { categoryId, orderedIds }: the
+    // product ids in their new top-to-bottom order for that category.
+    if (req.method === "PATCH" && req.query.reorder) {
+      const b = await readBody(req);
+      const categoryId = Number(b.categoryId);
+      const orderedIds = Array.isArray(b.orderedIds) ? b.orderedIds.map(Number).filter(Number.isFinite) : [];
+      if (!categoryId || !orderedIds.length) { res.status(400).json({ error: "Missing categoryId or orderedIds" }); return; }
+      // UPDATE ... FROM unnest() WITH ORDINALITY assigns each product its
+      // 1-based position in the array in one round trip, instead of one
+      // UPDATE per row.
+      await sql`
+        UPDATE product_categories pc
+        SET sort_order = ord.position
+        FROM unnest(${orderedIds}::int[]) WITH ORDINALITY AS ord(product_id, position)
+        WHERE pc.category_id = ${categoryId} AND pc.product_id = ord.product_id
+      `;
+      res.status(200).json({ ok: true });
+      return;
+    }
+
     if (req.method === "PATCH") {
       const pid = Number(req.query.id);
       if (!pid) { res.status(400).json({ error: "Missing id" }); return; }
@@ -165,6 +192,11 @@ module.exports = async (req, res) => {
       // can't leave the row updated but its category links stale/empty,
       // which is what a generic 500 on just this step would have looked
       // like to the person saving.
+      //
+      // Dropped links are removed and kept/new ones are upserted via
+      // ON CONFLICT DO NOTHING — a plain DELETE-then-INSERT would reset
+      // sort_order to its default on every save, undoing any dashboard
+      // drag-and-drop reordering each time the product form is reopened.
       await sql`
         WITH updated AS (
           UPDATE products SET
@@ -189,12 +221,13 @@ module.exports = async (req, res) => {
           WHERE id = ${pid}
           RETURNING id
         ),
-        cleared AS (
-          DELETE FROM product_categories WHERE product_id = ${pid}
+        dropped AS (
+          DELETE FROM product_categories
+          WHERE product_id = ${pid} AND NOT (category_id = ANY(${categoryIdInts}::int[]))
         )
         INSERT INTO product_categories (product_id, category_id)
         SELECT ${pid}, cid FROM unnest(${categoryIdInts}::int[]) AS cid
-        ON CONFLICT DO NOTHING
+        ON CONFLICT (product_id, category_id) DO NOTHING
       `;
       res.status(200).json({ ok: true, slug });
       return;
