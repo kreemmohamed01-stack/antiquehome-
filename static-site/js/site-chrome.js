@@ -283,7 +283,6 @@
       return "EGP " + Math.round(n).toLocaleString("en-US");
     }
 
-    const FREE_SHIPPING_AT = 15000;
     const SHIPPING_FEE = 150;
 
     // Cart-drawer promo code — shares its result with the checkout page
@@ -331,9 +330,6 @@
       const list = document.getElementById("cartItems");
       const empty = document.getElementById("cartEmpty");
       const countLine = document.getElementById("cartCount");
-      const shipEl = document.querySelector(".ship");
-      const shipText = document.getElementById("shipText");
-      const shipFill = document.getElementById("shipFill");
       const sumSub = document.getElementById("sumSubtotal");
       const sumShip = document.getElementById("sumShipping");
       const sumTotal = document.getElementById("sumTotal");
@@ -382,17 +378,7 @@
 
       if (countLine) countLine.textContent = lines.length === 0 ? t("cartEmptyShort", "Your cart is empty") : totalQty === 1 ? t("oneItemInCart", "1 item in your cart") : t("itemsInCart", "{n} items in your cart").replace("{n}", totalQty);
 
-      const qualifies = subtotal >= FREE_SHIPPING_AT;
-      const pct = Math.max(0, Math.min(100, (subtotal / FREE_SHIPPING_AT) * 100));
-      if (shipFill) shipFill.style.width = pct + "%";
-      if (shipEl) shipEl.classList.toggle("is-full", qualifies);
-      if (shipText) {
-        shipText.innerHTML = qualifies
-          ? t("unlockedFreeShipping", "You&rsquo;ve unlocked <strong>free shipping</strong>!")
-          : t("awayFromFreeShipping", "You are <strong>{amount}</strong> away from free shipping").replace("{amount}", money(FREE_SHIPPING_AT - subtotal));
-      }
-
-      const shippingFee = qualifies || lines.length === 0 ? 0 : SHIPPING_FEE;
+      const shippingFee = lines.length === 0 ? 0 : SHIPPING_FEE;
       const coupon = getAppliedCoupon();
       const discount = coupon ? Math.round(subtotal * (coupon.percent / 100) * 100) / 100 : 0;
       if (sumSub) sumSub.textContent = money(subtotal);

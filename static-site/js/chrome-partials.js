@@ -323,17 +323,6 @@
 
       <p class="dw__sub" id="cartCount" data-i18n="cartEmptyShort">Your cart is empty</p>
 
-      <div class="ship">
-        <div class="ship__row">
-          <span class="ship__ico" aria-hidden="true">
-            <svg viewBox="0 0 32 32"><path d="M2.6 8.4h14v12.8h-14z"></path><path d="M16.6 12.4h6.6l4.2 4.2v4.6h-10.8z"></path><circle cx="9.2" cy="24" r="2.6"></circle><circle cx="22.6" cy="24" r="2.6"></circle></svg>
-          </span>
-          <p class="ship__text" id="shipText" data-i18n-html="awayFromFreeShipping">You are <strong>EGP 15,000</strong> away from free shipping</p>
-          <span class="ship__goal" data-i18n-html="freeShippingGoal">Free Shipping<br /><strong>EGP 15,000</strong></span>
-        </div>
-        <div class="ship__bar"><span class="ship__fill" id="shipFill" style="width:0%"></span></div>
-      </div>
-
       <ul class="citems" id="cartItems"></ul>
 
       <p class="citems__empty" id="cartEmpty" data-i18n="cartEmptyLong">Your cart is empty — time to discover something timeless.</p>

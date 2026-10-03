@@ -22,7 +22,7 @@ window.AH_DICTIONARY = {
   heroTitle2: "جمال لا ينتهي.",
   heroText: "قطع أثرية وتحف خالدة، صُنعت بعناية لتضفي طابعًا مميزًا على كل ركن من أركان منزلك.",
   scrollDiscover: "مرري للأسفل للاكتشاف",
-  promoBar: "أنفقي <strong class=\"promo-bar__num\">٥٬٠٠٠ جنيه</strong> واحصلي على هدية بقيمة <strong class=\"promo-bar__num\">١٬٠٠٠ جنيه</strong> مجانًا",
+  promoBar: "توصيل لكل مكان<i class=\"promo-bar__dot\" aria-hidden=\"true\"></i>دفع آمن<i class=\"promo-bar__dot\" aria-hidden=\"true\"></i>جودة مضمونة<i class=\"promo-bar__dot\" aria-hidden=\"true\"></i>قطع خالدة منتقاة بعناية",
 
   // ---- homepage: new arrivals ----
   newArrivals: "وصل حديثًا",

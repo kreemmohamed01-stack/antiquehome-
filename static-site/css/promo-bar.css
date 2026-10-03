@@ -24,7 +24,7 @@
   font-size:13px;
   letter-spacing:.05em;
   color: rgba(246,241,232,.88);
-  animation: promoScroll 20s linear infinite;
+  animation: promoScroll 34s linear infinite;
 }
 .promo-bar__text span{
   display:flex;
@@ -35,6 +35,14 @@
   content:"";
   width:5px; height:5px;
   margin-right:20px;
+  border:1px solid rgba(201,180,138,.7);
+  transform: rotate(45deg);
+  flex:none;
+}
+
+.promo-bar__dot{
+  width:4px; height:4px;
+  margin:0 22px;
   border:1px solid rgba(201,180,138,.7);
   transform: rotate(45deg);
   flex:none;
