@@ -248,7 +248,7 @@ const CATEGORY_DEFAULT_IMAGES = {
   sale: "/sec 3/category 9.jpeg",
   "colored-vases": "/sec 3/category 3.webp",
   "candle-holder": "/sec 3/category 3.webp",
-  raisin: "/sec 3/category 3.webp",
+  "raisin-more": "/sec 3/category 3.webp",
   "tissue-box": "/sec 3/category 3.webp",
   ashtray: "/sec 3/category 3.webp",
   "photo-frame": "/sec 3/category 3.webp",

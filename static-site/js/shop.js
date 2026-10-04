@@ -37,7 +37,7 @@
     // subcategory's products.
     "colored-vases": { title: "COLORED VASES", text: "Hand-finished vases in rich, saturated colour for every shelf." },
     "candle-holder": { title: "CANDLE HOLDERS", text: "Sculptural holders that carry candlelight with quiet elegance." },
-    raisin: { title: "RAISIN", text: "Delicate resin pieces, cast with texture and warmth." },
+    "raisin-more": { title: "RAISIN & MORE", text: "Delicate resin pieces, cast with texture and warmth." },
     "tissue-box": { title: "TISSUE BOXES", text: "Everyday essentials dressed in timeless, decorative covers." },
     ashtray: { title: "ASHTRAYS", text: "Finely finished trays that double as tabletop sculpture." },
     "photo-frame": { title: "PHOTO FRAMES", text: "Frames crafted to hold your favourite moments beautifully." },
@@ -57,6 +57,14 @@
   };
 
   const params = new URLSearchParams(window.location.search);
+
+  // Category slugs that used to change on a rename (they no longer do) →
+  // the current slug, so old menu entries / shared links still land.
+  const SLUG_ALIASES = { raisin: "raisin-more" };
+  if (SLUG_ALIASES[params.get("category")]) {
+    params.set("category", SLUG_ALIASES[params.get("category")]);
+    window.location.replace(`/shop.html?${params}`);
+  }
   const activeCategory = params.get("category") || "all";
   const searchQuery = params.get("q") || "";
 
@@ -93,6 +101,19 @@
     });
   }
 
+  // Banner title follows the category's name in Dashboard → Categories
+  // (so a rename there shows up here), falling back to the built-in copy
+  // until /api/categories answers or for a slug it doesn't know.
+  let renderedBannerTitle = null;
+  function bannerFor(slug) {
+    const preset = BANNER[slug] || { title: slug.toUpperCase(), text: "" };
+    const cat = categories.find((c) => c.slug === slug);
+    const title = cat
+      ? (window.AH_I18N ? window.AH_I18N.categoryName(cat) : cat.name).toUpperCase()
+      : t(`banner:${slug}Title`, preset.title);
+    return { title, text: t(`banner:${slug}Text`, preset.text), enTitle: cat ? cat.name.toUpperCase() : preset.title, enText: preset.text };
+  }
+
   function renderChrome() {
     const heroSlot = document.getElementById("shopHeroSlot");
     const railSlot = document.getElementById("catRailSlot");
@@ -105,7 +126,8 @@
           path: "/shop.html",
         });
       } else {
-        const b = BANNER[activeCategory] || { title: activeCategory.toUpperCase(), text: "" };
+        const banner = bannerFor(activeCategory);
+        const b = { title: banner.enTitle, text: banner.enText };
         window.AH_SEO.setMeta({
           title: `${b.title.charAt(0)}${b.title.slice(1).toLowerCase()} — Antique Home`,
           description: b.text || `Shop ${b.title.toLowerCase()} at Antique Home — curated pieces for every room.`,
@@ -171,9 +193,8 @@
         </section>`;
       railSlot.innerHTML = catRailHtml("all");
     } else {
-      const banner = BANNER[activeCategory] || { title: activeCategory.toUpperCase(), text: "" };
-      const bannerTitle = t(`banner:${activeCategory}Title`, banner.title);
-      const bannerText = t(`banner:${activeCategory}Text`, banner.text);
+      const { title: bannerTitle, text: bannerText } = bannerFor(activeCategory);
+      renderedBannerTitle = bannerTitle;
       heroSlot.innerHTML = `
         <div class="shop-topbar-wrap">
           <div class="shop-topbar">
@@ -556,6 +577,10 @@
       siteSale = { active: false, percent: 0, label: "" };
     }
     categoriesLoaded = true;
+    if (activeCategory !== "all" && bannerFor(activeCategory).title !== renderedBannerTitle) {
+      renderChrome();
+      if (window.AH_I18N) window.AH_I18N.wireLangButtons();
+    }
     applyCategoryImages();
     renderSubcatRail();
 

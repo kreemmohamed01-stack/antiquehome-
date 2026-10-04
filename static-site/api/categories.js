@@ -68,10 +68,12 @@ module.exports = async (req, res) => {
 
       const name = (b.name || "").trim();
       if (!name) { res.status(400).json({ error: "Name is required." }); return; }
-      const slug = slugify(name);
       const parentId = b.parentId ? Number(b.parentId) : null;
+      // The slug is deliberately left alone on a rename: it's the
+      // category's URL (?category=...), so changing it broke every link
+      // to it — the side menu, shared links, Google results.
       await sql`
-        UPDATE categories SET name = ${name}, name_ar = ${b.nameAr ? String(b.nameAr).trim() : null}, slug = ${slug}, image_url = ${b.imageUrl || null}, parent_id = ${parentId}
+        UPDATE categories SET name = ${name}, name_ar = ${b.nameAr ? String(b.nameAr).trim() : null}, image_url = ${b.imageUrl || null}, parent_id = ${parentId}
         WHERE id = ${id}
       `;
       res.status(200).json({ ok: true });

@@ -114,7 +114,10 @@
   }
   function categoryName(c) {
     if (!c) return "";
-    if (getLang() === "ar" && c.name_ar) return c.name_ar;
+    if (getLang() === "ar") {
+      const dict = window.AH_DICTIONARY || {};
+      return c.name_ar || dict[`banner:${c.slug}Title`] || c.name || "";
+    }
     return c.name || "";
   }
 

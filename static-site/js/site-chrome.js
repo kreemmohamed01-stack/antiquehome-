@@ -227,6 +227,37 @@
       }
       document.addEventListener("ah:langchange", syncSideMenuLangSwitch);
       syncSideMenuLangSwitch();
+
+      // Each expandable item's subcategory list ships hardcoded (so the
+      // menu works before/without the API), then is rebuilt from
+      // /api/categories — a subcategory renamed, added or removed in
+      // Dashboard → Categories shows up here with no code change.
+      let menuCategories = null;
+      function renderMenuSubcategories() {
+        if (!menuCategories) return;
+        sideWrap.querySelectorAll(".sm__item--expand").forEach((item) => {
+          const link = item.querySelector(".sm__link");
+          const list = item.querySelector(".sm__sub");
+          if (!link || !list) return;
+          const parentSlug = new URL(link.href, location.href).searchParams.get("category");
+          const parent = menuCategories.find((c) => c.slug === parentSlug);
+          if (!parent) return;
+          const subs = menuCategories.filter((c) => c.parent_id === parent.id);
+          if (!subs.length) return;
+          list.innerHTML = subs.map((c) => `<li><a href="/shop.html?category=${encodeURIComponent(c.slug)}"></a></li>`).join("");
+          list.querySelectorAll("a").forEach((a, i) => {
+            a.textContent = window.AH_I18N ? window.AH_I18N.categoryName(subs[i]) : subs[i].name;
+            a.addEventListener("click", () => closeMenu && closeMenu());
+          });
+        });
+      }
+      if (typeof API !== "undefined") {
+        API.get("/api/categories").then((cats) => {
+          menuCategories = Array.isArray(cats) ? cats : null;
+          renderMenuSubcategories();
+        }).catch(() => {});
+        document.addEventListener("ah:langchange", renderMenuSubcategories);
+      }
     }
 
     // ---- generic drawer (cart/search) ----

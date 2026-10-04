@@ -199,7 +199,7 @@
           <ul class="sm__sub">
             <li><a href="/shop.html?category=colored-vases" data-i18n="subColoredVases">Colored Vases</a></li>
             <li><a href="/shop.html?category=candle-holder" data-i18n="subCandleHolder">Candle Holder</a></li>
-            <li><a href="/shop.html?category=raisin" data-i18n="subRaisin">Raisin</a></li>
+            <li><a href="/shop.html?category=raisin-more" data-i18n="subRaisin">Raisin &amp; More</a></li>
             <li><a href="/shop.html?category=tissue-box" data-i18n="subTissueBox">Tissue Box</a></li>
             <li><a href="/shop.html?category=ashtray" data-i18n="subAshtray">Ashtray</a></li>
             <li><a href="/shop.html?category=photo-frame" data-i18n="subPhotoFrame">Photo Frame</a></li>
