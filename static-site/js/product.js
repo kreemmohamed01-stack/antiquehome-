@@ -424,8 +424,7 @@
           (colorOptions[state.colorIdx] ? "::" + colorOptions[state.colorIdx].name : "");
         const variantLabel = [colorOptions[state.colorIdx] && colorOptions[state.colorIdx].name, selectedVariant && selectedVariant.label].filter(Boolean).join(" · ") || undefined;
 
-        const cartName = window.AH_I18N ? window.AH_I18N.productName(product) : product.name;
-        Cart.add({ id, name: cartName, price, image: splitFocal(imgs[0]).src, variant: variantLabel, weightKg: product.weight_kg ? Number(product.weight_kg) : 0 }, state.qty);
+        Cart.add({ id, name: product.name, nameAr: product.name_ar || "", price, image: splitFocal(imgs[0]).src, variant: variantLabel, weightKg: product.weight_kg ? Number(product.weight_kg) : 0 }, state.qty);
         state.added = true;
         render();
         setTimeout(() => {

@@ -385,6 +385,13 @@ function showAddedToCartToast(name) {
   } catch {}
 }
 
+// A cart line's display name in the current language. Lines keep the
+// English name in `name` (that's what an order records) plus `nameAr`.
+function cartLineName(l) {
+  if (window.AH_I18N && window.AH_I18N.getLang() === "ar" && l.nameAr) return l.nameAr;
+  return l.name;
+}
+
 // Cart, stored client-side same as before.
 const Cart = {
   KEY: "ah_cart",
@@ -401,7 +408,7 @@ const Cart = {
     if (existing) existing.qty += qty;
     else items.push({ ...item, qty });
     this.write(items);
-    showAddedToCartToast(item.name);
+    showAddedToCartToast(cartLineName(item));
     trackEvent("add_to_cart", item.id);
   },
   remove(id) {

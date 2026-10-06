@@ -144,11 +144,11 @@
             .map(
               (l) => `
             <li class="chk__item" data-id="${l.id}">
-              <figure class="chk__itemMedia"><img src="${l.image}" alt="${l.name}" loading="lazy" /></figure>
+              <figure class="chk__itemMedia"><img src="${l.image}" alt="${cartLineName(l)}" loading="lazy" /></figure>
               <div class="chk__itemBody">
                 <div class="chk__itemTop">
-                  <div><h3>${l.name}</h3>${l.variant ? `<p style="margin:2px 0 0;font-size:11px;color:var(--ink-400)">${l.variant}</p>` : ""}</div>
-                  <button type="button" class="chk__itemRemove" aria-label="${t("removeItem", "Remove {name}").replace("{name}", l.name)}" data-remove="${l.id}">
+                  <div><h3>${cartLineName(l)}</h3>${l.variant ? `<p style="margin:2px 0 0;font-size:11px;color:var(--ink-400)">${l.variant}</p>` : ""}</div>
+                  <button type="button" class="chk__itemRemove" aria-label="${t("removeItem", "Remove {name}").replace("{name}", cartLineName(l))}" data-remove="${l.id}">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="5.4" y1="5.4" x2="18.6" y2="18.6"></line><line x1="18.6" y1="5.4" x2="5.4" y2="18.6"></line></svg>
                   </button>
                 </div>

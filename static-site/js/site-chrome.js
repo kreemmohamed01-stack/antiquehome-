@@ -114,10 +114,11 @@
       if (addBtn) {
         const id = addBtn.getAttribute("data-add-id") || addBtn.getAttribute("data-add") || "";
         const name = addBtn.getAttribute("data-add") || "";
+        const nameAr = addBtn.getAttribute("data-add-ar") || "";
         const price = parseFloat(addBtn.getAttribute("data-add-price") || "0") || 0;
         const image = addBtn.getAttribute("data-add-image") || "";
         const weightKg = parseFloat(addBtn.getAttribute("data-add-weight") || "0") || 0;
-        if (id) Cart.add({ id, name, price, image, weightKg }, 1);
+        if (id) Cart.add({ id, name, nameAr, price, image, weightKg }, 1);
         if (!reduced) pop(addBtn);
       }
     }
@@ -378,18 +379,18 @@
         .map(
           (l) => `
         <li class="citem" data-id="${l.id}" data-price="${l.price}" data-qty="${l.qty}">
-          <figure class="citem__media"><img src="${l.image}" alt="${l.name}" loading="lazy" /></figure>
+          <figure class="citem__media"><img src="${l.image}" alt="${cartLineName(l)}" loading="lazy" /></figure>
           <div class="citem__body">
             <div class="citem__top">
-              <h3 class="citem__name">${l.name}</h3>
-              <button class="citem__remove" type="button" data-remove="${l.id}" aria-label="${t("removeFromCart", "Remove {name} from cart").replace("{name}", l.name)}">
+              <h3 class="citem__name">${cartLineName(l)}</h3>
+              <button class="citem__remove" type="button" data-remove="${l.id}" aria-label="${t("removeFromCart", "Remove {name} from cart").replace("{name}", cartLineName(l))}">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.4"></circle><line x1="8.8" y1="8.8" x2="15.2" y2="15.2"></line><line x1="15.2" y1="8.8" x2="8.8" y2="15.2"></line></svg>
               </button>
             </div>
             ${l.variant ? `<p class="citem__variant">${l.variant}</p>` : ""}
             <div class="citem__bottom">
               <p class="citem__price">EGP <span class="citem__price-num">${(l.price * l.qty).toLocaleString("en-US")}</span></p>
-              <div class="qty" role="group" aria-label="${t("quantityForItem", "Quantity for {name}").replace("{name}", l.name)}">
+              <div class="qty" role="group" aria-label="${t("quantityForItem", "Quantity for {name}").replace("{name}", cartLineName(l))}">
                 <button type="button" class="qty__btn" data-step="-1" data-qty-id="${l.id}" aria-label="Decrease quantity"><svg viewBox="0 0 16 16" aria-hidden="true"><line x1="3" y1="8" x2="13" y2="8"></line></svg></button>
                 <span class="qty__num">${l.qty}</span>
                 <button type="button" class="qty__btn" data-step="1" data-qty-id="${l.id}" aria-label="Increase quantity"><svg viewBox="0 0 16 16" aria-hidden="true"><line x1="8" y1="3" x2="8" y2="13"></line><line x1="3" y1="8" x2="13" y2="8"></line></svg></button>

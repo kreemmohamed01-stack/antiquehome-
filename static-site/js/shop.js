@@ -400,7 +400,7 @@
           <button class="fav" type="button" aria-label="Save ${p.name}" aria-pressed="false" onclick="event.preventDefault()">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.4 4.6 13.2a4.6 4.6 0 1 1 7.4-5.3 4.6 4.6 0 1 1 7.4 5.3Z"></path></svg>
           </button>
-          <button class="pcard__add" type="button" data-add="${p.name}" data-add-id="${p.slug}" data-add-price="${p.price}" data-add-image="${splitFocal(img).src}" data-add-weight="${p.weight_kg || 0}" aria-label="Add ${p.name} to cart" onclick="event.preventDefault()">
+          <button class="pcard__add" type="button" data-add="${p.name}" data-add-ar="${p.name_ar || ""}" data-add-id="${p.slug}" data-add-price="${p.price}" data-add-image="${splitFocal(img).src}" data-add-weight="${p.weight_kg || 0}" aria-label="Add ${p.name} to cart" onclick="event.preventDefault()">
             <span>${t("addToCart", "Add to Cart")}</span>
           </button>
         </a>
