@@ -169,12 +169,15 @@
     }
   }
 
-  // Category tiles: swap in any image uploaded in Dashboard → Categories.
-  // The markup ships the built-in default as src (lazy-loaded, below the
-  // fold), so in the normal case this replaces it before it ever downloads.
+  // Category tiles: the image uploaded in Dashboard → Categories, else the
+  // built-in default. The markup ships no src (only data-cat-fallback), so
+  // a tile with an uploaded photo never also downloads the default.
   async function loadCategoryImages() {
     let categories = [];
-    try { categories = await API.get("/api/categories"); } catch { return; }
+    try { categories = await API.get("/api/categories"); } catch {
+      document.querySelectorAll("img[data-cat-fallback]:not([src])").forEach((img) => { img.src = img.dataset.catFallback; });
+      return;
+    }
     document.querySelectorAll("img[data-cat-img]").forEach((img) => {
       const { src, position, zoom } = categoryImageUrl(img.dataset.catImg, categories, Number(img.dataset.catW), img.dataset.catShape);
       if (img.getAttribute("src") !== src) img.src = src;
