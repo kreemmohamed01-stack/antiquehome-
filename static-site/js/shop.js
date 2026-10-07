@@ -87,6 +87,9 @@
   // Categories when an image was uploaded there, else the built-in default
   // (see categoryImageUrl in api.js). Each <img> is tagged with its slug so
   // applyCategoryImages() can fill/refresh them once categories arrive.
+  // Banner photo sized to the screen (a phone got the full 1600px file).
+  const BANNER_W = Math.min(1600, Math.ceil((window.innerWidth * Math.min(window.devicePixelRatio || 1, 2)) / 200) * 200);
+
   function catImgAttrs(slug, width, shape) {
     if (!categoriesLoaded) return `data-cat-img="${slug}" data-cat-w="${width}" data-cat-shape="${shape}"`;
     const { src, position, zoom } = categoryImageUrl(slug, categories, width, shape);
@@ -235,7 +238,7 @@
         </div>
 
         <section class="shop shop-banner">
-          <div class="shop-banner__bg" aria-hidden="true"><img ${catImgAttrs(activeCategory, 1600, "banner")} alt="" fetchpriority="high" /></div>
+          <div class="shop-banner__bg" aria-hidden="true"><img ${catImgAttrs(activeCategory, BANNER_W, "banner")} alt="" fetchpriority="high" /></div>
           <div class="shop-banner__inner">
             <p class="crumb rv rv--left" data-rv>
               <a href="/">${t("home", "Home")}</a>
@@ -255,6 +258,10 @@
     }
 
     if (window.AH_REVEAL) window.AH_REVEAL.scan(heroSlot);
+    // A category banner's height follows its photo, so the grid below
+    // stays hidden until that photo is in (see revealShopWhenBannerReady);
+    // the "All products" hero has a fixed size and shows right away.
+    if (activeCategory === "all") document.documentElement.classList.remove("shop-pending");
   }
 
   // When the current category has real subcategories (fetched live from
@@ -551,6 +558,14 @@
     });
   }
 
+  function revealShopWhenBannerReady() {
+    const done = () => document.documentElement.classList.remove("shop-pending");
+    const img = document.querySelector(".shop-banner__bg img");
+    if (!img || !img.getAttribute("src") || img.complete) { done(); return; }
+    img.addEventListener("load", done, { once: true });
+    img.addEventListener("error", done, { once: true });
+  }
+
   async function init() {
     renderChrome();
     if (window.AH_I18N) window.AH_I18N.wireLangButtons();
@@ -579,6 +594,7 @@
     }
     applyCategoryImages();
     renderSubcatRail();
+    revealShopWhenBannerReady();
 
     allProducts = await productsReq;
 

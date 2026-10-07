@@ -14,12 +14,19 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="preconnect" href="https://res.cloudinary.com" />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet" />
+<link rel="preload" as="image" href="/خلفيه منتجات.webp" fetchpriority="high" />
+<link rel="preload" as="fetch" href="/api/settings?key=public" crossorigin="anonymous" />
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&family=Dancing+Script:wght@500;600;700&display=swap" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+<noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet" /></noscript>
 <link rel="stylesheet" href="/css/base.css" />
 <link rel="stylesheet" href="/css/shop.css" />
 <link rel="stylesheet" href="/css/product.css" />
 <script src="/js/i18n.js"></script>
-<script src="/js/i18n-dictionary.js"></script>
+<!-- Arabic dictionary: only downloaded for Arabic visitors (js/i18n.js
+     fetches it on demand if someone switches language). -->
+<meta name="ah-dict" data-src="/js/i18n-dictionary.js" />
+<script>try{if(localStorage.getItem("ah_lang")==="ar")document.write('<script src="'+document.querySelector('meta[name=ah-dict]').getAttribute("data-src")+'"><\/script>')}catch(e){}</script>
 <script src="/js/seo.js"></script>
 </head>
 <body>
@@ -69,9 +76,14 @@
 </div>
 
 <div id="pdpSlot">
-  <div style="min-height:70vh;display:flex;align-items:center;justify-content:center">
-    <div aria-hidden="true" style="width:34px;height:34px;border-radius:50%;border:2.5px solid rgba(201,162,39,.25);border-top-color:#C9A227;animation:pdpSpin .8s linear infinite"></div>
-  </div>
+  <!-- Same background js/product.js renders, shipped in the HTML so it
+       paints straight away instead of after the product data loads. -->
+  <main class="pdp">
+    <div class="pdp__bg" aria-hidden="true"><img src="/خلفيه منتجات.webp" alt="" loading="eager" fetchpriority="high" /></div>
+    <div style="position:relative;min-height:70vh;display:flex;align-items:center;justify-content:center">
+      <div aria-hidden="true" style="width:34px;height:34px;border-radius:50%;border:2.5px solid rgba(201,162,39,.25);border-top-color:#C9A227;animation:pdpSpin .8s linear infinite"></div>
+    </div>
+  </main>
 </div>
 
 <div id="chromeSlot"></div>

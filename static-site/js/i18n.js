@@ -84,10 +84,28 @@
     });
   }
 
+  // The Arabic dictionary only ships up front to visitors already in
+  // Arabic (see the <meta name="ah-dict"> loader in each page's <head>);
+  // switching to Arabic fetches it first, then flips the page.
+  function loadDictionary() {
+    if (window.AH_DICTIONARY) return Promise.resolve();
+    const meta = document.querySelector('meta[name="ah-dict"]');
+    return new Promise((resolve) => {
+      const s = document.createElement("script");
+      s.src = (meta && meta.getAttribute("data-src")) || "/js/i18n-dictionary.js";
+      s.onload = s.onerror = resolve;
+      document.head.appendChild(s);
+    });
+  }
+
   function setLang(lang) {
     try { localStorage.setItem(STORAGE_KEY, lang); } catch {}
-    applyLang(lang);
-    document.dispatchEvent(new CustomEvent("ah:langchange", { detail: { lang } }));
+    const go = () => {
+      applyLang(lang);
+      document.dispatchEvent(new CustomEvent("ah:langchange", { detail: { lang } }));
+    };
+    if (lang === "ar" && !window.AH_DICTIONARY) loadDictionary().then(go);
+    else go();
   }
 
   // t(key): looks up the Arabic string for the current language; returns

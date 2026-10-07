@@ -702,6 +702,34 @@ html[dir="rtl"] .lang-btn__label{ font-family: "Tajawal", sans-serif; letter-spa
   animation-delay: var(--d, 0s);
 }
 
+/* The hero headline is the page's largest text (what Google times as
+   "largest contentful paint"), and an element at opacity 0 doesn't count
+   as painted — so it keeps the rise-in motion but is never invisible. */
+.headline .reveal{
+  opacity:1;
+  animation-name: revealRise;
+}
+@keyframes revealRise{
+  to{ transform:none; }
+}
+
+/* Phones: the decorative shimmer/glow loops (logo sweep, icon glow,
+   promo-number glow, footer sheens) repaint the page every frame
+   forever, which is what kept a mid-range phone's main thread busy.
+   They're switched off below tablet width; transform-only motion
+   (hero zoom, promo scroll, reveals) is cheap and stays. */
+@media (max-width: 899px){
+  .brand__shine,
+  .icon-btn svg,
+  .menu-btn__lines span,
+  .promo-bar__num,
+  .foot *,
+  .drawer *,
+  .sidemenu *{
+    animation: none !important;
+  }
+}
+
 @keyframes revealUp{
   to{ opacity:1; transform:none; }
 }
