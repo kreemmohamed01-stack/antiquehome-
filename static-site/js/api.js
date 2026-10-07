@@ -1,6 +1,29 @@
+// Storefront reads served from the single /api/settings?key=public
+// bundle (one request per page instead of one per setting).
+const SITE_BUNDLE_PATHS = {
+  "/api/settings?key=site_sale": "site_sale",
+  "/api/settings?key=site_social": "site_social",
+  "/api/settings?key=site_announcement": "site_announcement",
+  "/api/settings?key=site_content": "site_content",
+  "/api/categories": "categories",
+  "/api/coupons?featured=1": "featuredCoupon",
+};
+
 // Small fetch helpers shared by every storefront/admin page.
 const API = {
+  _site: null,
+  site() {
+    if (!this._site) {
+      this._site = fetch("/api/settings?key=public", { credentials: "same-origin" })
+        .then((r) => { if (!r.ok) throw new Error("Request failed: " + r.status); return r.json(); });
+      this._site.catch(() => { this._site = null; });
+    }
+    return this._site;
+  },
   async get(path) {
+    if (!location.pathname.startsWith("/admin") && SITE_BUNDLE_PATHS[path]) {
+      return (await this.site())[SITE_BUNDLE_PATHS[path]];
+    }
     // Public GETs are edge-cached for ~60s (see api/_db.js edgeCache).
     // The dashboard must always see its own edits immediately, so every
     // GET made from an /admin/* page gets a unique param = cache miss.

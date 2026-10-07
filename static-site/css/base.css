@@ -3343,6 +3343,15 @@ html[dir="rtl"] .lang-btn__label{ font-family: "Tajawal", sans-serif; letter-spa
 
 /* ---------- panel ---------- */
 
+/* The artwork only downloads once a visitor heads for the menu button
+   (js/site-chrome.js adds .sm-bg) — most never open it, so it no longer
+   costs every page view ~65KB. */
+.sm-bg .sidemenu__panel{
+  background:
+    linear-gradient(180deg, rgba(250,246,238,.55), rgba(250,246,238,.72)),
+    url("/خلفيه منيو.webp") center / cover no-repeat;
+}
+
 .sidemenu__panel{
   position:absolute;
   top:0; left:0; bottom:0;
@@ -3356,7 +3365,7 @@ html[dir="rtl"] .lang-btn__label{ font-family: "Tajawal", sans-serif; letter-spa
      a lighter one so the artwork actually reads. */
   background:
     linear-gradient(180deg, rgba(250,246,238,.55), rgba(250,246,238,.72)),
-    url("/خلفيه منيو.webp") center / cover no-repeat;
+    #F3ECDF;
   box-shadow:
     30px 0 70px rgba(0,0,0,.35),
     inset -1px 0 0 rgba(120,96,58,.18);

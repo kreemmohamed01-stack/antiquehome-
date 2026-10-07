@@ -185,6 +185,11 @@
         else menuBtn.focus();
       };
 
+      // Fetch the menu's background artwork only when someone is about
+      // to open it (hover/touch/focus on the button) rather than on load.
+      const wantMenuBg = () => sideWrap.classList.add("sm-bg");
+      ["pointerenter", "touchstart", "focus"].forEach((evt) => menuBtn.addEventListener(evt, wantMenuBg, { once: true, passive: true }));
+      menuBtn.addEventListener("click", wantMenuBg);
       menuBtn.addEventListener("click", openMenu);
       sideScrim && sideScrim.addEventListener("click", closeMenu);
       sideClose && sideClose.addEventListener("click", closeMenu);
@@ -612,8 +617,14 @@
     (function heroVideo() {
       const video = document.getElementById("heroVideo");
       if (!video) return;
-      // Single hero video for both mobile and desktop now — src is
-      // already set in the markup, so this just handles autoplay.
+      // Ships with data-src + a poster: on Data Saver, a slow (2G/3G)
+      // connection or reduced-motion, visitors keep the still poster and
+      // the ~0.5MB video is never downloaded.
+      const conn = navigator.connection || {};
+      const slow = conn.saveData || /(^|-)(2g|3g)$/.test(conn.effectiveType || "");
+      const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (slow || still) return;
+      if (!video.getAttribute("src") && video.dataset.src) video.src = video.dataset.src;
       function play() {
         const p = video.play();
         if (p && typeof p.catch === "function") p.catch(() => {});
@@ -641,6 +652,10 @@
     (function journeyVideo() {
       const video = document.getElementById("journeyVideo");
       if (!video || !video.dataset.src) return;
+      // Same rule as the hero: Data Saver / 2G-3G / reduced-motion keep the poster.
+      const conn = navigator.connection || {};
+      if (conn.saveData || /(^|-)(2g|3g)$/.test(conn.effectiveType || "")) return;
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       const play = () => { const p = video.play(); if (p && p.catch) p.catch(() => {}); };
       if (!("IntersectionObserver" in window)) { video.src = video.dataset.src; play(); return; }
       const io = new IntersectionObserver((entries) => {
@@ -652,7 +667,7 @@
             video.pause();
           }
         });
-      }, { rootMargin: "600px 0px" });
+      }, { rootMargin: "200px 0px" });
       io.observe(video);
     })();
 

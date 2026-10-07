@@ -39,6 +39,25 @@ module.exports = async (req, res) => {
     const key = String(req.query.key || "").trim();
     if (!key) { res.status(400).json({ error: "Missing key" }); return; }
 
+    // GET /api/settings?key=public -> everything a storefront page needs
+    // up front (public settings, categories, featured coupon) in ONE
+    // edge-cached response, instead of 5-7 separate requests per page
+    // view (each one counts against Vercel's monthly edge-request quota).
+    if (req.method === "GET" && key === "public") {
+      const keys = ["site_sale", "site_social", "site_announcement", "site_content"];
+      const [settings, categories, coupons] = await Promise.all([
+        sql`SELECT key, value FROM settings WHERE key = ANY(${keys})`,
+        sql`SELECT * FROM categories ORDER BY sort_order ASC, name ASC`,
+        sql`SELECT code, percent FROM coupons WHERE active = true ORDER BY created_at DESC LIMIT 1`,
+      ]);
+      const out = { categories, featuredCoupon: coupons.length ? { code: coupons[0].code, percent: parseFloat(coupons[0].percent) } : null };
+      for (const k of keys) out[k] = DEFAULTS[k];
+      for (const r of settings) out[r.key] = r.value;
+      edgeCache(res);
+      res.status(200).json(out);
+      return;
+    }
+
     if (req.method === "GET") {
       const rows = await sql`SELECT value FROM settings WHERE key = ${key}`;
       edgeCache(res);

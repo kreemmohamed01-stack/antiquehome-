@@ -94,6 +94,19 @@ module.exports = async (req, res) => {
           const pos = new Map(order.map((id, i) => [Number(id), i + 1]));
           rows.sort((a, b) => (pos.get(a.id) || 0) - (pos.get(b.id) || 0));
         }
+        // Lean storefront views, so a page that needs a few products (or
+        // just their order) doesn't download the whole catalog:
+        //   view=home -> the homepage's 7 new arrivals (flagged ones, else newest)
+        //   view=nav  -> id/slug/category/date only, for prev/next links
+        if (req.query.view === "home") {
+          // (list was re-sorted into the shop's drag order above; the
+          // homepage wants newest-first, same as js/index.js sorts)
+          const newest = list.slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+          const flagged = newest.filter((p) => p.is_new_arrival);
+          rows = (flagged.length ? flagged : newest).slice(0, 7);
+        } else if (req.query.view === "nav") {
+          rows = list.map((p) => ({ id: p.id, slug: p.slug, category_id: p.category_id, created_at: p.created_at }));
+        }
       } else {
         rows = await sql`
           SELECT p.*, c.name AS category_name,

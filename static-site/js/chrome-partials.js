@@ -484,7 +484,7 @@
 
   async function applySocialLinks() {
     let social = null;
-    try { social = await fetch("/api/settings?key=site_social", { credentials: "same-origin" }).then((r) => (r.ok ? r.json() : null)); } catch { social = null; }
+    try { social = await API.get("/api/settings?key=site_social"); } catch { social = null; }
     if (!social) return;
     if (social.whatsapp) {
       document.querySelectorAll(`a[href="${DEFAULT_WHATSAPP}"]`).forEach((a) => { a.href = social.whatsapp; });
@@ -505,7 +505,7 @@
   // so the seamless-scroll effect still works); left alone when it's off.
   async function applyAnnouncement() {
     let ann = null;
-    try { ann = await fetch("/api/settings?key=site_announcement", { credentials: "same-origin" }).then((r) => (r.ok ? r.json() : null)); } catch { ann = null; }
+    try { ann = await API.get("/api/settings?key=site_announcement"); } catch { ann = null; }
     if (!ann || !ann.active || !ann.text) return;
     document.querySelectorAll(".promo-bar__text span").forEach((span) => { span.textContent = ann.text; });
   }

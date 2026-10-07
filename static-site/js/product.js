@@ -487,7 +487,7 @@
       // patching only the small <nav> so nothing re-animates.
       render();
       try {
-        let pool = await API.get("/api/products?status=active");
+        let pool = await API.get("/api/products?status=active&view=nav");
         pool = pool.slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         let filteredPool = pool.filter((p) => p.category_id === product.category_id);
         if (filteredPool.length < 2) filteredPool = pool;

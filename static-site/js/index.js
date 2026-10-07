@@ -106,7 +106,7 @@
   async function loadArrivals() {
     let products = [];
     try {
-      const all = await API.get("/api/products?status=active");
+      const all = await API.get("/api/products?status=active&view=home");
       const flagged = all.filter((p) => p.is_new_arrival);
       products = (flagged.length ? flagged : all)
         .slice()
