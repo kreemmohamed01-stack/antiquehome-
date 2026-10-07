@@ -148,7 +148,7 @@
           </span>
           <p class="kicker kicker--center kicker--gold${rvClass()}"${rvAttr(0.1)}>${t("thankYou", "Thank You")}</p>
           <h1 class="oc__title${rvClass()}"${rvAttr(0.16)}>${t("orderConfirmed", "Your Order is Confirmed")}</h1>
-          <p class="oc__text${rvClass()}"${rvAttr(0.22)}>${t("orderConfirmedText", "We&rsquo;ve received your order and we&rsquo;re getting it ready. A confirmation has been sent to your email.")}</p>
+          <p class="oc__text${rvClass()}"${rvAttr(0.22)}>${t("orderConfirmedText", "We&rsquo;ve received your order and we&rsquo;re getting it ready. We&rsquo;ll be in touch shortly to confirm it.")}</p>
 
           <div class="oc__actions${rvClass()}"${rvAttr(0.28)}>
             <a class="oc-btn oc-btn--whatsapp" href="${buildWhatsAppMessage(order, items)}" target="_blank" rel="noopener noreferrer">

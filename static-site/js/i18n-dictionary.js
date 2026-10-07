@@ -22,7 +22,7 @@ window.AH_DICTIONARY = {
   heroTitle2: "جمال لا ينتهي.",
   heroText: "قطع أثرية وتحف خالدة، صُنعت بعناية لتضفي طابعًا مميزًا على كل ركن من أركان منزلك.",
   scrollDiscover: "مرري للأسفل للاكتشاف",
-  promoBar: "توصيل لكل مكان<i class=\"promo-bar__dot\" aria-hidden=\"true\"></i>دفع آمن<i class=\"promo-bar__dot\" aria-hidden=\"true\"></i>جودة مضمونة<i class=\"promo-bar__dot\" aria-hidden=\"true\"></i>قطع خالدة منتقاة بعناية",
+  promoBar: "توصيل لكل مصر<i class=\"promo-bar__dot\" aria-hidden=\"true\"></i>دفع آمن<i class=\"promo-bar__dot\" aria-hidden=\"true\"></i>جودة مضمونة<i class=\"promo-bar__dot\" aria-hidden=\"true\"></i>قطع خالدة منتقاة بعناية",
 
   // ---- homepage: new arrivals ----
   newArrivals: "وصل حديثًا",
@@ -255,7 +255,7 @@ window.AH_DICTIONARY = {
   sendOrderWhatsapp: "إرسال الطلب عبر واتساب",
   orderNotFound: "الطلب غير موجود",
   orderNotFoundText: "لم نتمكن من العثور على هذا الطلب. يرجى التأكد من الرابط أو التواصل معنا للمساعدة.",
-  orderConfirmedText: "استلمنا طلبكِ وجاري تجهيزه. تم إرسال رسالة تأكيد إلى بريدكِ الإلكتروني.",
+  orderConfirmedText: "استلمنا طلبكِ وجاري تجهيزه. هنتواصل معاكِ قريب لتأكيد الطلب.",
   orderNo: "رقم الطلب",
   dateLabel: "التاريخ",
   billedTo: "بيانات العميل",
@@ -357,7 +357,7 @@ window.AH_DICTIONARY = {
   footVisitShowroom: "زوري صالة العرض",
   footShowroomAddr: "النزهة، شارع طه حسين — ٢ محمود حريدي",
   footGetDirections: "احصلي على الاتجاهات",
-  footWorldwideTitle: "توصيل لكل مكان",
+  footWorldwideTitle: "توصيل لكل مصر",
   footWorldwideText: "نوصل قطعًا خالدة<br />لباب بيتك.",
   footSecurePayTitle: "دفع آمن",
   footSecurePayText: "معاملاتكِ<br />محمية ١٠٠٪.",

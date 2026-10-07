@@ -1,4 +1,4 @@
-const { sql } = require("./_db.js");
+const { sql, effectiveSalePercent, priceWithSale, getSiteSale } = require("./_db.js");
 const { getSession } = require("./_auth.js");
 
 async function readBody(req) {
@@ -7,6 +7,76 @@ async function readBody(req) {
     try { body = JSON.parse(body); } catch { body = {}; }
   }
   return body || {};
+}
+
+// Same fallbacks as js/checkout.js when a governorate has no rate row.
+const FALLBACK_STANDARD = 100;
+const FALLBACK_EXPRESS = 150;
+
+// Re-prices an order from the database instead of trusting the numbers
+// the browser sent — otherwise anyone could edit the request and order
+// a 3000 EGP piece for 1 EGP. Mirrors the checkout's maths exactly:
+// variant price, then product/site-wide sale, then coupon on the
+// subtotal, then shipping (base rate for the governorate + per-kg).
+// Cart line ids are "slug", "slug::variant", "slug::color" or
+// "slug::variant::color". Returns null if any line is unknown/unbuyable.
+async function priceOrder(body) {
+  const lines = body.items.map((i) => {
+    const parts = String(i.id || "").split("::");
+    return { slug: parts[0], rest: parts.slice(1), qty: Math.max(1, Math.floor(Number(i.qty) || 0)), image: i.image || null };
+  });
+  const slugs = [...new Set(lines.map((l) => l.slug))];
+  const products = await sql`SELECT * FROM products WHERE slug = ANY(${slugs}) AND status = 'active'`;
+  const bySlug = new Map(products.map((p) => [p.slug, p]));
+  const siteSale = await getSiteSale();
+
+  const items = [];
+  for (const l of lines) {
+    const p = bySlug.get(l.slug);
+    if (!p || l.qty > 100) return null;
+    const variant = l.rest.length ? (p.variants || []).find((v) => v.label === l.rest[0]) : null;
+    const colorName = l.rest.find((x) => (p.color_options || []).some((c) => c.name === x)) || null;
+    const base = variant ? Number(variant.price) : Number(p.price);
+    const pct = effectiveSalePercent(p, siteSale);
+    const price = pct > 0 ? priceWithSale(base, pct) : base;
+    items.push({
+      productId: p.id,
+      name: p.name,
+      price,
+      qty: l.qty,
+      image: l.image,
+      weightKg: Number(p.weight_kg) || 0,
+      variantLabel: variant ? variant.label : null,
+      colorName,
+    });
+  }
+
+  const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
+  let discount = 0;
+  let couponCode = null;
+  if (body.couponCode) {
+    const c = await sql`SELECT code, percent FROM coupons WHERE code = ${String(body.couponCode).trim().toUpperCase()} AND active = true`;
+    if (c.length) {
+      couponCode = c[0].code;
+      discount = Math.round(subtotal * (parseFloat(c[0].percent) / 100) * 100) / 100;
+    }
+  }
+
+  const delivery = String(body.delivery || "");
+  const isPickup = /pickup/i.test(delivery);
+  const isExpress = /express/i.test(delivery);
+  let shipping = 0;
+  if (!isPickup) {
+    const r = await sql`SELECT * FROM shipping_rates WHERE governorate = ${body.governorate || ""}`;
+    const rate = r[0];
+    const baseShip = isExpress
+      ? (rate ? Number(rate.express_price) : FALLBACK_EXPRESS)
+      : (rate ? Number(rate.standard_price) : FALLBACK_STANDARD);
+    const kg = items.reduce((s, i) => s + i.qty * i.weightKg, 0);
+    shipping = baseShip + kg * (rate ? Number(rate.per_kg_rate) || 0 : 0);
+  }
+  const total = Math.max(0, subtotal - discount) + shipping;
+  return { items, subtotal, discount, couponCode, shipping, total };
 }
 
 // Automatic WhatsApp alert to the shop owner via Green API (a WhatsApp
@@ -85,6 +155,13 @@ module.exports = async (req, res) => {
         return;
       }
 
+      const priced = await priceOrder(body);
+      if (!priced) {
+        res.status(409).json({ error: "Some items in your bag are no longer available. Please review your bag and try again." });
+        return;
+      }
+      Object.assign(body, priced);
+
       const orderNumber = "AH-" + Date.now().toString(36).toUpperCase().slice(-8);
 
       const orderRows = await sql`
@@ -103,11 +180,9 @@ module.exports = async (req, res) => {
       for (const item of body.items) {
         await sql`
           INSERT INTO order_items (order_id, product_id, name_snapshot, price_snapshot, image_snapshot, variant_label, color_name, qty)
-          VALUES (${order.id}, ${item.productId ?? null}, ${item.name}, ${item.price}, ${item.image || null}, ${item.variantLabel || null}, ${item.colorName || null}, ${item.qty})
+          VALUES (${order.id}, ${item.productId}, ${item.name}, ${item.price}, ${item.image}, ${item.variantLabel}, ${item.colorName}, ${item.qty})
         `;
-        if (item.productId) {
-          await sql`UPDATE products SET stock_qty = GREATEST(0, stock_qty - ${item.qty}) WHERE id = ${item.productId}`;
-        }
+        await sql`UPDATE products SET stock_qty = GREATEST(0, stock_qty - ${item.qty}) WHERE id = ${item.productId}`;
       }
 
       await notifyOwnerOnWhatsApp(order, body);

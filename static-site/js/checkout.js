@@ -600,7 +600,7 @@
         paymentReference: state.payment === "instapay" ? state.paymentReference.trim() : null,
         paymentSenderName: state.payment === "instapay" ? state.paymentSenderName.trim() : null,
         notes: state.notes,
-        items: state.lines.map((l) => ({ name: l.name, price: l.price, image: l.image, qty: l.qty })),
+        items: state.lines.map((l) => ({ id: l.id, name: l.name, price: l.price, image: l.image, qty: l.qty })),
         subtotal,
         shipping,
         discount,

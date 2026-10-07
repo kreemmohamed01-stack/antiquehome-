@@ -89,7 +89,7 @@
       <ul class="fbar__list">
         <li class="fbar__item rv rv--up" data-rv>
           <span class="fbar__ico" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M2.6 8.4h14v12.8h-14z"/><path d="M16.6 12.4h6.6l4.2 4.2v4.6h-10.8z"/><circle cx="9.2" cy="24" r="2.6"/><circle cx="22.6" cy="24" r="2.6"/></svg></span>
-          <div class="fbar__copy"><h3 data-i18n="footWorldwideTitle">Worldwide Delivery</h3><p data-i18n-html="footWorldwideText">Bringing timeless pieces<br />to your door.</p></div>
+          <div class="fbar__copy"><h3 data-i18n="footWorldwideTitle">Delivery Across Egypt</h3><p data-i18n-html="footWorldwideText">Bringing timeless pieces<br />to your door.</p></div>
         </li>
         <li class="fbar__item rv rv--up" data-rv style="--rd:.08s">
           <span class="fbar__ico" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 3.4 27 7.6v8.2c0 6.6-4.5 11-11 13.2C9.5 26.8 5 22.4 5 15.8V7.6Z"/><polyline points="11.4,16.2 14.8,19.6 21,12.6"/></svg></span>
