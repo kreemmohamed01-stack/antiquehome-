@@ -4,6 +4,8 @@
 // by the page/section they belong to; a key only used on one page is fine
 // to keep here too — this file is loaded on every page.
 window.AH_DICTIONARY = {
+  introSound: "اضغطي للصوت",
+  introSkip: "تخطي",
   // ---- shared header / nav / footer ----
   menu: "القائمة",
   search: "بحث",

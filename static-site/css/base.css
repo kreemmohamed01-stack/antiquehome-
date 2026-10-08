@@ -109,6 +109,51 @@ a{ color:inherit; text-decoration:none; }
   z-index:0;
 }
 
+/* ---------- brand intro (index.html) ---------- */
+.intro-on, .intro-on body{ overflow:hidden; }
+.intro{
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  background:#130F0B; /* the intro film's own backdrop, so letterboxing is invisible */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition: opacity .7s var(--ease), visibility .7s;
+}
+.intro.is-leaving{ opacity:0; visibility:hidden; }
+/* portrait phones: fill the screen edge to edge (the logo sits centred,
+   so cropping the film's top/bottom margins never touches it) */
+@media (orientation: portrait){
+  .intro__video{ object-fit:cover !important; }
+}
+.intro__video{
+  width:100%;
+  height:100%;
+  object-fit:contain; /* portrait film: full-bleed on phones, centred on desktop */
+}
+.intro__btn{
+  position:absolute;
+  bottom: max(28px, env(safe-area-inset-bottom));
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:9px 16px;
+  border:1px solid rgba(201,180,138,.45);
+  border-radius:999px;
+  background: rgba(19,15,11,.55);
+  color: var(--champagne);
+  font-family: var(--sans);
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.intro__btn svg{ width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; }
+.intro__sound{ left:50%; transform:translateX(-50%); bottom: max(78px, calc(env(safe-area-inset-bottom) + 50px)); }
+.intro__skip{ right:22px; }
+.intro__btn[hidden]{ display:none; }
+
 .hero__video{
   width:100%;
   height:100%;

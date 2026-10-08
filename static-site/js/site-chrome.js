@@ -624,6 +624,11 @@
       const slow = conn.saveData || /(^|-)(2g|3g)$/.test(conn.effectiveType || "");
       const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (slow || still) return;
+      if (window.AH_INTRO_PENDING && window.AH_INTRO_PENDING()) {
+        // Let the brand intro have the connection to itself first.
+        document.addEventListener("ah:introdone", heroVideo, { once: true });
+        return;
+      }
       if (!video.getAttribute("src") && video.dataset.src) video.src = video.dataset.src;
       function play() {
         const p = video.play();

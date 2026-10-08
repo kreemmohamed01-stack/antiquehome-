@@ -61,6 +61,71 @@
 </head>
 <body>
 
+<!-- Brand intro: plays once per browser session, then fades into the
+     site. Skipped on Data Saver / 2G-3G / reduced-motion. Browsers only
+     allow sound in an autoplaying video after the visitor has interacted
+     with the site, so it tries with sound and otherwise plays muted with
+     a "tap for sound" button. -->
+<div class="intro" id="intro" hidden>
+  <video class="intro__video" id="introVideo" playsinline preload="auto" poster="/intro-poster.webp" disablepictureinpicture></video>
+  <button class="intro__btn intro__sound" type="button" id="introSound" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.6L12 5.6v12.8l-4.4-3.9H4z"></path><path d="M15.6 9.2a4 4 0 0 1 0 5.6M18.2 6.6a7.6 7.6 0 0 1 0 10.8"></path></svg>
+    <span data-i18n="introSound">Tap for sound</span>
+  </button>
+  <button class="intro__btn intro__skip" type="button" id="introSkip"><span data-i18n="introSkip">Skip</span></button>
+</div>
+<script>
+(function () {
+  var intro = document.getElementById("intro");
+  var video = document.getElementById("introVideo");
+  var conn = navigator.connection || {};
+  var seen = false;
+  try { seen = sessionStorage.getItem("ah_intro") === "1"; } catch (e) {}
+  if (seen || conn.saveData || /(^|-)(2g|3g)$/.test(conn.effectiveType || "") ||
+      (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) {
+    intro.parentNode.removeChild(intro);
+    return;
+  }
+  try { sessionStorage.setItem("ah_intro", "1"); } catch (e) {}
+  var root = document.documentElement;
+  root.classList.add("intro-on");
+  intro.hidden = false;
+  var finished = false;
+  function finish() {
+    if (finished) return;
+    finished = true;
+    intro.classList.add("is-leaving");
+    root.classList.remove("intro-on");
+    document.dispatchEvent(new CustomEvent("ah:introdone"));
+    setTimeout(function () { if (intro.parentNode) intro.parentNode.removeChild(intro); }, 800);
+  }
+  window.AH_INTRO_PENDING = function () { return !finished; };
+  video.addEventListener("ended", function () { setTimeout(finish, 250); });
+  video.addEventListener("error", finish);
+  document.getElementById("introSkip").addEventListener("click", finish);
+  var soundBtn = document.getElementById("introSound");
+  soundBtn.addEventListener("click", function () { video.muted = false; soundBtn.hidden = true; });
+  setTimeout(finish, 12000); // safety net: never trap anyone on the intro
+  video.src = "/intro.mp4";
+  video.muted = false;
+  var p = video.play();
+  if (p && p.catch) p.catch(function () {
+    // No sound allowed yet: play muted and offer the sound button.
+    video.muted = true;
+    soundBtn.hidden = false;
+    var q = video.play();
+    // A cold first load can reject play() before any data arrives:
+    // retry once the video can actually play, and only then give up.
+    if (q && q.catch) q.catch(function () {
+      video.addEventListener("canplay", function () {
+        var r = video.play();
+        if (r && r.catch) r.catch(finish);
+      }, { once: true });
+    });
+  });
+})();
+</script>
+
 <section class="hero" id="hero">
   <div class="hero__media">
     <video class="hero__video" id="heroVideo" data-src="/فيديو هيروو.mp4" poster="/hero-poster.webp" autoplay loop muted playsinline preload="auto" disablepictureinpicture aria-hidden="true" tabindex="-1"></video>
