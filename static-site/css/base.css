@@ -761,16 +761,19 @@ html[dir="rtl"] .lang-btn__label{ font-family: "Tajawal", sans-serif; letter-spa
 /* Phones: the decorative shimmer/glow loops (logo sweep, icon glow,
    promo-number glow, footer sheens) repaint the page every frame
    forever, which is what kept a mid-range phone's main thread busy.
-   They're switched off below tablet width; transform-only motion
+   They're switched off below tablet width (named one by one — a blanket
+   rule also killed the menu/drawer entrance animations); transform-only motion
    (hero zoom, promo scroll, reveals) is cheap and stays. */
 @media (max-width: 899px){
   .brand__shine,
   .icon-btn svg,
   .menu-btn__lines span,
   .promo-bar__num,
-  .foot *,
-  .drawer *,
-  .sidemenu *{
+  .fmark__shine,
+  .fsign__name,
+  .dw__title,
+  .dw__spark,
+  .dw-help__spark{
     animation: none !important;
   }
 }
