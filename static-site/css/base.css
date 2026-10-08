@@ -3852,30 +3852,62 @@ html[dir="rtl"] .lang-btn__label{ font-family: "Tajawal", sans-serif; letter-spa
 }
 
 .sm__credit{
-  margin: 16px 0 0;
-  text-align:center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  margin: 18px 0 0;
+  padding-top:16px;
+  border-top:1px solid rgba(150,116,72,.28);
   font-family: var(--sans);
 }
+.sm__credit-rule{
+  flex:1 1 auto;
+  max-width:60px;
+  height:1px;
+  background: linear-gradient(to right, transparent, rgba(150,116,72,.5));
+}
+.sm__credit-rule:last-child{
+  background: linear-gradient(to left, transparent, rgba(150,116,72,.5));
+}
 .sm__credit-label{
-  font-size:10px;
+  flex:none;
+  font-size:11px;
   font-weight:500;
   letter-spacing:.08em;
   text-transform:uppercase;
-  color: var(--ink-400, #857A6C);
-  margin-right:5px;
+  color: rgba(92,68,35,.75);
 }
 .sm__credit-name{
+  flex:none;
   display:inline-block;
   font-family: "Dancing Script", "Segoe Script", cursive;
-  font-size:19px;
+  font-size:25px;
   font-weight:700;
   letter-spacing:.02em;
-  color: var(--gold-deep, #A98A5C);
+  line-height:1.25;
+  padding: 0 2px 3px;
   text-decoration:none;
+  background-image: linear-gradient(100deg,#4A3418 0%,#6E5229 26%,#B98A3F 42%,#E8C374 50%,#B98A3F 58%,#6E5229 74%,#4A3418 100%);
+  background-size:300% 100%;
+  background-repeat:no-repeat;
+  background-position:100% 0;
+  -webkit-background-clip:text;
+          background-clip:text;
+  color:transparent;
+  -webkit-text-fill-color:transparent;
+  animation: fSignSheen 6.5s ease-in-out 1.4s infinite;
   transition: transform .3s var(--ease);
+}
+@media (prefers-reduced-motion: reduce){
+  .sm__credit-name{ animation:none; background-position:50% 0; }
 }
 @media (hover:hover){
   .sm__credit-name:hover{ transform: scale(1.06); }
+}
+@keyframes fSignSheen{
+  0%,   10%{ background-position: 100% 0; }
+  55%, 100%{ background-position: 0% 0; }
 }
 .sm__social a{
   display:grid;

@@ -300,7 +300,7 @@
         </svg></a></li>
     </ul>
 
-    <p class="sm__credit"><span class="sm__credit-label" data-i18n="smPoweredBy">Powered by</span> <a class="sm__credit-name" href="https://kreemaly.com" target="_blank" rel="noopener noreferrer">kreemaly</a></p>
+    <div class="sm__credit"><i class="sm__credit-rule" aria-hidden="true"></i><span class="sm__credit-label" data-i18n="smPoweredBy">Powered by</span> <a class="sm__credit-name" href="https://kreemaly.com" target="_blank" rel="noopener noreferrer">kreemaly</a><i class="sm__credit-rule" aria-hidden="true"></i></div>
   </nav>
 </div>
 

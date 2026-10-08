@@ -81,7 +81,16 @@
   var conn = navigator.connection || {};
   var seen = false;
   try { seen = sessionStorage.getItem("ah_intro") === "1"; } catch (e) {}
-  if (seen || conn.saveData || /(^|-)2g$/.test(conn.effectiveType || "") ||
+  // Storage can be blocked (in-app browsers, private mode), which used to
+  // replay the intro every time someone came back to Home from a category.
+  // Coming back via Back/Forward, or from any page of this site, is never a
+  // first arrival, so never show it then.
+  try {
+    var nav = performance.getEntriesByType && performance.getEntriesByType("navigation")[0];
+    if (nav && nav.type === "back_forward") seen = true;
+    if (document.referrer && new URL(document.referrer).origin === location.origin) seen = true;
+  } catch (e) {}
+  if (seen ||conn.saveData || /(^|-)2g$/.test(conn.effectiveType || "") ||
       (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) {
     intro.parentNode.removeChild(intro);
     return;
