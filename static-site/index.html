@@ -62,7 +62,7 @@
 <body>
 
 <!-- Brand intro: plays once per browser session, then fades into the
-     site. Skipped on Data Saver / 2G-3G / reduced-motion. Browsers only
+     site. Skipped on Data Saver / 2G / reduced-motion (it's only ~190KB). Browsers only
      allow sound in an autoplaying video after the visitor has interacted
      with the site, so it tries with sound and otherwise plays muted with
      a "tap for sound" button. -->
@@ -81,7 +81,7 @@
   var conn = navigator.connection || {};
   var seen = false;
   try { seen = sessionStorage.getItem("ah_intro") === "1"; } catch (e) {}
-  if (seen || conn.saveData || /(^|-)(2g|3g)$/.test(conn.effectiveType || "") ||
+  if (seen || conn.saveData || /(^|-)2g$/.test(conn.effectiveType || "") ||
       (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) {
     intro.parentNode.removeChild(intro);
     return;
@@ -105,7 +105,7 @@
   document.getElementById("introSkip").addEventListener("click", finish);
   var soundBtn = document.getElementById("introSound");
   soundBtn.addEventListener("click", function () { video.muted = false; soundBtn.hidden = true; });
-  setTimeout(finish, 12000); // safety net: never trap anyone on the intro
+  setTimeout(finish, 9000); // safety net: a stalled download never traps anyone on the intro
   video.src = "/intro.mp4";
   video.muted = false;
   var p = video.play();
