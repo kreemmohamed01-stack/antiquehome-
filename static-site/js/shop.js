@@ -120,6 +120,11 @@
   function renderChrome() {
     const heroSlot = document.getElementById("shopHeroSlot");
     const railSlot = document.getElementById("catRailSlot");
+    // site-chrome.js bound the menu / search / cart buttons inside the
+    // header once; re-rendering the slot would swap them for fresh nodes
+    // with no listeners (menu stops opening). Keep the original header
+    // and move it into the new markup.
+    const keptHeader = heroSlot.querySelector(".header");
 
     if (window.AH_SEO) {
       if (activeCategory === "all") {
@@ -255,6 +260,13 @@
         <div id="subcatRailSlot"></div>`;
       railSlot.innerHTML = "";
       renderSubcatRail();
+    }
+
+    const freshHeader = heroSlot.querySelector(".header");
+    if (keptHeader && freshHeader) {
+      const label = keptHeader.querySelector(".menu-btn__label");
+      if (label) label.textContent = t("menu", "Menu");
+      freshHeader.replaceWith(keptHeader);
     }
 
     if (window.AH_REVEAL) window.AH_REVEAL.scan(heroSlot);
