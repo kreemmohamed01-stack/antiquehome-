@@ -41,8 +41,12 @@ async function getSiteSale() {
 // every single page view. Only used on storefront reads; admin pages
 // bypass it because js/api.js adds a unique cache-busting param to every
 // GET made from /admin/*, so edits always show up instantly there.
+// Browsers also reuse the response for a short window (capped at 30s), so
+// moving between pages doesn't re-request categories/settings/products
+// every time (each request counts against the plan's edge-request quota).
 function edgeCache(res, sMaxAge = 60, swr = 600) {
-  res.setHeader("Cache-Control", `public, max-age=0, s-maxage=${sMaxAge}, stale-while-revalidate=${swr}`);
+  const browser = Math.min(sMaxAge, 30);
+  res.setHeader("Cache-Control", `public, max-age=${browser}, s-maxage=${sMaxAge}, stale-while-revalidate=${swr}`);
 }
 
 module.exports = { sql, stockState, effectiveSalePercent, priceWithSale, getSiteSale, edgeCache };
