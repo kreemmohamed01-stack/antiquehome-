@@ -2,6 +2,10 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /api/
+Allow: /api/products
+Allow: /api/categories
+Allow: /api/settings
+Allow: /api/shipping
 Disallow: /checkout.html
 Disallow: /order-confirmation.html
 
