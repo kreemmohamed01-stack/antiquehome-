@@ -7,7 +7,7 @@
 // the identical constant at the top of api/_seo.js to match — both
 // must always agree.
 window.AH_SEO = (function () {
-  const SITE_URL = "https://antiqueehome.com";
+  const SITE_URL = "https://www.antiqueehome.com";
   const SITE_NAME = "Antique Home";
 
   // Ensures <head> has <link rel="canonical">, OG and Twitter Card tags,

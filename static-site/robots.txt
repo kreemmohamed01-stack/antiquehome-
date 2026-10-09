@@ -5,4 +5,4 @@ Disallow: /api/
 Disallow: /checkout.html
 Disallow: /order-confirmation.html
 
-Sitemap: https://antiqueehome.com/sitemap.xml
+Sitemap: https://www.antiqueehome.com/sitemap.xml
