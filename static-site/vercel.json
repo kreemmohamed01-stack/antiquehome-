@@ -1,6 +1,10 @@
 {
   "cleanUrls": false,
   "trailingSlash": false,
+  "redirects": [
+    { "source": "/:path(.*)", "has": [{ "type": "host", "value": "www.antiqueehome.com" }], "destination": "https://antiqueehome.com/:path", "permanent": true },
+    { "source": "/:path(.*)", "has": [{ "type": "host", "value": "antique-home-static.vercel.app" }], "destination": "https://antiqueehome.com/:path", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/admin", "destination": "/admin/index.html" },
