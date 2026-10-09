@@ -86,7 +86,7 @@
     const basePrice = selectedVariant ? Number(selectedVariant.price) : Number(product.price);
     const salePct = effectiveSalePercent(product, siteSale);
     const price = salePct > 0 ? priceWithSale(basePrice, salePct) : basePrice;
-    const saleText = salePct > 0 ? (product.sale_label && product.sale_percent ? product.sale_label : `${t("saleBadge", "Sale")} ${salePct}%`) : "";
+    const saleText = salePct > 0 ? (product.sale_label && product.sale_percent ? product.sale_label : `${t("saleBadge", "Sale")} ${Math.round(salePct)}%`) : "";
     const pname = window.AH_I18N ? window.AH_I18N.productName(product) : product.name;
     const pdesc = window.AH_I18N ? window.AH_I18N.productDescription(product) : product.description;
     const compareAt = product.compare_at_price ? Number(product.compare_at_price) : null;
@@ -219,7 +219,7 @@
                   ? `<span class="pdp__compare">EGP ${compareAt.toLocaleString("en-US")}</span>`
                   : ""
               }
-              ${off ? `<span class="pdp__off">${off}% ${t("off", "OFF")}</span>` : ""}
+              ${off ? `<span class="pdp__off">${Math.round(off)}% ${t("off", "OFF")}</span>` : ""}
             </div>
 
             ${

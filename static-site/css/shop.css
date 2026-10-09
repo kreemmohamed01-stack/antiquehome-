@@ -906,7 +906,11 @@
   text-transform:uppercase;
   border-radius:3px;
 }
-.pcard__badge--sale{ background:#8C3A26; color:#fff; }
+.pcard__badge--sale{ background:#C0392B; color:#fff; font-weight:700; }
+.pcard__badge--low{ background:#D9A441; color:#1C1611; font-weight:600; }
+.pcard__badge--out{ background:#3A2F27; color:#fff; }
+.pcard__badges{ position:absolute; top:7px; left:7px; z-index:2; display:flex; flex-direction:column; align-items:flex-start; gap:4px; }
+.pcard__badges .pcard__badge{ position:static; }
 
 /* Full-width "Add to Cart" bar — sits just under the image, above the
    product name, transparent black that solidifies slightly on hover.

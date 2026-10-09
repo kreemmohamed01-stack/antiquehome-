@@ -384,16 +384,18 @@
     const rd = ((idx || 0) % 4) * 0.08;
     const pct = effectiveSalePercent(p, siteSale);
     const finalPrice = pct > 0 ? priceWithSale(p.price, pct) : Number(p.price);
-    const saleText = pct > 0 ? (p.sale_label && parseFloat(p.sale_percent || "0") > 0 ? p.sale_label : `${t("saleBadge", "Sale")} ${pct}%`) : "";
+    const saleText = pct > 0 ? (p.sale_label && parseFloat(p.sale_percent || "0") > 0 ? p.sale_label : `${t("saleBadge", "Sale")} ${Math.round(pct)}%`) : "";
     const st = stockState(p);
     const pname = window.AH_I18N ? window.AH_I18N.productName(p) : p.name;
 
-    let badge = "";
-    if (pct > 0) badge = `<span class="pcard__badge pcard__badge--sale">${saleText}</span>`;
-    else if (st === "out") badge = `<span class="pcard__badge pcard__badge--sale">${t("outOfStock", "Out of Stock")}</span>`;
-    else if (st === "low") badge = `<span class="pcard__badge" style="background:#D9A441;color:#1C1611">${t("lowStock", "Low Stock")}</span>`;
-    else if (p.is_new_arrival) badge = `<span class="pcard__badge">${t("newBadge", "New")}</span>`;
-    else if (p.badge) badge = `<span class="pcard__badge">${p.badge}</span>`;
+    // Sale (red) and stock state (low = yellow, out = dark) can show together.
+    const badges = [];
+    if (pct > 0) badges.push(`<span class="pcard__badge pcard__badge--sale">${saleText}</span>`);
+    if (st === "out") badges.push(`<span class="pcard__badge pcard__badge--out">${t("outOfStock", "Out of Stock")}</span>`);
+    else if (st === "low") badges.push(`<span class="pcard__badge pcard__badge--low">${t("lowStock", "Low Stock")}</span>`);
+    if (!badges.length && p.is_new_arrival) badges.push(`<span class="pcard__badge">${t("newBadge", "New")}</span>`);
+    else if (!badges.length && p.badge) badges.push(`<span class="pcard__badge">${p.badge}</span>`);
+    const badge = badges.length ? `<span class="pcard__badges">${badges.join("")}</span>` : "";
 
     const img = (p.image_urls || [])[0] || "";
     const stars = Array.from({ length: 5 })

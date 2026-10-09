@@ -85,7 +85,7 @@ function effectiveSalePercent(product, siteSale) {
 function priceWithSale(price, salePercent) {
   const base = typeof price === "string" ? parseFloat(price) : price;
   if (!salePercent) return base;
-  return Math.round(base * (1 - salePercent / 100) * 100) / 100;
+  return Math.round(base * (1 - salePercent / 100));
 }
 
 // Strips an admin-set focal point + zoom ("...jpg#62,40,1.35") off a

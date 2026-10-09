@@ -22,7 +22,7 @@ function effectiveSalePercent(product, siteSale) {
 function priceWithSale(price, salePercent) {
   const base = typeof price === "string" ? parseFloat(price) : price;
   if (!salePercent) return base;
-  return Math.round(base * (1 - salePercent / 100) * 100) / 100;
+  return Math.round(base * (1 - salePercent / 100));
 }
 
 async function getSiteSale() {

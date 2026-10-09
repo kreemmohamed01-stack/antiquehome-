@@ -73,6 +73,12 @@
   let stockFilter = ""; // "", "in", "low", "out" — set by clicking a stock stat card
 
   function fmt(n) { return "EGP " + Math.round(Number(n)).toLocaleString("en-US"); }
+  function priceHtml(p) {
+    const pct = Number(p.sale_percent) || 0;
+    if (pct <= 0) return fmt(p.price);
+    const now = Math.round(Number(p.price) * (1 - pct / 100));
+    return `<s style="opacity:.55;font-weight:400">${fmt(p.price)}</s> → <span style="color:var(--a-red);font-weight:700">${fmt(now)}</span> <span class="admin__pill admin__pill--low">Sale −${Math.round(pct)}%</span>`;
+  }
 
   function stockPillHtml(p) {
     const s = stockState(p);
@@ -174,7 +180,7 @@
             <div class="admin__prow-sku">SKU: ${p.sku || "—"} · ${p.category_name || "Uncategorised"}</div>
           </div>
           <div style="flex:none;text-align:right;min-width:90px">
-            <div style="font-size:12.5px;font-weight:600;color:var(--a-cream)">${fmt(p.price)}</div>
+            <div style="font-size:12.5px;font-weight:600;color:var(--a-cream)">${priceHtml(p)}</div>
             <div style="font-size:11px;color:${stockState(p) === "out" ? "var(--a-red)" : stockState(p) === "low" ? "var(--a-amber)" : "var(--a-green)"}">${p.stock_qty} in stock</div>
           </div>
           <div style="flex:none">${stockPillHtml(p)}</div>
@@ -275,7 +281,7 @@
           <img src="${cldUrl(p.image_urls?.[0] || "/logo hero.png", 80)}" alt="">
           <div class="admin__prow-main">
             <div class="admin__prow-name">${p.name}</div>
-            <div class="admin__prow-sku">SKU: ${p.sku || "—"} · ${fmt(p.price)}</div>
+            <div class="admin__prow-sku">SKU: ${p.sku || "—"} · ${priceHtml(p)}</div>
           </div>
           <div style="flex:none;text-align:right;min-width:40px;color:var(--a-text-dim);font-size:12px">#${i + 1}</div>
           <div style="flex:none">${p.status === "active" ? stockPillHtml(p) : `<span class="admin__pill admin__pill--warn">${p.status === "draft" ? "Draft — hidden" : "Archived — hidden"}</span>`}</div>
@@ -412,17 +418,18 @@
       <div class="admin__formSection">
         <div class="admin__field2">
           <div class="admin__field"><label>Price (EGP)</label><input id="f_price" type="number" value="${p.price || ""}"></div>
-          <div class="admin__field"><label>Sale Price (EGP, optional)</label><input id="f_salePrice" type="number" value="${p.compare_at_price && p.sale_percent ? "" : ""}" placeholder=""></div>
+          <div class="admin__field"><label>Sale Price (EGP, optional)</label><input id="f_salePrice" type="number" min="0" value="${p.sale_percent && p.price ? Math.round(Number(p.price) * (1 - Number(p.sale_percent) / 100)) : ""}" placeholder="e.g. 850"></div>
         </div>
         <div class="admin__field2">
-          <div class="admin__field"><label>Discount %</label><input id="f_salePercent" type="number" min="0" max="90" value="${p.sale_percent || ""}" placeholder="e.g. 20"></div>
+          <div class="admin__field"><label>Discount %</label><input id="f_salePercent" type="number" min="0" max="95" step="0.01" value="${p.sale_percent ? Number(p.sale_percent) : ""}" placeholder="e.g. 20"></div>
           <div class="admin__field"><label>Discount Label (optional)</label><input id="f_saleLabel" value="${p.sale_label || ""}" placeholder="e.g. Autumn Sale"></div>
         </div>
         <label class="admin__toggleRow">
           <input type="checkbox" id="f_onSale" ${p.sale_percent ? "checked" : ""}>
           <span>Put this specific product on sale</span>
         </label>
-        <p class="admin__hint">Turn this on and set a discount % to put JUST this product on sale — the discount shows on its card, the product page and in the cart automatically, with no code needed.</p>
+        <p class="admin__hint" id="salePreview"></p>
+        <p class="admin__hint">Type EITHER the new Sale Price OR a Discount % — the other one fills in by itself and the sale switches on. The old price shows crossed out and the new one in red on the card, the product page and the cart. Untick (or clear both) to end the sale.</p>
       </div>
 
       <div class="admin__formSection">
@@ -719,6 +726,46 @@
       }
     }
     renderSizes();
+
+    // Sale price <-> discount % stay in sync; typing either one turns the sale on.
+    (function wireSale() {
+      const priceEl = document.getElementById("f_price");
+      const saleEl = document.getElementById("f_salePrice");
+      const pctEl = document.getElementById("f_salePercent");
+      const onEl = document.getElementById("f_onSale");
+      const preview = document.getElementById("salePreview");
+      function show() {
+        const price = Number(priceEl.value) || 0;
+        const pct = Number(pctEl.value) || 0;
+        if (onEl.checked && price > 0 && pct > 0) {
+          const now = Math.round(price * (1 - pct / 100));
+          preview.innerHTML = `On sale: <s style="opacity:.6">${fmt(price)}</s> → <strong style="color:var(--a-red)">${fmt(now)}</strong> (−${Math.round(pct * 100) / 100}%)`;
+        } else preview.textContent = "";
+      }
+      function fromSalePrice() {
+        const price = Number(priceEl.value) || 0;
+        const sale = Number(saleEl.value) || 0;
+        if (price > 0 && sale > 0 && sale < price) {
+          pctEl.value = Math.round((1 - sale / price) * 10000) / 100;
+          onEl.checked = true;
+        } else if (!saleEl.value) { pctEl.value = ""; onEl.checked = false; }
+        show();
+      }
+      function fromPercent() {
+        const price = Number(priceEl.value) || 0;
+        const pct = Number(pctEl.value) || 0;
+        if (pct > 0 && pct < 100) {
+          saleEl.value = price > 0 ? Math.round(price * (1 - pct / 100)) : "";
+          onEl.checked = true;
+        } else if (!pctEl.value) { saleEl.value = ""; onEl.checked = false; }
+        show();
+      }
+      saleEl.addEventListener("input", fromSalePrice);
+      pctEl.addEventListener("input", fromPercent);
+      priceEl.addEventListener("input", () => { if (saleEl.value) fromSalePrice(); else show(); });
+      onEl.addEventListener("change", show);
+      show();
+    })();
     document.getElementById("addSizeBtn").addEventListener("click", () => {
       variants.push({ label: "", price: Number(document.getElementById("f_price").value) || 0, stock: 0, imageUrls: [] });
       renderSizes();
@@ -756,7 +803,8 @@
         : alsoIds;
 
       const onSale = document.getElementById("f_onSale").checked;
-      const salePercent = onSale ? (Number(document.getElementById("f_salePercent").value) || 0) : null;
+      const rawPct = Number(document.getElementById("f_salePercent").value) || 0;
+      const salePercent = onSale && rawPct > 0 && rawPct < 100 ? Math.round(rawPct * 100) / 100 : null;
 
       const body = {
         name: document.getElementById("f_name").value.trim(),
