@@ -1,4 +1,4 @@
-const { sql, edgeCache } = require("./_db.js");
+const { sql, edgeCache, getSiteSale } = require("./_db.js");
 const { getSession } = require("./_auth.js");
 
 function slugify(name) {
@@ -65,7 +65,27 @@ module.exports = async (req, res) => {
       }
 
       let rows;
-      if (category && category !== "all") {
+      if (category === "sale") {
+        // The Sale category fills itself: any active product with its own
+        // sale, every active product while the site-wide sale is running,
+        // plus anything manually linked to a "sale" category row.
+        const siteSale = await getSiteSale();
+        const siteWide = !!(siteSale && siteSale.active && Number(siteSale.percent) > 0);
+        rows = await sql`
+          SELECT p.*
+          FROM products p
+          WHERE p.status = 'active' AND (
+            ${siteWide}
+            OR COALESCE(p.sale_percent, 0) > 0
+            OR EXISTS (
+              SELECT 1 FROM categories c
+              LEFT JOIN product_categories pc ON pc.product_id = p.id AND pc.category_id = c.id
+              WHERE c.slug = 'sale' AND (pc.product_id IS NOT NULL OR p.category_id = c.id)
+            )
+          )
+          ORDER BY p.created_at DESC
+        `;
+      } else if (category && category !== "all") {
         // Ordered by that category's own sort_order on the join row (set
         // by dragging products in the dashboard's per-category view);
         // products only linked via the legacy single category_id (no
