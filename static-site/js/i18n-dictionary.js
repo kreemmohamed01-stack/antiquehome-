@@ -47,8 +47,8 @@ window.AH_DICTIONARY = {
   catSale: "التخفيضات",
 
   // ---- homepage: help / cta ----
-  helpTitle: "لم تجدي<br />ما تبحثين عنه؟",
-  helpText: "نحن هنا لمساعدتكِ في اكتشاف<br />القطعة المثالية.",
+  helpTitle: "لم تجدي ما تبحثين عنه؟",
+  helpText: "نحن هنا لمساعدتكِ في اكتشاف القطعة المثالية.",
 
   // ---- homepage: story ----
   ourStory: "قصتنا",

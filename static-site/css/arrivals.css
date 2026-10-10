@@ -1,0 +1,355 @@
+/* =========================================================
+   NEW ARRIVALS — 3D coverflow (homepage)
+   Cards are placed by js/index.js (mountArrivals): each one's
+   offset from the active card sets its rotateY / depth / scale.
+   Espresso stage, gold hairlines, ivory type.
+   ========================================================= */
+
+.arr3d{
+  --arr-ink: #241C14;
+  --arr-gold: #A98A5C;
+  --arr-gold-soft: rgba(169,138,92,.55);
+  --arr-gold-faint: rgba(169,138,92,.2);
+  --arr-card-w: min(66vw, 290px);
+  position:relative;
+  isolation:isolate;
+  padding: 64px 0 60px;
+  overflow:hidden;
+  color: var(--arr-ink);
+  background:
+    radial-gradient(60% 50% at 50% 55%, #FFFDF8 0%, rgba(255,253,248,0) 75%),
+    linear-gradient(180deg, #F1E9DC 0%, #F6F0E6 45%, #EFE6D7 100%);
+}
+/* faint gold damask lattice, fading out toward the centre */
+.arr3d::before{
+  content:"";
+  position:absolute; inset:0;
+  z-index:-1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23A98A5C' stroke-width='.7'%3E%3Cpath d='M32 4 L60 32 L32 60 L4 32 Z'/%3E%3Cpath d='M32 18c5 6 5 22 0 28c-5-6-5-22 0-28Z'/%3E%3Cpath d='M18 32c6-5 22-5 28 0c-6 5-22 5-28 0Z'/%3E%3C/g%3E%3Ccircle cx='32' cy='32' r='1.6' fill='%23A98A5C'/%3E%3Ccircle cx='0' cy='0' r='1.4' fill='%23A98A5C'/%3E%3Ccircle cx='64' cy='0' r='1.4' fill='%23A98A5C'/%3E%3Ccircle cx='0' cy='64' r='1.4' fill='%23A98A5C'/%3E%3Ccircle cx='64' cy='64' r='1.4' fill='%23A98A5C'/%3E%3C/svg%3E");
+  background-size: 64px 64px;
+  background-position: center top;
+  opacity:.16;
+  -webkit-mask-image: radial-gradient(70% 62% at 50% 55%, transparent 35%, #000 85%);
+          mask-image: radial-gradient(70% 62% at 50% 55%, transparent 35%, #000 85%);
+}
+/* hairline gold rule along the bottom edge */
+.arr3d::after{
+  content:"";
+  position:absolute; left:50%; bottom:0;
+  width: min(86%, 1100px); height:1px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, var(--arr-gold-soft), transparent);
+}
+
+/* palace-niche arch standing behind the front card */
+.arr3d__stage::before{
+  content:"";
+  position:absolute;
+  left:50%; top:-120px; bottom:-40px;
+  width: calc(var(--arr-card-w) * 2.15);
+  transform: translateX(-50%) translateZ(-400px);
+  border-radius: 999px 999px 0 0;
+  background:
+    radial-gradient(60% 40% at 50% 18%, rgba(255,255,255,.95), rgba(255,255,255,0) 70%),
+    linear-gradient(180deg, #FFFCF6 0%, #F7F0E4 70%, rgba(247,240,228,0) 100%);
+  border: 1px solid var(--arr-gold-soft);
+  border-bottom:0;
+  box-shadow:
+    inset 0 0 0 10px rgba(255,252,246,.9),
+    inset 0 0 0 11px var(--arr-gold-faint),
+    0 30px 80px -30px rgba(120,90,50,.25);
+  -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent 100%);
+          mask-image: linear-gradient(180deg, #000 72%, transparent 100%);
+  pointer-events:none;
+}
+
+/* slow-drifting gold dust */
+.arr3d__dust{ position:absolute; inset:0; z-index:0; pointer-events:none; }
+.arr3d__dust i{
+  position:absolute;
+  width:4px; height:4px; border-radius:50%;
+  background: radial-gradient(circle, #E6CC93 0%, rgba(201,168,106,.6) 45%, rgba(201,168,106,0) 70%);
+  opacity:0;
+  animation: arr3dDust 11s ease-in-out infinite;
+}
+.arr3d__dust i:nth-child(1){ left:14%; top:38%; animation-delay:0s; }
+.arr3d__dust i:nth-child(2){ left:82%; top:30%; animation-delay:1.6s; width:6px; height:6px; }
+.arr3d__dust i:nth-child(3){ left:24%; top:70%; animation-delay:3.1s; }
+.arr3d__dust i:nth-child(4){ left:70%; top:62%; animation-delay:4.4s; width:5px; height:5px; }
+.arr3d__dust i:nth-child(5){ left:40%; top:22%; animation-delay:5.7s; }
+.arr3d__dust i:nth-child(6){ left:60%; top:84%; animation-delay:7s; width:6px; height:6px; }
+.arr3d__dust i:nth-child(7){ left:8%;  top:84%; animation-delay:8.2s; }
+.arr3d__dust i:nth-child(8){ left:92%; top:76%; animation-delay:9.4s; width:5px; height:5px; }
+@keyframes arr3dDust{
+  0%{ opacity:0; transform: translateY(16px) scale(.6); }
+  30%{ opacity:.9; }
+  70%{ opacity:.7; }
+  100%{ opacity:0; transform: translateY(-60px) scale(1.1); }
+}
+
+/* ---------- heading ---------- */
+.arr3d__head{
+  position:relative;
+  z-index:1;
+  text-align:center;
+  padding-inline: var(--gutter, 18px);
+}
+.arr3d__kicker{
+  margin:0;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight:400;
+  letter-spacing:.5em;
+  text-indent:.5em;
+  text-transform:uppercase;
+  color: #8A6A43;
+}
+.arr3d__orn{
+  display:flex; align-items:center; justify-content:center; gap:12px;
+  margin: 16px auto 16px;
+}
+.arr3d__orn i{ width: 64px; height:1px; background: linear-gradient(90deg, rgba(201,174,124,0), var(--arr-gold)); }
+.arr3d__orn i:last-child{ transform: scaleX(-1); }
+.arr3d__orn b{ width:7px; height:7px; border:1px solid var(--arr-gold); transform: rotate(45deg); }
+.arr3d__title{
+  margin:0;
+  font-family: var(--serif);
+  font-weight:400;
+  font-size: clamp(36px, 10vw, 66px);
+  line-height:1.02;
+  letter-spacing:.01em;
+  color: #1E1813;
+}
+
+/* ---------- stage ---------- */
+.arr3d__stage{
+  position:relative;
+  height: calc(var(--arr-card-w) * 4 / 3 + 56px);
+  margin-top: 130px;
+  perspective: 1300px;
+  perspective-origin: 50% 45%;
+  transform-style: preserve-3d;
+  touch-action: pan-y;
+  user-select:none; -webkit-user-select:none;
+  outline:none;
+  cursor: grab;
+}
+/* soft floor shadow under the front card */
+.arr3d__stage::after{
+  content:"";
+  position:absolute;
+  left:50%; bottom:2px;
+  width: calc(var(--arr-card-w) * 1.5); height: 34px;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(90,62,30,.35), rgba(90,62,30,0));
+  pointer-events:none;
+  z-index:0;
+}
+.arr3d__stage.is-dragging{ cursor: grabbing; }
+.arr3d__loading{ text-align:center; padding-top:90px; color: rgba(36,28,20,.55); font-family: var(--sans); font-size:13px; letter-spacing:.08em; }
+
+.arr3d__card{
+  position:absolute;
+  left:50%; top:50%;
+  width: var(--arr-card-w);
+  aspect-ratio: 3 / 4;
+  border-radius: 18px;
+  background: #EDE5D8;
+  box-shadow:
+    0 40px 70px -30px rgba(70,48,22,.55),
+    0 14px 30px -18px rgba(70,48,22,.35);
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  transition:
+    transform .85s cubic-bezier(.2,.75,.2,1),
+    opacity .7s ease;
+  cursor:pointer;
+}
+.arr3d__stage:not(.is-ready) .arr3d__card,
+.arr3d__stage.is-dragging .arr3d__card{ transition:none; }
+
+.arr3d__media{
+  position:absolute; inset:0;
+  margin:0;
+  border-radius: inherit;
+  overflow:hidden;
+  background: #EDE5D8;
+}
+.arr3d__media img{
+  width:100%; height:100%;
+  object-fit:cover;
+  transform: scale(var(--zoom, 1));
+  pointer-events:none;
+}
+/* top vignette for the badge + side cards sink into the dark */
+.arr3d__shade{
+  position:absolute; inset:0;
+  background:
+    linear-gradient(180deg, rgba(15,10,6,.38) 0%, rgba(15,10,6,0) 24%, rgba(15,10,6,0) 78%, rgba(15,10,6,.22) 100%),
+    rgba(246,240,230, var(--dim, 0));
+  transition: background .7s ease;
+}
+/* gold hairline frame inset inside each card */
+.arr3d__frame{
+  position:absolute; inset:9px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,246,226,.7);
+  pointer-events:none;
+}
+
+.arr3d__no{
+  position:absolute;
+  left:24px; top:22px;
+  display:flex; align-items:center; gap:8px;
+  font-family: var(--serif);
+  color: #FFFDF8;
+  line-height:1;
+  text-shadow: 0 1px 8px rgba(0,0,0,.4);
+}
+.arr3d__no em{ font-style:normal; font-size: 26px; font-weight:500; }
+.arr3d__no i{ width:16px; height:1px; background: #F1DDB0; }
+.arr3d__no small{ font-size: 14px; color: rgba(255,253,248,.8); }
+
+.arr3d__fav.fav{
+  position:absolute;
+  right:20px; top:18px;
+  width:38px; height:38px;
+  border-radius:50%;
+  display:grid; place-items:center;
+  border: 1px solid rgba(255,255,255,.6);
+  background: rgba(255,251,244,.55);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  color: var(--arr-ink);
+  cursor:pointer;
+  transition: transform .3s ease, background .3s ease;
+}
+.arr3d__fav svg{ width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.4; }
+.arr3d__fav[aria-pressed="true"] svg{ fill:#A93B29; stroke:#A93B29; }
+@media (hover:hover){ .arr3d__fav:hover{ transform: scale(1.08); background: rgba(255,251,244,.92); } }
+
+/* ---------- info under the front card ---------- */
+.arr3d__info{
+  position:relative;
+  z-index:150;
+  display:flex; justify-content:center;
+  margin-top: 18px;
+  padding-inline: var(--gutter, 18px);
+  min-height: 178px;
+}
+.arr3d__panel{
+  width: min(440px, 100%);
+  text-align:center;
+  animation: arr3dIn .6s cubic-bezier(.2,.75,.2,1) both;
+}
+@keyframes arr3dIn{ from{ opacity:0; transform: translateY(10px); } to{ opacity:1; transform:none; } }
+.arr3d__name{
+  display:block;
+  font-family: var(--serif);
+  font-size: 25px;
+  font-weight:400;
+  line-height:1.2;
+  letter-spacing:.01em;
+  color: #1E1813;
+  text-decoration:none;
+  overflow:hidden;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+}
+.arr3d__rule{ display:flex; align-items:center; justify-content:center; gap:8px; margin: 12px auto 10px; }
+.arr3d__rule i{ width:34px; height:1px; background: var(--arr-gold-soft); }
+.arr3d__rule b{ width:4px; height:4px; background: var(--arr-gold); transform: rotate(45deg); }
+.arr3d__price{
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight:400;
+  letter-spacing:.22em;
+  font-weight:500;
+  color: #8A6A43;
+}
+.arr3d__add{
+  position:relative;
+  overflow:hidden;
+  margin-top: 20px;
+  display:inline-flex; align-items:center; justify-content:center;
+  height: 48px;
+  padding: 0 38px;
+  border: 1px solid var(--arr-gold);
+  border-radius: 0;
+  background: rgba(255,252,246,.6);
+  color: #241C14;
+  font-family: var(--sans);
+  font-size: 11.5px;
+  font-weight:400;
+  letter-spacing:.32em;
+  text-indent:.32em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition: color .45s ease, transform .3s ease;
+}
+/* gold fill sweeps in on hover */
+.arr3d__add::before{
+  content:"";
+  position:absolute; inset:0;
+  background: linear-gradient(120deg, #8A6A43, #B8975F 55%, #8A6A43);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .5s cubic-bezier(.2,.75,.2,1);
+  z-index:-1;
+}
+.arr3d__add span{ position:relative; }
+@media (hover:hover){
+  .arr3d__add:hover{ color:#FFFDF8; }
+  .arr3d__add:hover::before{ transform: scaleX(1); }
+}
+.arr3d__add{ isolation:isolate; }
+.arr3d__add:active{ transform: scale(.97); }
+
+/* ---------- controls ---------- */
+.arr3d__ctrl{
+  position:relative;
+  display:flex; align-items:center; justify-content:center;
+  gap: clamp(20px, 7vw, 56px);
+  margin-top: 26px;
+  padding-inline: var(--gutter, 18px);
+}
+.arr3d__ctrl[hidden]{ display:none; }
+.arr3d__btn{
+  width:46px; height:46px;
+  border-radius:50%;
+  display:grid; place-items:center;
+  border: 1px solid var(--arr-gold-soft);
+  background: rgba(255,252,246,.7);
+  color: #8A6A43;
+  cursor:pointer;
+  transition: background .35s ease, color .35s ease, transform .3s ease, border-color .35s ease;
+}
+.arr3d__btn svg{ width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.3; stroke-linecap:round; stroke-linejoin:round; }
+@media (hover:hover){ .arr3d__btn:hover{ background: #8A6A43; border-color: #8A6A43; color:#FFFDF8; } }
+.arr3d__btn:active{ transform: scale(.92); }
+.arr3d__dots{ display:flex; align-items:center; gap:6px; }
+.arr3d__dots button{
+  width: 18px; height: 2px;
+  padding:0; border:0;
+  background: rgba(36,28,20,.16);
+  cursor:pointer;
+  transition: width .5s cubic-bezier(.2,.75,.2,1), background .5s ease;
+}
+.arr3d__dots button.is-active{ width: 40px; background: #8A6A43; }
+
+/* ---------- tablet / laptop ---------- */
+@media (min-width: 900px){
+  .arr3d{ --arr-card-w: clamp(300px, 23vw, 360px); padding: 100px 0 90px; }
+  .arr3d__kicker{ font-size: 12px; }
+  .arr3d__stage{ margin-top: 150px; perspective: 1800px; }
+  .arr3d__card{ border-radius: 20px; }
+  .arr3d__frame{ inset:11px; border-radius: 13px; }
+  .arr3d__info{ margin-top: 26px; }
+  .arr3d__name{ font-size: 30px; }
+  .arr3d__price{ font-size: 16px; }
+  .arr3d__ctrl{ margin-top: 30px; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .arr3d__card, .arr3d__panel{ transition:none; animation:none; }
+  .arr3d__dust{ display:none; }
+}

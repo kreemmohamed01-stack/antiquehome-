@@ -29,6 +29,7 @@
 <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet" /></noscript>
 <link rel="preload" as="image" href="/hero-poster.webp" fetchpriority="high" />
 <link rel="stylesheet" href="/css/base.css" />
+<link rel="stylesheet" href="/css/arrivals.css" />
 <script src="/js/i18n.js"></script>
 <!-- Arabic dictionary: only downloaded for Arabic visitors (js/i18n.js
      fetches it on demand if someone switches language). -->
@@ -214,30 +215,29 @@
 
 <div id="saleBannerSlot"></div>
 
-<section class="arrivals" id="collection">
-  <header class="arrivals__head">
-    <p class="kicker kicker--center rv" data-rv data-i18n="newArrivals">New Arrivals</p>
-    <span class="ornament rv" data-rv aria-hidden="true"><i></i><b></b><i></i></span>
-    <div class="arrivals__bar">
-      <h2 class="arrivals__title rv rv--left" data-rv data-i18n="handpickedForYou">Handpicked For You</h2>
-      <div class="rail-nav rv" data-rv style="--rd:.12s">
-        <button class="rail-btn" type="button" data-rail="prev" aria-label="Previous products">
-          <svg viewBox="0 0 20 14" aria-hidden="true"><line x1="19" y1="7" x2="2" y2="7"></line><polyline points="7.4,1.6 1.6,7 7.4,12.4"></polyline></svg>
-        </button>
-        <button class="rail-btn" type="button" data-rail="next" aria-label="Next products">
-          <svg viewBox="0 0 20 14" aria-hidden="true"><line x1="1" y1="7" x2="18" y2="7"></line><polyline points="12.6,1.6 18.4,7 12.6,12.4"></polyline></svg>
-        </button>
-      </div>
-    </div>
+<section class="arrivals arr3d" id="collection">
+  <header class="arr3d__head">
+    <p class="arr3d__kicker rv" data-rv data-i18n="newArrivals">New Arrivals</p>
+    <span class="arr3d__orn rv" data-rv aria-hidden="true"><i></i><b></b><i></i></span>
+    <h2 class="arr3d__title rv rv--up" data-rv data-i18n="handpickedForYou">Handpicked For You</h2>
   </header>
 
-  <div id="featuredSlot">
-    <div class="feat rv rv--left empty-state" data-rv>
-      <p style="padding:40px;opacity:.7" data-i18n="loadingArrivals">Loading new arrivals&hellip;</p>
-    </div>
+  <span class="arr3d__dust" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+  <div class="arr3d__stage" id="arr3dStage" aria-roledescription="carousel" aria-label="New arrivals">
+    <p class="arr3d__loading" data-i18n="loadingArrivals">Loading new arrivals&hellip;</p>
   </div>
 
-  <div class="rail" id="productRail"></div>
+  <div class="arr3d__info" id="arr3dInfo" aria-live="polite"></div>
+
+  <div class="arr3d__ctrl" id="arr3dCtrl" hidden>
+    <button class="arr3d__btn" type="button" id="arr3dPrev" aria-label="Previous product">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="14.5,5 7.5,12 14.5,19"></polyline></svg>
+    </button>
+    <div class="arr3d__dots" id="arr3dDots"></div>
+    <button class="arr3d__btn" type="button" id="arr3dNext" aria-label="Next product">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="9.5,5 16.5,12 9.5,19"></polyline></svg>
+    </button>
+  </div>
 </section>
 
 <section class="cats" id="categories">
@@ -322,8 +322,8 @@
       <em>AH</em>
     </span>
     <div class="help__copy">
-      <h3 class="help__title" data-i18n-html="helpTitle">Can&apos;t find<br />what you&apos;re looking for?</h3>
-      <p class="help__text" data-i18n-html="helpText">We&apos;re here to help you discover<br />the perfect piece.</p>
+      <h3 class="help__title" data-i18n-html="helpTitle">Can&apos;t find what you&apos;re looking for?</h3>
+      <p class="help__text" data-i18n-html="helpText">We&apos;re here to help you discover the perfect piece.</p>
     </div>
     <a class="btn-outline" href="https://wa.me/201105288355" target="_blank" rel="noopener noreferrer">
       <span data-i18n="getInTouch">Get in Touch</span>
