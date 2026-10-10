@@ -387,7 +387,36 @@
   margin-bottom:20px;
   flex-wrap:wrap;
 }
-.pdp__qty{ width:118px; }
+.pdp__qty{
+  width:auto;
+  gap:6px;
+  padding:5px;
+  border:1px solid rgba(150,116,72,.45);
+  background: linear-gradient(180deg, #FFFDF9, var(--paper-2, #F6F1E8));
+  box-shadow: 0 2px 10px rgba(43,36,28,.06), inset 0 0 0 1px rgba(255,255,255,.7);
+}
+.pdp__qty .qty__btn{
+  width:38px; height:38px;
+  background: var(--paper, #FBF8F3);
+  border:1px solid rgba(150,116,72,.35);
+  color: var(--gold-deep);
+  box-shadow: 0 1px 3px rgba(43,36,28,.08);
+}
+.pdp__qty .qty__btn svg{ width:14px; height:14px; stroke-width:1.6; }
+@media (hover:hover){
+  .pdp__qty .qty__btn:hover{ background: var(--gold-deep); border-color: var(--gold-deep); color:#fff; }
+}
+.pdp__qty .qty__num{
+  min-width:44px;
+  font-family: var(--serif, "Cormorant Garamond", serif);
+  font-size:21px;
+  font-weight:500;
+  letter-spacing:.02em;
+}
+/* the main photo follows the finger/mouse while dragging it sideways */
+.pdp__main{ touch-action: pan-y; user-select:none; -webkit-user-select:none; }
+.pdp__main img{ -webkit-user-drag:none; }
+.pdp__main img.is-dragging{ transition:none; cursor:grabbing; }
 .pdp__stock{
   margin:0;
   font-family: var(--sans);

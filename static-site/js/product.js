@@ -371,6 +371,44 @@
       );
     }
 
+    // Drag/swipe the main photo sideways (finger or mouse) to move between
+    // photos; the image follows the pointer, then steps on release.
+    let justDragged = false;
+    if (mainFigure && imgCount > 1) {
+      const dragImg = document.getElementById("pdpMainImg");
+      let startX = 0, startY = 0, dx = 0, dragging = false, locked = false;
+      mainFigure.addEventListener("pointerdown", (e) => {
+        if (e.button > 0 || e.target.closest("button")) return;
+        startX = e.clientX; startY = e.clientY; dx = 0; dragging = true; locked = false;
+      });
+      mainFigure.addEventListener("pointermove", (e) => {
+        if (!dragging) return;
+        const mx = e.clientX - startX, my = e.clientY - startY;
+        if (!locked) {
+          if (Math.abs(mx) < 8) return;
+          if (Math.abs(my) > Math.abs(mx)) { dragging = false; return; }
+          locked = true;
+          try { mainFigure.setPointerCapture(e.pointerId); } catch {}
+          dragImg.classList.add("is-dragging");
+        }
+        dx = mx;
+        const atEdge = (dx > 0 && state.activeIdx === 0) || (dx < 0 && state.activeIdx === imgCount - 1);
+        dragImg.style.transform = `translateX(${atEdge ? dx * 0.25 : dx}px)`;
+      });
+      const endDrag = () => {
+        if (!dragging) return;
+        dragging = false;
+        if (!locked) return;
+        dragImg.classList.remove("is-dragging");
+        dragImg.style.transform = "";
+        justDragged = true;
+        setTimeout(() => { justDragged = false; }, 50);
+        if (Math.abs(dx) > 45) stepImage(dx < 0 ? 1 : -1);
+      };
+      mainFigure.addEventListener("pointerup", endDrag);
+      mainFigure.addEventListener("pointercancel", endDrag);
+    }
+
     const activeThumb = document.querySelector(".pdp__thumb.is-active");
     if (activeThumb) activeThumb.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
 
@@ -456,7 +494,7 @@
       render();
     };
     zoomBtn && zoomBtn.addEventListener("click", openLightbox);
-    mainImg && mainImg.addEventListener("click", openLightbox);
+    mainImg && mainImg.addEventListener("click", () => { if (!justDragged) openLightbox(); });
 
     const closeLightbox = () => {
       state.lightboxOpen = false;
