@@ -29,7 +29,7 @@ module.exports = async (req, res) => {
 
     // Keeps category banners apart from product photos in Cloudinary;
     // anything other than the known folder names falls back to products.
-    const folder = body.folder === "categories" ? "antique-home/categories" : "antique-home/products";
+    const folder = body.folder === "categories" ? "antique-home/categories" : body.folder === "instagram" ? "antique-home/instagram" : "antique-home/products";
     const result = await cloudinary.uploader.upload(dataUrl, { folder });
     res.status(200).json({ url: result.secure_url });
   } catch (err) {

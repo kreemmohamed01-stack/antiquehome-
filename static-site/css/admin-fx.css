@@ -1,0 +1,146 @@
+/* =========================================================
+   ADMIN FX — rounded cards, hover lift/zoom, entrance motion.
+   Layout, colours and content are untouched: this only changes
+   corners, spacing between joined tiles, shadows and motion.
+   Number count-up lives in js/admin-shell.js (AdminFx).
+   ========================================================= */
+
+:root{
+  --fx-r: 18px;
+  --fx-r-sm: 12px;
+  --fx-ease: cubic-bezier(.2,.75,.2,1);
+  --fx-shadow: 0 1px 2px rgba(30,22,14,.04), 0 6px 18px -10px rgba(30,22,14,.14);
+  --fx-shadow-hover: 0 2px 6px rgba(30,22,14,.06), 0 22px 44px -18px rgba(30,22,14,.32);
+}
+
+/* ---------- rounded corners ---------- */
+.admin__hero{ border-radius: 22px; overflow:hidden; }
+.admin__hero-btn{ border-radius: 999px; }
+.admin__panel,
+.admin__stat,
+.admin__action,
+.admin__ocard,
+.an__panel,
+.an__kpi,
+.an__trioItem,
+.an__cartItem,
+.an__funnelStep{
+  border-radius: var(--fx-r);
+}
+.admin__statStrip .admin__stat,
+.an__cartItem,
+.an__funnelStep{ border-radius: var(--fx-r-sm); }
+.admin__listRow img,
+.an__ptable img{ border-radius: 10px; }
+.admin__pill,
+.admin__chip,
+.admin__btn,
+.an__rangeBtns button,
+.an__chartTabs button{ border-radius: 999px; }
+.an__rangeBtns,
+.an__chartTabs{ gap:4px; }
+.admin__searchInline,
+.admin__select,
+.admin__field input,
+.admin__field textarea,
+.admin__field select{ border-radius: var(--fx-r-sm); }
+.an__pageRow-bar,
+.an__pageRow-bar i{ border-radius: 999px; }
+.an__kpiIcon{ border-radius: 10px; }
+
+/* joined tile grids become separate rounded tiles — same order and columns */
+.an__kpiGrid,
+.an__trio,
+.an__cartGrid{
+  gap: 12px;
+  background: transparent;
+  border: 0;
+}
+.an__kpiGrid{ margin-bottom: 16px; }
+.an__kpi,
+.an__trioItem,
+.an__cartItem{ border: 1px solid var(--a-border); }
+
+/* ---------- soft depth + hover lift / zoom ---------- */
+.admin__panel,
+.admin__stat,
+.admin__action,
+.an__panel,
+.an__kpi,
+.an__trioItem,
+.an__cartItem,
+.an__funnelStep{
+  position: relative;
+  box-shadow: var(--fx-shadow);
+  transition:
+    transform .45s var(--fx-ease),
+    box-shadow .45s var(--fx-ease),
+    border-color .45s var(--fx-ease);
+  will-change: transform;
+}
+@media (hover:hover){
+  .admin__stat:hover,
+  .an__kpi:hover,
+  .an__trioItem:hover,
+  .an__cartItem:hover,
+  .an__funnelStep:hover,
+  .admin__action:hover{
+    transform: translateY(-4px) scale(1.035);
+    box-shadow: var(--fx-shadow-hover);
+    z-index: 3;
+  }
+  .admin__panel:hover,
+  .an__panel:hover{
+    transform: translateY(-3px) scale(1.012);
+    box-shadow: var(--fx-shadow-hover);
+    z-index: 2;
+  }
+  /* a stat card inside a panel (Visitor Traffic) zooms on its own */
+  .admin__panel:hover .admin__stat:not(:hover){ transform:none; }
+  .admin__hero img{ transition: transform 1.2s var(--fx-ease); }
+  .admin__hero:hover img{ transform: scale(1.04); }
+  .admin__listRow,
+  .an__ptRow,
+  .admin__table tbody tr{ transition: background-color .3s ease; }
+}
+
+/* ---------- entrance (first load only; body.fx-intro is removed after) ---------- */
+@keyframes fxUp{
+  from{ opacity:0; transform: translateY(18px) scale(.985); }
+  to{ opacity:1; transform:none; }
+}
+body.fx-intro .admin__hero,
+body.fx-intro .admin__stat,
+body.fx-intro .admin__panel,
+body.fx-intro .admin__action,
+body.fx-intro .an__kpi,
+body.fx-intro .an__panel,
+body.fx-intro .an__trioItem,
+body.fx-intro .an__cartItem,
+body.fx-intro .an__funnelStep{
+  animation: fxUp .7s var(--fx-ease) both;
+  animation-delay: calc(var(--fx-i, 0) * 55ms);
+}
+
+/* charts draw / grow in */
+@keyframes fxDraw{ from{ stroke-dashoffset: 1; } to{ stroke-dashoffset: 0; } }
+@keyframes fxFade{ from{ opacity:0; } to{ opacity:1; } }
+@keyframes fxGrowY{ from{ transform: scaleY(0); } to{ transform: scaleY(1); } }
+@keyframes fxGrowX{ from{ transform: scaleX(0); } to{ transform: scaleX(1); } }
+@keyframes fxSpin{ from{ opacity:0; transform: rotate(-120deg) scale(.7); } to{ opacity:1; transform:none; } }
+
+body.fx-intro .an__chartWrap path[fill="none"]{
+  stroke-dasharray: 1;
+  animation: fxDraw 1.6s var(--fx-ease) both .2s;
+}
+body.fx-intro .an__chartWrap path[fill^="url"]{ animation: fxFade 1.2s ease both .8s; }
+body.fx-intro .an__kpiSpark path{ stroke-dasharray: 1; animation: fxDraw 1.4s var(--fx-ease) both .4s; }
+body.fx-intro .an__bar{ transform-origin: bottom; animation: fxGrowY 1s var(--fx-ease) both .3s; }
+body.fx-intro .an__pageRow-bar i{ transform-origin: left; animation: fxGrowX 1.1s var(--fx-ease) both .3s; }
+body.fx-intro .an__donut svg{ animation: fxSpin 1.1s var(--fx-ease) both .2s; }
+
+@media (prefers-reduced-motion: reduce){
+  body.fx-intro *{ animation:none !important; }
+  .admin__panel, .admin__stat, .admin__action, .an__panel, .an__kpi,
+  .an__trioItem, .an__cartItem, .an__funnelStep{ transition:none; }
+}

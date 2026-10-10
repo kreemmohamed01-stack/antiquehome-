@@ -275,6 +275,13 @@
       const el = document.getElementById(elId);
       if (val && el) el.textContent = val;
     }
+    // Instagram tiles swapped from Dashboard → Content (empty slot = keep the default photo)
+    if (Array.isArray(content.igImages)) {
+      document.querySelectorAll(".ig__tile img").forEach((img, i) => {
+        const url = content.igImages[i];
+        if (url) img.src = cldUrl(url, 700);
+      });
+    }
   }
 
   // Category tiles: the image uploaded in Dashboard → Categories, else the

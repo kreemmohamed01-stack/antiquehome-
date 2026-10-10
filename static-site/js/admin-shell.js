@@ -128,6 +128,8 @@ const AdminShell = {
     document.getElementById("sidebarCloseBtn").addEventListener("click", closeSidebar);
     scrim.addEventListener("click", closeSidebar);
 
+    AdminFx.start(document.getElementById("admin-root"));
+
     return { email, orderCount };
   },
 
@@ -172,5 +174,81 @@ const AdminShell = {
       wrap.querySelector("#adminConfirmCancel").addEventListener("click", () => cleanup(false));
       wrap.querySelector("#adminConfirmOk").addEventListener("click", () => cleanup(true));
     });
+  },
+};
+
+// ---- Dashboard motion: numbers count up, cards rise in on first load ----
+// Watches the admin root for rendered content. A number counts up from 0
+// the first time it appears and from its old value when it changes later
+// (e.g. Analytics' 30s refresh); a re-render with the same value stays
+// still, so polling never replays the animation. Entrance animations
+// (css/admin-fx.css, body.fx-intro) only run for the first few seconds,
+// and again briefly after a range / chart-tab switch.
+const AdminFx = {
+  NUM_SEL: ".admin__stat-value, .an__kpiValue, .an__liveNum, .an__donutPct, .an__trioMain, .an__funnelValue, .an__miniStat-value, .an__cartValue, .an__pageRow-val",
+  CARD_SEL: ".admin__hero, .admin__stat, .admin__panel, .admin__action, .an__kpi, .an__panel, .an__trioItem, .an__cartItem, .an__funnelStep",
+  start(root) {
+    if (!root || this.root) return;
+    this.root = root;
+    this.reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    this.prev = new Map();      // "class#index" -> last target number
+    this.written = new WeakMap(); // element -> last string we wrote into it
+    this.intro(2600);
+    let queued = false;
+    new MutationObserver(() => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => { queued = false; this.scan(); });
+    }).observe(root, { childList: true, subtree: true, characterData: true });
+    root.addEventListener("click", (e) => {
+      if (e.target.closest("[data-range], [data-metric]")) this.intro(1800);
+    });
+    this.scan();
+  },
+  intro(ms) {
+    if (this.reduced) return;
+    document.body.classList.add("fx-intro");
+    clearTimeout(this.introTimer);
+    this.introTimer = setTimeout(() => document.body.classList.remove("fx-intro"), ms);
+  },
+  scan() {
+    const root = this.root;
+    let i = 0;
+    root.querySelectorAll(this.CARD_SEL).forEach((el) => { el.style.setProperty("--fx-i", Math.min(i++, 14)); });
+    const seen = {};
+    root.querySelectorAll(this.NUM_SEL).forEach((el) => {
+      if (el.children.length) return;
+      const cls = el.className.split(" ")[0];
+      seen[cls] = (seen[cls] || 0) + 1;
+      const key = cls + "#" + seen[cls];
+      const text = el.textContent;
+      if (this.written.get(el) === text) return; // our own frame
+      const m = text.match(/^(\D*?)(-?[\d,]*\.?\d+)(.*)$/s);
+      if (!m || /:/.test(text)) return;
+      const to = parseFloat(m[2].replace(/,/g, ""));
+      if (!isFinite(to)) return;
+      const from = this.prev.has(key) ? this.prev.get(key) : 0;
+      this.prev.set(key, to);
+      if (from === to || this.reduced) return;
+      const decimals = (m[2].split(".")[1] || "").length;
+      const commas = m[2].includes(",") || Math.abs(to) >= 1000;
+      this.animate(el, m[1], m[3], from, to, decimals, commas);
+    });
+  },
+  animate(el, pre, post, from, to, decimals, commas) {
+    const dur = 1300;
+    const t0 = performance.now();
+    const fmt = (v) => pre + (commas
+      ? v.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+      : v.toFixed(decimals)) + post;
+    const step = (now) => {
+      const t = Math.min(1, (now - t0) / dur);
+      const e = t === 1 ? 1 : 1 - Math.pow(2, -10 * t); // ease-out expo
+      const str = fmt(from + (to - from) * e);
+      this.written.set(el, str);
+      el.textContent = str;
+      if (t < 1 && el.isConnected) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
   },
 };

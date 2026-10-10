@@ -15,6 +15,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/css/admin.css">
 <link rel="stylesheet" href="/css/admin-v3.css">
+<link rel="stylesheet" href="/css/admin-fx.css">
+<style>
+  .igEdit{ display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:14px; }
+  @media (max-width: 700px){ .igEdit{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  .igEdit__tile{ display:flex; flex-direction:column; gap:8px; }
+  .igEdit__pic{ position:relative; aspect-ratio:1; border-radius:14px; overflow:hidden; cursor:pointer; background: var(--a-surface-2, #f1ece4); border:1px solid var(--a-border, rgba(0,0,0,.08)); }
+  .igEdit__pic img{ width:100%; height:100%; object-fit:cover; display:block; transition: transform .5s cubic-bezier(.2,.75,.2,1); }
+  .igEdit__pic:hover img{ transform: scale(1.06); }
+  .igEdit__pic span{ position:absolute; inset:auto 0 0 0; padding:8px; font-size:11px; text-align:center; color:#fff; background: linear-gradient(transparent, rgba(0,0,0,.6)); }
+  .igEdit__pic.is-busy::after{ content:"Uploading…"; position:absolute; inset:0; display:grid; place-items:center; background: rgba(0,0,0,.5); color:#fff; font-size:12px; }
+  .igEdit__row{ display:flex; justify-content:space-between; align-items:center; font-size:11.5px; color: var(--a-text-dim); }
+  .igEdit__row button{ border:0; background:none; color: var(--a-text-dim); text-decoration:underline; cursor:pointer; font-size:11.5px; padding:0; }
+</style>
 </head>
 <body>
 <div class="admin" id="admin-root">
@@ -46,6 +59,12 @@
     <p class="admin__hint">Leave any field blank to keep the site's current default text.</p>
   </div>
 
+  <div class="admin__panel" style="margin-bottom:18px">
+    <div class="admin__panel-head"><h2 class="admin__panel-title">Instagram Photos</h2></div>
+    <p class="admin__hint" style="margin-top:0">The 4 photos in the homepage's Instagram section, left to right. Click a photo to replace it; "Reset" puts the site's original photo back. Changes go live after "Save All Content".</p>
+    <div class="igEdit" id="igEdit"></div>
+  </div>
+
   <div class="admin__panel">
     <div class="admin__panel-head"><h2 class="admin__panel-title">Contact Info</h2></div>
     <div class="admin__field2">
@@ -75,6 +94,42 @@
     contactAddress: "f_contactAddress",
   };
 
+  // Homepage Instagram tiles: the photo the site ships with, overridden by
+  // site_content.igImages[i] when one was uploaded here.
+  const IG_DEFAULTS = ["/sec 5/insta 1.webp", "/sec 5/insta 2.webp", "/sec 5/insta 3 .webp", "/sec 5/insta 4.webp"];
+  let igImages = ["", "", "", ""];
+
+  function renderIg() {
+    const wrap = document.getElementById("igEdit");
+    wrap.innerHTML = IG_DEFAULTS.map((def, i) => `
+      <div class="igEdit__tile">
+        <label class="igEdit__pic" id="igPic${i}">
+          <img src="${igImages[i] || def}" alt="Instagram photo ${i + 1}">
+          <span>Click to replace</span>
+          <input type="file" accept="image/*" data-ig="${i}" hidden>
+        </label>
+        <div class="igEdit__row"><span>Photo ${i + 1}${igImages[i] ? "" : " · original"}</span>${igImages[i] ? `<button type="button" data-ig-reset="${i}">Reset</button>` : ""}</div>
+      </div>`).join("");
+    wrap.querySelectorAll("[data-ig]").forEach((input) => input.addEventListener("change", async () => {
+      const i = Number(input.dataset.ig);
+      const file = input.files && input.files[0];
+      if (!file) return;
+      const pic = document.getElementById("igPic" + i);
+      pic.classList.add("is-busy");
+      try {
+        igImages[i] = await uploadImageFile(file, "instagram");
+        renderIg();
+      } catch (err) {
+        pic.classList.remove("is-busy");
+        alert(err.message || "Upload failed.");
+      }
+    }));
+    wrap.querySelectorAll("[data-ig-reset]").forEach((btn) => btn.addEventListener("click", () => {
+      igImages[Number(btn.dataset.igReset)] = "";
+      renderIg();
+    }));
+  }
+
   (async () => {
     const session = await AdminShell.init({ active: "content" });
     if (!session) return;
@@ -84,12 +139,15 @@
     for (const [key, id] of Object.entries(FIELDS)) {
       document.getElementById(id).value = content[key] || "";
     }
+    if (Array.isArray(content.igImages)) igImages = IG_DEFAULTS.map((_, i) => content.igImages[i] || "");
+    renderIg();
 
     document.getElementById("saveContentBtn").addEventListener("click", async () => {
       const out = {};
       for (const [key, id] of Object.entries(FIELDS)) {
         out[key] = document.getElementById(id).value.trim();
       }
+      out.igImages = igImages.slice();
       try {
         await API.post("/api/settings?key=site_content", out);
         alert("Saved.");
