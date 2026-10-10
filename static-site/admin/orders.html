@@ -110,7 +110,7 @@
                 <td>${fmt(o.total)}</td>
                 <td><span class="${pillClass(o.status)}">${o.status.charAt(0).toUpperCase() + o.status.slice(1)}</span></td>
                 <td>${new Date(o.created_at).toLocaleDateString("en-US")}</td>
-                <td><a href="/admin/order-detail.html?id=${o.id}" class="admin__iconAct">View</a></td>
+                <td><a href="/admin/order-detail.html?id=${o.id}" class="admin__iconAct">View</a> <a href="#" class="admin__iconAct" data-del-order="${o.id}" data-num="${o.order_number}" style="color:#c0392b">Delete</a></td>
               </tr>
             `).join("")}
           </tbody>
@@ -126,6 +126,23 @@
         </div>
       `;
     }
+
+    listEl.querySelectorAll("[data-del-order]").forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const ok = await AdminShell.confirm({
+          title: "Delete this order?",
+          message: `Order ${btn.dataset.num} will be permanently deleted. This cannot be undone.`,
+          confirmLabel: "Delete",
+        });
+        if (!ok) return;
+        try {
+          await API.del(`/api/orders?id=${btn.dataset.delOrder}`);
+          ALL_ORDERS = ALL_ORDERS.filter((o) => String(o.id) !== btn.dataset.delOrder);
+          render();
+        } catch { alert("Failed to delete order."); }
+      });
+    });
 
     const pagerEl = document.getElementById("pager");
     if (totalPages > 1) {

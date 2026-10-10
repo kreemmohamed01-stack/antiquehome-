@@ -108,10 +108,8 @@
     try {
       const all = await API.get("/api/products?status=active&view=home");
       const flagged = all.filter((p) => p.is_new_arrival);
-      products = (flagged.length ? flagged : all)
-        .slice()
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-        .slice(0, 7);
+      // API already returns them in the dashboard's New Arrivals order
+      products = (flagged.length ? flagged : all).slice(0, 7);
     } catch {
       products = [];
     }

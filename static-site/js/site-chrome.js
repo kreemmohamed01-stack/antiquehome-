@@ -216,8 +216,7 @@
           if (!btn) return;
           group.querySelectorAll(".sm__opt").forEach((o) => o.classList.toggle("is-active", o === btn));
           // the Language switch (data-lang) drives the real site-wide
-          // language toggle; Currency (data-currency) stays cosmetic for
-          // now since EGP is the only currency the storefront supports.
+          // language toggle.
           if (btn.dataset.lang && window.AH_I18N) window.AH_I18N.setLang(btn.dataset.lang);
         });
       });

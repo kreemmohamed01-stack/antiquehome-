@@ -123,7 +123,16 @@ module.exports = async (req, res) => {
           // homepage wants newest-first, same as js/index.js sorts)
           const newest = list.slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
           const flagged = newest.filter((p) => p.is_new_arrival);
-          rows = (flagged.length ? flagged : newest).slice(0, 7);
+          const pool = flagged.length ? flagged : newest;
+          // Dashboard's "New Arrivals" drag order; products not in the saved
+          // list (newly flagged) stay first, newest first (stable sort).
+          const savedNA = await sql`SELECT value FROM settings WHERE key = 'new_arrivals_order'`;
+          const naOrder = savedNA.length && Array.isArray(savedNA[0].value) ? savedNA[0].value : [];
+          if (naOrder.length) {
+            const naPos = new Map(naOrder.map((id, i) => [Number(id), i + 1]));
+            pool.sort((a, b) => (naPos.get(a.id) || 0) - (naPos.get(b.id) || 0));
+          }
+          rows = pool.slice(0, 7);
         } else if (req.query.view === "nav") {
           rows = list.map((p) => ({ id: p.id, slug: p.slug, category_id: p.category_id, created_at: p.created_at }));
         }

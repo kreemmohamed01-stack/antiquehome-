@@ -261,14 +261,6 @@
       </div>
     </div>
 
-    <div class="sm__toggle">
-      <span class="sm__toggle-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M12 7.2v9.6"/><path d="M14.6 9.4a2.8 2.8 0 0 0-2.6-1.4c-1.7 0-2.8.9-2.8 2s1 1.7 2.8 2c1.8.3 2.8.9 2.8 2s-1.1 2-2.8 2a2.9 2.9 0 0 1-2.7-1.4"/></svg></span>
-      <span class="sm__toggle-label" data-i18n="smCurrency">Currency</span>
-      <div class="sm__switch" role="group" aria-label="Currency">
-        <button type="button" class="sm__opt is-active" data-currency="egp">EGP</button>
-        <button type="button" class="sm__opt" data-currency="usd">USD</button>
-      </div>
-    </div>
 
     <span class="sm__rule" aria-hidden="true"></span>
 

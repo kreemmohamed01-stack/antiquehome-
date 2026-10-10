@@ -204,6 +204,17 @@ module.exports = async (req, res) => {
       return;
     }
 
+    // DELETE /api/orders?id=123 -> admin deletes one order (items cascade).
+    if (req.method === "DELETE" && req.query.id) {
+      const session = getSession(req);
+      if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
+      const id = Number(req.query.id);
+      if (!id) { res.status(400).json({ error: "Missing id" }); return; }
+      await sql`DELETE FROM orders WHERE id = ${id}`;
+      res.status(200).json({ ok: true });
+      return;
+    }
+
     // DELETE /api/orders?demo=1 — wipes the seeded demo orders/products
     // (admin dashboard's "Clear Demo Data" button). Was its own
     // api/demo.js function; merged in here to stay under the Hobby
