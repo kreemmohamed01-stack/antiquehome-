@@ -1031,6 +1031,12 @@
   justify-content:center;
   gap:8px;
   margin-top:28px;
+  flex-wrap:wrap;
+  max-width:100%;
+}
+@media (max-width:520px){
+  .pager{ gap:6px; }
+  .pager button{ min-width:32px; height:32px; }
 }
 .pager button{
   appearance:none;
