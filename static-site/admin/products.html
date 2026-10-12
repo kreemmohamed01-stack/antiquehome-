@@ -72,6 +72,7 @@
   let NA_ORDER = [];
   let SHOP_ORDER = []; // product ids in the order the all-products shop page shows them
   let reorderList = []; // products in that category, in current drag order
+  let naSwapIdx = null; // New Arrivals: row picked by the first "Swap" click
   let stockFilter = ""; // "", "in", "low", "out" — set by clicking a stock stat card
 
   function fmt(n) { return "EGP " + Math.round(Number(n)).toLocaleString("en-US"); }
@@ -283,7 +284,7 @@
       reorderList.map((p, i) => `
         ${reorderCategoryId === "new" && i === 7 ? `<div style="margin:14px 0 8px;padding:8px 12px;border-top:2px dashed var(--a-text-dim);color:var(--a-text-dim);font-size:12px">⬇ Not shown on the home page (only the top 7 appear)</div>` : ""}
         ${reorderCategoryId === "new" && i === 0 ? `<div style="margin:0 0 8px;color:var(--a-text);font-size:12px;font-weight:600">⬇ These 7 appear on the home page, in this order</div>` : ""}
-        <div class="admin__prow" draggable="true" data-ridx="${i}" style="cursor:grab">
+        <div class="admin__prow" draggable="true" data-ridx="${i}" style="cursor:grab${naSwapIdx === i ? ";outline:2px solid var(--a-gold, #c9a96e);outline-offset:-2px" : ""}${naSwapIdx !== null && naSwapIdx !== i && (naSwapIdx < 7) !== (i < 7) ? ";background:rgba(201,169,110,.08)" : ""}">
           <span aria-hidden="true" style="flex:none;font-size:18px;color:var(--a-text-dim);padding:0 4px;cursor:grab">⠿</span>
           <img src="${cldUrl(p.image_urls?.[0] || "/logo hero.png", 80)}" alt="">
           <div class="admin__prow-main">
@@ -292,9 +293,29 @@
           </div>
           <div style="flex:none;text-align:right;min-width:40px;color:var(--a-text-dim);font-size:12px">${reorderCategoryId === "new" ? (i < 7 ? `Home #${i + 1}` : "—") : `#${i + 1}`}</div>
           <div style="flex:none">${p.status === "active" ? stockPillHtml(p) : `<span class="admin__pill admin__pill--warn">${p.status === "draft" ? "Draft — hidden" : "Archived — hidden"}</span>`}</div>
+          ${reorderCategoryId === "new" ? `<button type="button" class="admin__btn admin__btn--outline admin__btn--sm" data-naswap="${i}" style="flex:none;padding:6px 12px;font-size:12px;white-space:nowrap${naSwapIdx === i ? ";background:var(--a-gold, #c9a96e);color:#111" : ""}">${naSwapIdx === i ? "Cancel" : naSwapIdx !== null && (naSwapIdx < 7) !== (i < 7) ? "⇄ Swap here" : "⇄ Swap"}</button>` : ""}
           ${rowActionsHtml(p)}
         </div>
       `).join("");
+
+    if (reorderCategoryId === "new" && naSwapIdx !== null) {
+      listEl.insertAdjacentHTML("afterbegin", `<div style="margin-bottom:8px;padding:8px 12px;border-radius:8px;background:rgba(201,169,110,.12);font-size:12px;color:var(--a-cream)">Now click "⇄ Swap here" on the product to trade places with <b>${reorderList[naSwapIdx].name}</b> — or "Cancel".</div>`);
+    }
+
+    // Swap: first click picks a product, second click (on a product in the
+    // other group — top 7 vs. below) trades their positions and saves.
+    listEl.querySelectorAll("[data-naswap]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const i = Number(btn.dataset.naswap);
+        if (naSwapIdx === null) { naSwapIdx = i; renderReorderList(); return; }
+        if (naSwapIdx === i) { naSwapIdx = null; renderReorderList(); return; }
+        const a = naSwapIdx;
+        [reorderList[a], reorderList[i]] = [reorderList[i], reorderList[a]];
+        naSwapIdx = null;
+        renderReorderList();
+        scheduleReorderSave();
+      });
+    });
 
     wireRowActions(listEl);
 
@@ -899,6 +920,7 @@
 
   function loadReorderCategory(categoryId) {
     reorderCategoryId = categoryId;
+    naSwapIdx = null;
     buildReorderList();
     render();
   }
