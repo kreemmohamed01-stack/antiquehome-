@@ -8,7 +8,7 @@
   // short link) rather than a plain text-search query, so it always
   // opens the exact pinned location rather than a "best guess" result.
   var MAPS_URL = "https://maps.google.com/maps?q=2+Mahmoud+Haridy,+El+Nozha,+Cairo+Governorate&ftid=0x145817d7eee8f175:0x984cb1d837b32a46";
-  var FACEBOOK_URL = "https://www.facebook.com/share/196HJ5WoUw/?mibextid=wwXIfr";
+  var FACEBOOK_URL = "https://www.facebook.com/people/Antiques-Home/100091407035077/";
 
   var CHROME_HTML = `
 <footer class="foot" id="contact">
@@ -97,7 +97,7 @@
         </li>
         <li class="fbar__item fbar__item--social rv rv--up" data-rv style="--rd:.16s">
           <ul class="fsocial">
-            <li><a href="https://www.instagram.com/antique_home111?igsi=MXQ1eWdvbGRsb2pvaA==" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+            <li><a href="https://www.instagram.com/antique_home111/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <defs><radialGradient id="fIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#FDF497"/><stop offset="5%" stop-color="#FDF497"/><stop offset="45%" stop-color="#FD5949"/><stop offset="60%" stop-color="#D6249F"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs>
                 <rect x="2" y="2" width="20" height="20" rx="5.6" fill="url(#fIg)"/>
@@ -265,7 +265,7 @@
     <span class="sm__rule" aria-hidden="true"></span>
 
     <ul class="sm__social">
-      <li><a href="https://www.instagram.com/antique_home111?igsi=MXQ1eWdvbGRsb2pvaA==" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+      <li><a href="https://www.instagram.com/antique_home111/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <defs><radialGradient id="smIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#FDF497"/><stop offset="5%" stop-color="#FDF497"/><stop offset="45%" stop-color="#FD5949"/><stop offset="60%" stop-color="#D6249F"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs>
           <rect x="2" y="2" width="20" height="20" rx="5.6" fill="url(#smIg)"/>
@@ -472,7 +472,7 @@
   // known default hrefs so it only touches actual social links, never an
   // unrelated wa.me-style URL a future page might add on purpose.
   const DEFAULT_WHATSAPP = "https://wa.me/201105288355";
-  const DEFAULT_INSTAGRAM = "https://www.instagram.com/antique_home111?igsi=MXQ1eWdvbGRsb2pvaA==";
+  const DEFAULT_INSTAGRAM = "https://www.instagram.com/antique_home111/";
 
   async function applySocialLinks() {
     let social = null;
