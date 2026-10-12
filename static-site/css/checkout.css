@@ -781,3 +781,9 @@
 @media (prefers-reduced-motion: reduce){
   .chk__field, .chk__radioCard, .chk__payCard, .chk__submit, .chk__instapayBtn, .chk__promo button{ transition:none !important; }
 }
+
+/* Inline "please fill this in" messages under checkout fields */
+.chk__fieldErr{ display:block; margin:-6px 2px 12px; font-size:12.5px; line-height:1.4; color:#b3261e; }
+.chk__field.has-error,
+.chk__fieldLabeled.has-error .chk__fieldInput{ border-color:#b3261e; }
+.chk__agree.has-error .chk__agreeBox{ border-color:#b3261e; }

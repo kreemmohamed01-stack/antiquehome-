@@ -75,11 +75,11 @@
     agree: false,
     placing: false,
     error: "",
+    errors: {},
     email: "",
     fullName: "",
     phone: "",
     governorate: "",
-    city: "",
     address: "",
     notes: "",
     paymentReference: "",
@@ -213,26 +213,29 @@
           <section class="chk__card${rvClass()}"${rvAttr()}>
             <h2 class="chk__heading">${t("contactInfoHeading", "1. Contact Information")}</h2>
             <p class="chk__sub">${t("contactInfoSub", "We&rsquo;ll use this information to keep you updated about your order.")}</p>
-            <label class="chk__field">
+            <label class="chk__field${errCls("email")}">
               <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.4" width="18" height="13.2" rx="2"></rect><polyline points="3.6,6.4 12,13 20.4,6.4"></polyline></svg>
               <input type="email" id="fEmail" placeholder="${t("emailPlaceholder2", "Email Address")}" autocomplete="email" required value="${state.email}" />
             </label>
+            ${fieldErr("email")}
           </section>
 
           <section class="chk__card${rvClass()}"${rvAttr(0.08)}>
             <h2 class="chk__heading">${t("shippingDetailsHeading", "2. Shipping Details")}</h2>
             <p class="chk__sub">${t("shippingDetailsSub", "Enter your delivery information.")}</p>
             <div class="chk__row2">
-              <label class="chk__field">
+              <label class="chk__field${errCls("fullName")}">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"></circle><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"></path></svg>
                 <input type="text" id="fName" placeholder="${t("fullNamePlaceholder", "Full Name")}" autocomplete="name" required value="${state.fullName}" />
               </label>
-              <label class="chk__field">
+            ${fieldErr("fullName")}
+              <label class="chk__field${errCls("phone")}">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 4.4h3l1.4 4-2 1.6a12.4 12.4 0 0 0 5 5l1.6-2 4 1.4v3a2 2 0 0 1-2.2 2C10.7 19.1 4.9 13.3 4.6 6.6a2 2 0 0 1 2-2.2Z"></path></svg>
                 <input type="tel" id="fPhone" placeholder="${t("phonePlaceholder", "Phone Number")}" autocomplete="tel" inputmode="tel" required value="${state.phone}" />
               </label>
+            ${fieldErr("phone")}
             </div>
-            <label class="chk__field chk__field--select">
+            <label class="chk__field chk__field--select${errCls("governorate")}">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.4S5 15 5 9.8a7 7 0 0 1 14 0c0 5.2-7 11.6-7 11.6Z"></path><circle cx="12" cy="9.6" r="2.6"></circle></svg>
               <select id="fGov" required>
                 <option value="" disabled ${state.governorate ? "" : "selected"}>${t("governoratePlaceholder", "Governorate")}</option>
@@ -242,14 +245,12 @@
               </select>
               <svg class="chk__chev" viewBox="0 0 12 8" aria-hidden="true"><polyline points="1,1.5 6,6.5 11,1.5"></polyline></svg>
             </label>
-            <label class="chk__field">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7.4" width="16" height="12.6" rx="1.4"></rect><path d="M8.4 7.4V5.4a1.4 1.4 0 0 1 1.4-1.4h4.4a1.4 1.4 0 0 1 1.4 1.4v2"></path></svg>
-              <input type="text" id="fCity" placeholder="${t("cityPlaceholder", "City / Area")}" autocomplete="address-level2" required value="${state.city}" />
-            </label>
-            <label class="chk__field">
+            ${fieldErr("governorate")}
+            <label class="chk__field${errCls("address")}">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.4 12 4.6l8 6.8"></path><path d="M6 10v9.4h12V10"></path><path d="M10 19.4v-6h4v6"></path></svg>
               <input type="text" id="fAddress" placeholder="${t("addressPlaceholder", "Detailed Address (Street, Building, Landmark)")}" autocomplete="street-address" required value="${state.address}" />
             </label>
+            ${fieldErr("address")}
           </section>
 
           <section class="chk__card${rvClass()}"${rvAttr(0.16)}>
@@ -386,7 +387,7 @@
                     </div>
                   </div>
 
-                  <label class="chk__fieldLabeled">
+                  <label class="chk__fieldLabeled${errCls("paymentReference")}">
                     <span class="chk__fieldLabel">${t("instapayRefLabel", "Enter the phone number you sent from")}</span>
                     <span class="chk__fieldInput">
                       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 4.4H6a2.2 2.2 0 0 0-2.2 2.2c0 7.4 5.8 13.2 13.2 13.2a2.2 2.2 0 0 0 2.2-2.2v-2l-4-1.5-1.8 1.8a12.4 12.4 0 0 1-5.1-5.1L10 8.8Z"></path></svg>
@@ -394,8 +395,9 @@
                     </span>
                     <small class="chk__fieldHint">${t("instapayRefHint", "Write the InstaPay number you used to send the payment from.")}</small>
                   </label>
+            ${fieldErr("paymentReference")}
 
-                  <label class="chk__fieldLabeled">
+                  <label class="chk__fieldLabeled${errCls("paymentSenderName")}">
                     <span class="chk__fieldLabel">${t("instapaySenderLabel", "Sender's name")}</span>
                     <span class="chk__fieldInput">
                       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"></circle><path d="M4.4 20a7.6 7.6 0 0 1 15.2 0"></path></svg>
@@ -403,6 +405,7 @@
                     </span>
                     <small class="chk__fieldHint">${t("instapaySenderHint", "Enter the name of the account you sent from.")}</small>
                   </label>
+            ${fieldErr("paymentSenderName")}
                 </section>`
               : ""
           }
@@ -414,11 +417,12 @@
               <textarea rows="3" id="fNotes" placeholder="${t("notesPlaceholder", "Any special requests or notes for your order&hellip;")}">${state.notes}</textarea>
             </label>
 
-            <label class="chk__agree">
+            <label class="chk__agree${errCls("agree")}">
               <input type="checkbox" id="fAgree" ${state.agree ? "checked" : ""} required />
               <span class="chk__agreeBox" aria-hidden="true"><svg viewBox="0 0 16 12"><polyline points="1.5,6 6,10.5 14.5,1.5"></polyline></svg></span>
               <span>${t("agreeTerms", 'I agree to the <a href="#">Terms &amp; Conditions</a> and <a href="#">Privacy Policy</a>.')}</span>
             </label>
+            ${fieldErr("agree")}
 
             ${state.error ? `<p style="color:#a33;margin-top:8px">${state.error}</p>` : ""}
 
@@ -441,6 +445,18 @@
     if (!firstRenderDone) scanReveal(document.getElementById("checkoutSlot"));
   }
 
+  const ERR_KEY = { fEmail: "email", fName: "fullName", fPhone: "phone", fAddress: "address", fPaymentRef: "paymentReference", fPaymentSender: "paymentSenderName", fAgree: "agree" };
+  function clearErr(id) {
+    const key = ERR_KEY[id];
+    if (!key || !state.errors[key]) return;
+    delete state.errors[key];
+    const el = document.querySelector(`[data-err="${key}"]`);
+    if (el) el.remove();
+    const input = document.getElementById(id);
+    const box = input && input.closest("label");
+    if (box) box.classList.remove("has-error");
+  }
+
   function wireEvents() {
     if (window.AH_I18N) window.AH_I18N.wireLangButtons();
     const byId = (id) => document.getElementById(id);
@@ -449,9 +465,9 @@
     byId("fPhone").addEventListener("input", (e) => (state.phone = e.target.value));
     byId("fGov").addEventListener("change", (e) => {
       state.governorate = e.target.value;
+      delete state.errors.governorate;
       render();
     });
-    byId("fCity").addEventListener("input", (e) => (state.city = e.target.value));
     byId("fAddress").addEventListener("input", (e) => (state.address = e.target.value));
     byId("fNotes").addEventListener("input", (e) => (state.notes = e.target.value));
     byId("fAgree").addEventListener("change", (e) => (state.agree = e.target.checked));
@@ -459,6 +475,11 @@
     paymentRefEl && paymentRefEl.addEventListener("input", (e) => (state.paymentReference = e.target.value));
     const paymentSenderEl = byId("fPaymentSender");
     paymentSenderEl && paymentSenderEl.addEventListener("input", (e) => (state.paymentSenderName = e.target.value));
+
+    Object.keys(ERR_KEY).forEach((id) => {
+      const el = byId(id);
+      el && el.addEventListener(id === "fAgree" ? "change" : "input", () => clearErr(id));
+    });
 
     document.querySelectorAll("[data-copy]").forEach((btn) => {
       btn.addEventListener("click", async () => {
@@ -552,26 +573,30 @@
     }
   }
 
+  // Inline "please fill this in" message shown right under a field.
+  function fieldErr(key) {
+    return state.errors[key] ? `<small class="chk__fieldErr" data-err="${key}" role="alert">${state.errors[key]}</small>` : "";
+  }
+  const errCls = (key) => (state.errors[key] ? " has-error" : "");
+
   async function placeOrder() {
     state.error = "";
-    if (!state.email || !state.fullName || !state.phone || !state.governorate || !state.city || !state.address) {
-      state.error = t("errFillFields", "Please fill in all required shipping fields.");
+    const errs = {};
+    const need = t("errFieldRequired", "Please fill in this field.");
+    if (!state.email.trim()) errs.email = t("errEmailRequired", "Please enter your email address.");
+    else if (!/^\S+@\S+\.\S+$/.test(state.email.trim())) errs.email = t("errEmailInvalid", "Please enter a valid email address.");
+    if (!state.fullName.trim()) errs.fullName = t("errNameRequired", "Please enter your full name.");
+    if (!state.phone.trim()) errs.phone = t("errPhoneRequired", "Please enter your phone number.");
+    if (!state.governorate) errs.governorate = t("errGovRequired", "Please choose your governorate.");
+    if (!state.address.trim()) errs.address = t("errAddressRequired", "Please enter your detailed address.");
+    if (state.payment === "instapay" && !state.paymentReference.trim()) errs.paymentReference = t("errInstapayPhone", "Please enter the phone number you sent the InstaPay transfer from.");
+    if (state.payment === "instapay" && !state.paymentSenderName.trim()) errs.paymentSenderName = t("errInstapaySender", "Please enter the sender's name.");
+    if (!state.agree) errs.agree = t("errAgree", "Please agree to the Terms & Conditions to continue.");
+    state.errors = errs;
+    if (Object.keys(errs).length) {
       render();
-      return;
-    }
-    if (!state.agree) {
-      state.error = t("errAgree", "Please agree to the Terms & Conditions to continue.");
-      render();
-      return;
-    }
-    if (state.payment === "instapay" && !state.paymentReference.trim()) {
-      state.error = t("errInstapayPhone", "Please enter the phone number you sent the InstaPay transfer from.");
-      render();
-      return;
-    }
-    if (state.payment === "instapay" && !state.paymentSenderName.trim()) {
-      state.error = t("errInstapaySender", "Please enter the sender's name.");
-      render();
+      const first = document.querySelector(".chk__fieldErr");
+      if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
     if (state.lines.length === 0) {
@@ -593,7 +618,6 @@
         fullName: state.fullName,
         phone: state.phone,
         governorate: state.governorate,
-        city: state.city,
         address: state.address,
         delivery: deliveryLabel,
         payment: state.payment === "instapay" ? "InstaPay" : "Cash on Delivery",
