@@ -69,7 +69,7 @@
     const img = (p.image_urls || [])[0] || "";
     const f = splitFocal(img);
     return `
-      <article class="arr3d__card" data-i="${i}" data-href="/product.html?slug=${encodeURIComponent(p.slug)}">
+      <article class="arr3d__card" data-i="${i}" data-href="/product/${encodeURIComponent(p.slug)}">
         <figure class="arr3d__media">
           <img src="${cldUrl(img, 720)}" alt="${esc(p.name)}" loading="${i < 3 || i > total - 3 ? "eager" : "lazy"}" draggable="false" style="object-position:${f.position};--zoom:${f.zoom}" />
           <span class="arr3d__shade" aria-hidden="true"></span>
@@ -84,7 +84,7 @@
     const img = (p.image_urls || [])[0] || "";
     return `
       <div class="arr3d__panel">
-        <a class="arr3d__name" href="/product.html?slug=${encodeURIComponent(p.slug)}" data-pname-en="${esc(p.name)}" data-pname-ar="${esc(p.name_ar || "")}">${esc(AH_I18N.productName(p))}</a>
+        <a class="arr3d__name" href="/product/${encodeURIComponent(p.slug)}" data-pname-en="${esc(p.name)}" data-pname-ar="${esc(p.name_ar || "")}">${esc(AH_I18N.productName(p))}</a>
         <span class="arr3d__rule" aria-hidden="true"><i></i><b></b><i></i></span>
         <p class="arr3d__price">${money(p.price)}</p>
         <button class="arr3d__add" type="button" data-add="${esc(p.name)}" data-add-ar="${esc(p.name_ar || "")}" data-add-id="${esc(p.slug)}" data-add-price="${p.price}" data-add-image="${esc(splitFocal(img).src)}" data-add-weight="${p.weight_kg || 0}">

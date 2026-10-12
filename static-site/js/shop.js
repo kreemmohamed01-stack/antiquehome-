@@ -415,7 +415,7 @@
 
     return `
       <article class="pcard rv rv--zoom" data-rv style="--rd:${rd}s" data-name="${p.name}" data-price="${p.price}" data-size="${p.size_cm || ""}" data-material="${(p.material || "").toLowerCase()}" data-color="${(p.colors || []).join(",")}">
-        <a class="pcard__media" href="/product.html?slug=${encodeURIComponent(p.slug)}">
+        <a class="pcard__media" href="/product/${encodeURIComponent(p.slug)}">
           ${badge}
           <img src="${cldUrl(img, 480)}" alt="${p.name}" loading="lazy" style="object-position:${splitFocal(img).position};--zoom:${splitFocal(img).zoom}" />
           <button class="fav" type="button" aria-label="Save ${p.name}" aria-pressed="false" onclick="event.preventDefault()">
@@ -427,7 +427,7 @@
         </a>
         <div class="pcard__body">
           <p class="pcard__cat">${p.material || (cat ? (window.AH_I18N ? window.AH_I18N.categoryName(cat) : cat.name) : "")}${p.size_cm ? ` • ${p.size_cm} cm` : ""}</p>
-          <h3 class="pcard__name"><a href="/product.html?slug=${encodeURIComponent(p.slug)}" style="color:inherit;text-decoration:none">${pname}</a></h3>
+          <h3 class="pcard__name"><a href="/product/${encodeURIComponent(p.slug)}" style="color:inherit;text-decoration:none">${pname}</a></h3>
           <span class="pcard__stars" aria-hidden="true">${stars}<em>(${p.review_count || 0})</em></span>
           <p class="pcard__price">${priceHtml}</p>
         </div>

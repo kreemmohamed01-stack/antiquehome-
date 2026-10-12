@@ -39,7 +39,7 @@ module.exports = async (req, res) => {
     const entries = [
       ...STATIC_PAGES.map((p) => urlEntry(SITE_URL + p.path, null, p.changefreq, p.priority)),
       ...categories.map((c) => urlEntry(`${SITE_URL}/shop.html?category=${encodeURIComponent(c.slug)}`, null, "weekly", "0.7")),
-      ...products.map((p) => urlEntry(`${SITE_URL}/product.html?slug=${encodeURIComponent(p.slug)}`, p.created_at, "weekly", "0.8")),
+      ...products.map((p) => urlEntry(`${SITE_URL}/product/${encodeURIComponent(p.slug)}`, p.created_at, "weekly", "0.8")),
     ];
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>

@@ -4,7 +4,9 @@
     return window.AH_I18N ? window.AH_I18N.t(key, fallbackEn) : fallbackEn;
   }
   const params = new URLSearchParams(window.location.search);
-  const slug = params.get("slug");
+  // /product/<slug> is the canonical URL; ?slug= still works for old links.
+  const pathSlug = window.location.pathname.match(/^\/product\/([^/]+)/);
+  const slug = params.get("slug") || (pathSlug ? decodeURIComponent(pathSlug[1]) : null);
 
   const state = {
     colorIdx: 0,
@@ -64,13 +66,13 @@
     return `
             ${
               prevSlug
-                ? `<a class="pdp__nav-link" href="/product.html?slug=${encodeURIComponent(prevSlug)}"><svg viewBox="0 0 20 14" aria-hidden="true"><line x1="19" y1="7" x2="2" y2="7"></line><polyline points="7.4,1.6 1.6,7 7.4,12.4"></polyline></svg>${t("prev", "Prev")}</a>`
+                ? `<a class="pdp__nav-link" href="/product/${encodeURIComponent(prevSlug)}"><svg viewBox="0 0 20 14" aria-hidden="true"><line x1="19" y1="7" x2="2" y2="7"></line><polyline points="7.4,1.6 1.6,7 7.4,12.4"></polyline></svg>${t("prev", "Prev")}</a>`
                 : `<span class="pdp__nav-link" style="opacity:.4">${t("prev", "Prev")}</span>`
             }
             <span class="pdp__nav-sep" aria-hidden="true">|</span>
             ${
               nextSlug
-                ? `<a class="pdp__nav-link" href="/product.html?slug=${encodeURIComponent(nextSlug)}">${t("next", "Next")}<svg viewBox="0 0 20 14" aria-hidden="true"><line x1="1" y1="7" x2="18" y2="7"></line><polyline points="12.6,1.6 18.4,7 12.6,12.4"></polyline></svg></a>`
+                ? `<a class="pdp__nav-link" href="/product/${encodeURIComponent(nextSlug)}">${t("next", "Next")}<svg viewBox="0 0 20 14" aria-hidden="true"><line x1="1" y1="7" x2="18" y2="7"></line><polyline points="12.6,1.6 18.4,7 12.6,12.4"></polyline></svg></a>`
                 : `<span class="pdp__nav-link" style="opacity:.4">${t("next", "Next")}</span>`
             }
 `;
@@ -554,7 +556,7 @@
     window.AH_SEO.setMeta({
       title: `${pname} — Antique Home`,
       description: pdesc || `${pname} — a timeless piece from Antique Home's curated collection.`,
-      path: `/product.html?slug=${encodeURIComponent(product.slug)}`,
+      path: `/product/${encodeURIComponent(product.slug)}`,
       image: img ? cldUrl(img, 1200) : undefined,
       type: "product",
     });
@@ -575,7 +577,7 @@
       sku: product.sku || undefined,
       offers: {
         "@type": "Offer",
-        url: window.AH_SEO.SITE_URL + `/product.html?slug=${encodeURIComponent(product.slug)}`,
+        url: window.AH_SEO.SITE_URL + `/product/${encodeURIComponent(product.slug)}`,
         priceCurrency: "EGP",
         price: Number(product.price),
         availability: product.stock_qty > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
