@@ -1,4 +1,4 @@
-// GET /product/<slug> (rewritten here by vercel.json) — serves product.html
+// GET /product/<slug> (rewritten by vercel.json to /api/sitemap?product=<slug>) — serves product.html
 // with the product's real title, description, canonical, Open Graph /
 // Twitter tags and Product JSON-LD already in the HTML. Search engines and
 // social-media link previews (Facebook, WhatsApp, Instagram, X) read the
@@ -38,8 +38,8 @@ function shareImage(url) {
   return url.startsWith("http") ? url : SITE_URL + url;
 }
 
-module.exports = async (req, res) => {
-  const slug = String(req.query.slug || "").trim();
+module.exports = async (req, res, slugParam) => {
+  const slug = String(slugParam || "").trim();
   let html = loadTemplate();
 
   let product = null;

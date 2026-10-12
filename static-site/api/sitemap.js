@@ -5,6 +5,7 @@
 // doesn't need to be instantly fresh.
 const { sql } = require("./_db.js");
 const { SITE_URL } = require("./_seo.js");
+const productPage = require("./_product-page.js");
 
 const STATIC_PAGES = [
   { path: "/", changefreq: "daily", priority: "1.0" },
@@ -30,6 +31,9 @@ function urlEntry(loc, lastmod, changefreq, priority) {
 }
 
 module.exports = async (req, res) => {
+  // /product/<slug> is also served from here (see vercel.json) — Vercel
+  // Hobby caps a deployment at 12 functions, so it shares this one.
+  if (req.query.product !== undefined) return productPage(req, res, String(req.query.product));
   try {
     const [products, categories] = await Promise.all([
       sql`SELECT slug, created_at FROM products WHERE status = 'active'`,
