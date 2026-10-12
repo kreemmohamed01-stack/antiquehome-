@@ -13,7 +13,7 @@ const { SITE_URL } = require("./_seo.js");
 
 let template = null;
 function loadTemplate() {
-  if (!template) template = fs.readFileSync(path.join(process.cwd(), "product.html"), "utf8");
+  if (!template) template = fs.readFileSync(path.join(__dirname, "..", "product.html"), "utf8");
   return template;
 }
 
