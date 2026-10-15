@@ -26,6 +26,7 @@
      fetches it on demand if someone switches language). -->
 <meta name="ah-dict" data-src="/js/i18n-dictionary.js" />
 <script>try{if(localStorage.getItem("ah_lang")==="ar")document.write('<script src="'+document.querySelector('meta[name=ah-dict]').getAttribute("data-src")+'"><\/script>')}catch(e){}</script>
+<script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/admin/*","/api/*","/checkout.html","/order-confirmation.html*"]}}]},"eagerness":"moderate"}]}</script>
 </head>
 <body class="checkout-body">
 

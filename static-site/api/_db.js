@@ -44,7 +44,11 @@ async function getSiteSale() {
 // Browsers also reuse the response for a short window (capped at 30s), so
 // moving between pages doesn't re-request categories/settings/products
 // every time (each request counts against the plan's edge-request quota).
-function edgeCache(res, sMaxAge = 60, swr = 600) {
+// stale-while-revalidate: once a copy is older than sMaxAge, the edge still
+// answers instantly with it and refreshes from the database in the
+// background, so a visitor never waits on a cold database. Freshness is
+// unchanged: the first request after sMaxAge triggers the refresh.
+function edgeCache(res, sMaxAge = 60, swr = 86400) {
   const browser = Math.min(sMaxAge, 30);
   res.setHeader("Cache-Control", `public, max-age=${browser}, s-maxage=${sMaxAge}, stale-while-revalidate=${swr}`);
 }

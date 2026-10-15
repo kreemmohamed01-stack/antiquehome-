@@ -50,7 +50,7 @@ module.exports = async (req, res) => {
       // query params) is not.
       // Short window: a 10-minute stale copy meant dashboard edits (prices,
       // drag-and-drop order) took up to 10 minutes to show on the shop.
-      if (slug || (category && category !== "all") || status === "active") edgeCache(res, 20, 20);
+      if (slug || (category && category !== "all") || status === "active") edgeCache(res, 20, 86400);
 
       if (slug) {
         const rows = await sql`SELECT * FROM products WHERE slug = ${slug}`;
