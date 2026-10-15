@@ -473,7 +473,8 @@
         }, 1400);
         const mainImg = document.getElementById("pdpMainImg");
         const openCart = () => document.getElementById("cartBtn") && document.getElementById("cartBtn").click();
-        if (typeof flyToCart === "function" && mainImg) flyToCart(mainImg, mainImg.currentSrc || mainImg.src).then(() => setTimeout(openCart, 250));
+        const addBtnNow = document.getElementById("pdpAddBtn");
+        if (typeof flyToCart === "function" && addBtnNow) flyToCart(addBtnNow, mainImg ? mainImg.currentSrc || mainImg.src : "").then(() => setTimeout(openCart, 250));
         else openCart();
       });
 

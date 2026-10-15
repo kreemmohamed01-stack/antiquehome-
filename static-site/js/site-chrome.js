@@ -121,8 +121,8 @@
         if (id) Cart.add({ id, name, nameAr, price, image, weightKg }, 1);
         if (!reduced) pop(addBtn);
         const card = addBtn.closest(".pcard, .arr3d__card, article");
-        const photo = (card && card.querySelector("img")) || addBtn;
-        if (id && typeof flyToCart === "function") flyToCart(photo, image || photo.currentSrc || photo.src);
+        const photo = card && card.querySelector("img");
+        if (id && typeof flyToCart === "function") flyToCart(addBtn, image || (photo && (photo.currentSrc || photo.src)));
       }
     }
     document.addEventListener("click", onDocClick);
