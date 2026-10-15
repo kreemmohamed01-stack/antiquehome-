@@ -110,7 +110,7 @@
     }
     const metric = state.metric;
     const labelMap = { revenue: "Revenue (EGP)", orders: "Orders", customers: "Customers", aov: "AOV (EGP)" };
-    const values = daily.map((d) => metric === "aov" ? (d.orders > 0 ? d.revenue / d.orders : 0) : d[metric]);
+    const values = daily.map((d) => metric === "aov" ? ((d.paid_orders ?? d.orders) > 0 ? d.revenue / (d.paid_orders ?? d.orders) : 0) : d[metric]);
 
     const w = 900, h = 260, padL = 46, padB = 26, padT = 10, padR = 10;
     const max = Math.max(...values, 1) * 1.12;

@@ -53,7 +53,8 @@ module.exports = async (req, res) => {
   try {
     const rows = await sql`
       SELECT email, MAX(customer_name) AS name, MAX(phone) AS phone,
-             COUNT(*)::int AS order_count, SUM(total)::float AS total_spent,
+             COUNT(*)::int AS order_count,
+             COALESCE(SUM(total) FILTER (WHERE status IS DISTINCT FROM 'cancelled'), 0)::float AS total_spent,
              MAX(created_at) AS last_order
       FROM orders GROUP BY email ORDER BY total_spent DESC
     `;

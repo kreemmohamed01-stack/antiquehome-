@@ -42,14 +42,15 @@ function hostFromReferrer(ref, ownHost) {
 // of serverless functions per deployment.
 async function dashboardData() {
   const totals = await safe(async () => (await sql`
-    SELECT COALESCE(SUM(total), 0)::float AS sales, COUNT(*)::int AS orders,
+    SELECT COALESCE(SUM(total) FILTER (WHERE status IS DISTINCT FROM 'cancelled'), 0)::float AS sales, COUNT(*)::int AS orders,
+           COUNT(*) FILTER (WHERE status IS DISTINCT FROM 'cancelled')::int AS paid_orders,
            COUNT(DISTINCT email)::int AS customers
     FROM orders
-  `)[0], { sales: 0, orders: 0, customers: 0 });
+  `)[0], { sales: 0, orders: 0, paid_orders: 0, customers: 0 });
 
   const dailySales = await safe(async () => await sql`
     SELECT to_char(date_trunc('day', created_at), 'YYYY-MM-DD') AS day, SUM(total)::float AS total
-    FROM orders WHERE created_at >= now() - interval '30 days'
+    FROM orders WHERE created_at >= now() - interval '30 days' AND status IS DISTINCT FROM 'cancelled'
     GROUP BY 1 ORDER BY 1
   `, []);
 
@@ -57,6 +58,7 @@ async function dashboardData() {
     SELECT c.name AS name, COALESCE(SUM(oi.price_snapshot * oi.qty), 0)::float AS revenue
     FROM order_items oi JOIN products p ON p.id = oi.product_id
     JOIN categories c ON c.id = p.category_id
+    JOIN orders o ON o.id = oi.order_id AND o.status IS DISTINCT FROM 'cancelled'
     GROUP BY c.name ORDER BY revenue DESC
   `, []);
 
@@ -68,6 +70,7 @@ async function dashboardData() {
   const topProducts = await safe(async () => await sql`
     SELECT p.id, p.name, p.price, p.image_urls, SUM(oi.qty)::int AS sold
     FROM order_items oi JOIN products p ON p.id = oi.product_id
+    JOIN orders o ON o.id = oi.order_id AND o.status IS DISTINCT FROM 'cancelled'
     GROUP BY p.id, p.name, p.price, p.image_urls ORDER BY sold DESC LIMIT 5
   `, []);
 
@@ -123,17 +126,19 @@ module.exports = async (req, res) => {
   // ---- KPI cards (current period + previous period for the delta %) ----
   const kpiNow = await safe(async () => (await sql`
     SELECT
-      COALESCE(SUM(total), 0)::float AS revenue,
+      COALESCE(SUM(total) FILTER (WHERE status IS DISTINCT FROM 'cancelled'), 0)::float AS revenue,
       COUNT(*)::int AS orders,
+      COUNT(*) FILTER (WHERE status IS DISTINCT FROM 'cancelled')::int AS paid_orders,
       COUNT(DISTINCT email)::int AS customers,
       COALESCE(SUM(CASE WHEN status = 'returned' THEN total ELSE 0 END), 0)::float AS refunds
     FROM orders WHERE created_at BETWEEN ${fromDate.toISOString()} AND ${toDate.toISOString()}
-  `)[0], { revenue: 0, orders: 0, customers: 0, refunds: 0 });
+  `)[0], { revenue: 0, orders: 0, paid_orders: 0, customers: 0, refunds: 0 });
 
   const kpiPrev = await safe(async () => (await sql`
-    SELECT COALESCE(SUM(total), 0)::float AS revenue, COUNT(*)::int AS orders, COUNT(DISTINCT email)::int AS customers
+    SELECT COALESCE(SUM(total) FILTER (WHERE status IS DISTINCT FROM 'cancelled'), 0)::float AS revenue, COUNT(*)::int AS orders,
+           COUNT(*) FILTER (WHERE status IS DISTINCT FROM 'cancelled')::int AS paid_orders, COUNT(DISTINCT email)::int AS customers
     FROM orders WHERE created_at BETWEEN ${prevFrom.toISOString()} AND ${prevTo.toISOString()}
-  `)[0], { revenue: 0, orders: 0, customers: 0 });
+  `)[0], { revenue: 0, orders: 0, paid_orders: 0, customers: 0 });
 
   const newCustomersNow = await safe(async () => (await sql`
     SELECT COUNT(*)::int AS c FROM (
@@ -167,8 +172,9 @@ module.exports = async (req, res) => {
   const kpis = {
     revenue: kpiNow.revenue, revenueDelta: delta(kpiNow.revenue, kpiPrev.revenue),
     orders: kpiNow.orders, ordersDelta: delta(kpiNow.orders, kpiPrev.orders),
-    aov: kpiNow.orders > 0 ? kpiNow.revenue / kpiNow.orders : 0,
-    aovDelta: delta(kpiNow.orders > 0 ? kpiNow.revenue / kpiNow.orders : 0, kpiPrev.orders > 0 ? kpiPrev.revenue / kpiPrev.orders : 0),
+    // Cancelled orders bring in no money, so they're left out of revenue and AOV.
+    aov: kpiNow.paid_orders > 0 ? kpiNow.revenue / kpiNow.paid_orders : 0,
+    aovDelta: delta(kpiNow.paid_orders > 0 ? kpiNow.revenue / kpiNow.paid_orders : 0, kpiPrev.paid_orders > 0 ? kpiPrev.revenue / kpiPrev.paid_orders : 0),
     conversion: conversionNow, conversionDelta: delta(conversionNow, conversionPrev),
     customers: kpiNow.customers, customersDelta: delta(kpiNow.customers, kpiPrev.customers),
     newCustomers: newCustomersNow,
@@ -179,8 +185,9 @@ module.exports = async (req, res) => {
   // ---- Revenue & Orders Overview (daily series) ----
   const daily = await safe(async () => await sql`
     SELECT to_char(date_trunc('day', created_at), 'YYYY-MM-DD') AS day,
-           COALESCE(SUM(total), 0)::float AS revenue,
+           COALESCE(SUM(total) FILTER (WHERE status IS DISTINCT FROM 'cancelled'), 0)::float AS revenue,
            COUNT(*)::int AS orders,
+           COUNT(*) FILTER (WHERE status IS DISTINCT FROM 'cancelled')::int AS paid_orders,
            COUNT(DISTINCT email)::int AS customers
     FROM orders WHERE created_at BETWEEN ${fromDate.toISOString()} AND ${toDate.toISOString()}
     GROUP BY 1 ORDER BY 1
@@ -211,7 +218,7 @@ module.exports = async (req, res) => {
   // ---- Best sales day / hour, growth ----
   const bestDay = await safe(async () => (await sql`
     SELECT to_char(created_at, 'Day') AS day, SUM(total)::float AS total
-    FROM orders WHERE created_at BETWEEN ${fromDate.toISOString()} AND ${toDate.toISOString()}
+    FROM orders WHERE created_at BETWEEN ${fromDate.toISOString()} AND ${toDate.toISOString()} AND status IS DISTINCT FROM 'cancelled'
     GROUP BY 1 ORDER BY total DESC LIMIT 1
   `)[0], null);
   const bestHour = await safe(async () => (await sql`
@@ -278,7 +285,7 @@ module.exports = async (req, res) => {
     LEFT JOIN (
       SELECT oi.product_id, SUM(oi.qty)::int AS orders, SUM(oi.qty * oi.price_snapshot)::float AS revenue
       FROM order_items oi JOIN orders o2 ON o2.id = oi.order_id
-      WHERE o2.created_at BETWEEN ${fromDate.toISOString()} AND ${toDate.toISOString()}
+      WHERE o2.created_at BETWEEN ${fromDate.toISOString()} AND ${toDate.toISOString()} AND o2.status IS DISTINCT FROM 'cancelled'
       GROUP BY 1
     ) o ON o.product_id = p.id
     ORDER BY revenue DESC NULLS LAST, views DESC NULLS LAST
@@ -325,7 +332,7 @@ module.exports = async (req, res) => {
   }, 0);
 
   const customerLifetimeValue = await safe(async () => {
-    const rows = await sql`SELECT AVG(t)::float AS v FROM (SELECT SUM(total) AS t FROM orders GROUP BY email) x`;
+    const rows = await sql`SELECT AVG(t)::float AS v FROM (SELECT SUM(total) AS t FROM orders WHERE status IS DISTINCT FROM 'cancelled' GROUP BY email) x`;
     return rows[0]?.v || 0;
   }, 0);
 
