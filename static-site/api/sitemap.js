@@ -21,9 +21,17 @@ function xmlEscape(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function urlEntry(loc, lastmod, changefreq, priority) {
+// Cloudinary original -> a 1200px JPG, minus the "#x,y,zoom" focal suffix.
+function imgUrl(u) {
+  u = String(u || "").split("#")[0];
+  if (u.includes("res.cloudinary.com") && u.includes("/upload/")) return u.replace("/upload/", "/upload/f_jpg,q_auto,w_1200/");
+  return u.startsWith("http") ? u : SITE_URL + u;
+}
+
+function urlEntry(loc, lastmod, changefreq, priority, images) {
   return `  <url>
-    <loc>${xmlEscape(loc)}</loc>${lastmod ? `
+    <loc>${xmlEscape(loc)}</loc>${(images || []).map((im) => `
+    <image:image><image:loc>${xmlEscape(imgUrl(im.url))}</image:loc>${im.title ? `<image:title>${xmlEscape(im.title)}</image:title>` : ""}</image:image>`).join("")}${lastmod ? `
     <lastmod>${new Date(lastmod).toISOString().slice(0, 10)}</lastmod>` : ""}
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
@@ -36,18 +44,19 @@ module.exports = async (req, res) => {
   if (req.query.product !== undefined) return productPage(req, res, String(req.query.product));
   try {
     const [products, categories] = await Promise.all([
-      sql`SELECT slug, created_at FROM products WHERE status = 'active'`,
-      sql`SELECT slug FROM categories`,
+      sql`SELECT slug, name, image_urls, created_at FROM products WHERE status = 'active'`,
+      sql`SELECT * FROM categories`,
     ]);
 
     const entries = [
       ...STATIC_PAGES.map((p) => urlEntry(SITE_URL + p.path, null, p.changefreq, p.priority)),
       ...categories.map((c) => urlEntry(`${SITE_URL}/shop.html?category=${encodeURIComponent(c.slug)}`, null, "weekly", "0.7")),
-      ...products.map((p) => urlEntry(`${SITE_URL}/product/${encodeURIComponent(p.slug)}`, p.created_at, "weekly", "0.8")),
+      ...products.map((p) => urlEntry(`${SITE_URL}/product/${encodeURIComponent(p.slug)}`, p.created_at, "weekly", "0.8",
+        (Array.isArray(p.image_urls) ? p.image_urls : []).slice(0, 10).map((url, i) => ({ url, title: i ? `${p.name} — view ${i + 1}` : p.name })))),
     ];
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${entries.join("\n")}
 </urlset>`;
 

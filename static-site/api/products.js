@@ -1,3 +1,4 @@
+const { pingIndexNow } = require("./_seo.js");
 const { sql, edgeCache, getSiteSale } = require("./_db.js");
 const { getSession } = require("./_auth.js");
 
@@ -209,6 +210,7 @@ module.exports = async (req, res) => {
         SELECT id, slug FROM new_product
       `;
       const id = rows[0].id;
+      pingIndexNow([`/product/${encodeURIComponent(rows[0].slug)}`, "/shop.html", "/"]);
       res.status(200).json({ ok: true, id, slug: rows[0].slug });
       return;
     }
@@ -293,6 +295,7 @@ module.exports = async (req, res) => {
         SELECT ${pid}, cid FROM unnest(${categoryIdInts}::int[]) AS cid
         ON CONFLICT (product_id, category_id) DO NOTHING
       `;
+      pingIndexNow([`/product/${encodeURIComponent(slug)}`]);
       res.status(200).json({ ok: true, slug });
       return;
     }

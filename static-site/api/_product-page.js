@@ -110,6 +110,7 @@ module.exports = async (req, res, slugParam) => {
 
   const head = `<title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}" />
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
 <link rel="canonical" href="${esc(url)}" />
 <meta property="og:type" content="product" />
 <meta property="og:site_name" content="Antique Home" />
