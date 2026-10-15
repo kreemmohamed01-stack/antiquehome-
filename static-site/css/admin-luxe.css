@@ -1,0 +1,386 @@
+/* =========================================================
+   ADMIN LUXE — 3D luxury skin over the dashboard.
+   Loaded last on every admin page. It only changes colours,
+   fonts, shadows, borders and motion — never sizes, spacing,
+   grid/flex layout or order, so nothing moves or breaks.
+   Palette: white · light beige · dark beige · red · green ·
+   black · brown · grey. Tilt/spotlight lives in js/admin-luxe.js.
+   ========================================================= */
+
+.admin{
+  --lx-white:  #FFFFFF;
+  --lx-ivory:  #FBF8F2;
+  --lx-beige:  #F1E8D9;
+  --lx-beige-2:#E6D8C1;
+  --lx-sand:   #C9B08A;   /* dark beige */
+  --lx-sand-2: #A88A60;
+  --lx-brown:  #5A3E2B;
+  --lx-brown-2:#3B281C;
+  --lx-black:  #15110D;
+  --lx-grey:   #8C857B;
+  --lx-grey-2: #D9D3C9;
+  --lx-red:    #9E2B25;
+  --lx-green:  #2E5E3E;
+
+  --a-bg:        var(--lx-beige);
+  --a-panel:     var(--lx-white);
+  --a-panel-2:   var(--lx-ivory);
+  --a-border:    rgba(90,62,43,.14);
+  --a-gold:      var(--lx-brown-2);
+  --a-gold-deep: var(--lx-black);
+  --a-cream:     var(--lx-black);
+  --a-text:      #1E1812;
+  --a-text-dim:  #7A7166;
+  --a-green:     var(--lx-green);
+  --a-red:       var(--lx-red);
+  --a-gray:      var(--lx-grey);
+
+
+
+  --lx-display: "Playfair Display", "Cormorant Garamond", Georgia, serif;
+  --lx-ease: cubic-bezier(.2,.8,.2,1);
+  /* stacked shadows = a physical slab with real thickness */
+  --lx-depth:
+    0 1px 0 rgba(255,255,255,.9) inset,
+    0 -1px 0 rgba(90,62,43,.06) inset,
+    0 1px 0 #EADFCC,
+    0 2px 0 #E2D4BD,
+    0 3px 0 #D9C9AE,
+    0 6px 10px -2px rgba(59,40,28,.16),
+    0 18px 34px -14px rgba(59,40,28,.28);
+  --lx-depth-hover:
+    0 1px 0 rgba(255,255,255,.95) inset,
+    0 -1px 0 rgba(90,62,43,.06) inset,
+    0 1px 0 #EADFCC,
+    0 2px 0 #E2D4BD,
+    0 3px 0 #D9C9AE,
+    0 4px 0 #CFBD9F,
+    0 14px 22px -6px rgba(59,40,28,.22),
+    0 38px 60px -22px rgba(59,40,28,.42);
+
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(201,176,138,.35), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(168,138,96,.22), transparent 60%),
+    linear-gradient(180deg, #F6EFE3 0%, #EFE5D4 100%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- typography ----------
+   Headings and big numbers switch to Playfair Display. Each keeps the
+   exact line height its old font had (Cormorant ≈1.211, Space Grotesk
+   ≈1.276), so every box stays the same height and nothing shifts. */
+.admin__panel-title,
+.an__panelTitle,
+.an__title{
+  font-family: var(--lx-display);
+  line-height: 1.24;
+  color: var(--lx-black);
+}
+.admin__pageTitle{ font-family: var(--lx-display); text-shadow: 0 1px 0 rgba(255,255,255,.8), 0 2px 10px rgba(59,40,28,.12); }
+.admin__logo-name{ background: linear-gradient(180deg,#3B281C,#15110D); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.admin__logo-sub{ color: var(--lx-sand-2); }
+.admin__stat-label,
+.an__kpiLabel,
+.admin__field > span,
+.admin__field label{ color: var(--lx-grey); }
+.admin__stat-value,
+.an__kpiValue{
+  font-family: var(--lx-display);
+  line-height: 1.3;
+  color: var(--lx-black);
+  text-shadow: 0 1px 0 #fff, 0 2px 0 rgba(201,176,138,.35), 0 6px 14px rgba(59,40,28,.12);
+}
+.admin__hint{ color: var(--lx-grey); }
+
+/* ---------- topbar & sidebar (glass + depth) ---------- */
+.admin__topbar{
+  background: rgba(255,255,255,.72);
+  -webkit-backdrop-filter: saturate(1.4) blur(14px);
+  backdrop-filter: saturate(1.4) blur(14px);
+  border-bottom: 1px solid rgba(90,62,43,.12);
+  box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 10px 30px -18px rgba(59,40,28,.35);
+}
+.admin__sidebar{
+  background: linear-gradient(180deg, #FFFFFF 0%, #FBF6EE 55%, #F3EADB 100%) !important;
+  box-shadow: 1px 0 0 rgba(90,62,43,.10), 18px 0 40px -28px rgba(59,40,28,.45);
+}
+.admin__navLink{
+  border-radius: 12px;
+  border-left-color: transparent !important;
+  transition: background .35s var(--lx-ease), color .35s var(--lx-ease), transform .35s var(--lx-ease), box-shadow .35s var(--lx-ease), padding-left .25s var(--lx-ease);
+}
+@media (hover:hover){
+  .admin__navLink:hover{
+    color: var(--lx-brown-2);
+    background: linear-gradient(90deg, rgba(201,176,138,.22), rgba(201,176,138,.04));
+    transform: perspective(600px) translateZ(14px) rotateY(-4deg);
+    box-shadow: 0 8px 18px -10px rgba(59,40,28,.35);
+  }
+}
+.admin__navLink.is-active{
+  color: #FBF3E4 !important;
+  background: linear-gradient(135deg, #5A3E2B 0%, #3B281C 55%, #15110D 100%) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.18) inset,
+    0 -2px 0 rgba(0,0,0,.35) inset,
+    0 3px 0 #2A1C13,
+    0 12px 22px -8px rgba(21,17,13,.55);
+  transform: perspective(600px) translateZ(10px);
+}
+.admin__navLink.is-active svg{ filter: drop-shadow(0 0 6px rgba(232,206,160,.55)); }
+.admin__navBadge{
+  border-radius: 999px;
+  background: linear-gradient(180deg, #C2392F, #9E2B25);
+  color:#fff;
+  box-shadow: 0 2px 0 #6E1D19, 0 4px 10px -2px rgba(158,43,37,.5);
+}
+
+/* ---------- cards: physical slabs that tilt in 3D ---------- */
+.admin__panel,
+.admin__stat,
+.admin__action,
+.admin__ocard,
+.admin__optCard,
+.admin__formSection,
+.an__panel,
+.an__kpi,
+.an__trioItem,
+.an__cartItem,
+.an__funnelStep{
+  background:
+    linear-gradient(160deg, rgba(255,255,255,1) 0%, rgba(255,255,255,.96) 45%, rgba(251,246,238,.96) 100%);
+  border: 1px solid rgba(90,62,43,.12);
+  box-shadow: var(--lx-depth);
+  transition:
+    transform .55s var(--lx-ease),
+    box-shadow .55s var(--lx-ease),
+    border-color .45s var(--lx-ease);
+}
+.admin__panel.lx-hot,
+.admin__stat.lx-hot,
+.admin__action.lx-hot,
+.admin__ocard.lx-hot,
+.admin__optCard.lx-hot,
+.an__panel.lx-hot,
+.an__kpi.lx-hot,
+.an__trioItem.lx-hot,
+.an__cartItem.lx-hot,
+.an__funnelStep.lx-hot{
+  box-shadow: var(--lx-depth-hover) !important;
+  border-color: rgba(168,138,96,.45);
+  z-index: 3;
+  transform: perspective(1000px) rotateX(var(--lx-rx, 0deg)) rotateY(var(--lx-ry, 0deg)) translateY(-5px) scale(var(--lx-s, 1.02)) !important;
+  transition: transform .16s ease-out, box-shadow .45s var(--lx-ease), border-color .45s var(--lx-ease);
+}
+.admin__panel.lx-hot, .an__panel.lx-hot{ --lx-s: 1.006; }
+/* moving spotlight that follows the cursor across a card */
+.lx-hot::before{
+  content:"";
+  position:absolute; inset:0;
+  border-radius: inherit;
+  pointer-events:none;
+  background: radial-gradient(420px circle at var(--lx-mx, 50%) var(--lx-my, 0%), rgba(201,176,138,.20), rgba(255,255,255,0) 45%);
+  z-index:0;
+}
+/* gold hairline along the top edge of every card */
+.admin__panel::after,
+.admin__stat::after,
+.an__panel::after,
+.an__kpi::after{
+  content:"";
+  position:absolute; left:14px; right:14px; top:0; height:1px;
+  pointer-events:none;
+  background: linear-gradient(90deg, transparent, rgba(168,138,96,.75), transparent);
+}
+
+/* stat / KPI icons become little raised gems */
+.admin__stat-icon,
+.an__kpiIcon{
+  border-radius: 12px !important;
+  color: #FBF3E4 !important;
+  background: linear-gradient(145deg, #6B4A33, #3B281C 60%, #15110D) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,.25) inset, 0 3px 0 #2A1C13, 0 8px 14px -6px rgba(21,17,13,.55);
+  transform: translateZ(30px);
+}
+
+/* hero banners float a little */
+.admin__pageHead,
+.admin__hero{
+  box-shadow: var(--lx-depth-hover);
+  border-radius: 22px;
+}
+.admin__pageHead{ overflow:hidden; }
+
+/* ---------- buttons: real 3D press ---------- */
+.admin__btn{
+  border-radius: 999px;
+  border: 1px solid rgba(90,62,43,.18);
+  background: linear-gradient(180deg, #FFFFFF 0%, #F4ECDF 100%);
+  color: var(--lx-brown-2);
+  box-shadow:
+    0 1px 0 #fff inset,
+    0 -1px 0 rgba(90,62,43,.10) inset,
+    0 3px 0 #D7C6A9,
+    0 8px 16px -8px rgba(59,40,28,.40);
+  transform: translateY(0);
+  transition: transform .18s var(--lx-ease), box-shadow .18s var(--lx-ease), background .3s var(--lx-ease), color .3s var(--lx-ease);
+}
+@media (hover:hover){
+  .admin__btn:hover{
+    transform: translateY(-2px);
+    box-shadow:
+      0 1px 0 #fff inset,
+      0 -1px 0 rgba(90,62,43,.10) inset,
+      0 5px 0 #D7C6A9,
+      0 16px 26px -10px rgba(59,40,28,.45);
+  }
+}
+.admin__btn:active{
+  transform: translateY(3px) !important;
+  box-shadow: 0 1px 0 #fff inset, 0 0 0 #D7C6A9, 0 3px 6px -3px rgba(59,40,28,.35) !important;
+}
+.admin__btn--gold{
+  color: #FBF3E4;
+  border-color: #15110D;
+  background: linear-gradient(180deg, #6B4A33 0%, #3B281C 45%, #15110D 100%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.22) inset,
+    0 -2px 0 rgba(0,0,0,.35) inset,
+    0 3px 0 #0B0806,
+    0 10px 22px -8px rgba(21,17,13,.65);
+}
+@media (hover:hover){
+  .admin__btn--gold:hover{
+    background: linear-gradient(180deg, #7A563C 0%, #45301F 45%, #1B1510 100%);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.25) inset,
+      0 -2px 0 rgba(0,0,0,.35) inset,
+      0 5px 0 #0B0806,
+      0 18px 30px -10px rgba(21,17,13,.7),
+      0 0 0 4px rgba(201,176,138,.25);
+  }
+}
+.admin__btn--gold:active{ box-shadow: 0 1px 0 rgba(255,255,255,.2) inset, 0 0 0 #0B0806, 0 4px 8px -4px rgba(21,17,13,.6) !important; }
+.admin__btn--outline{
+  background: linear-gradient(180deg, #FFFFFF, #FAF5EC);
+  border-color: rgba(168,138,96,.55);
+}
+.admin__btn--danger{
+  color: #fff;
+  border-color: #7A1F1B;
+  background: linear-gradient(180deg, #C0392F 0%, #9E2B25 55%, #7A1F1B 100%);
+  box-shadow: 0 1px 0 rgba(255,255,255,.25) inset, 0 3px 0 #5A1512, 0 10px 20px -8px rgba(158,43,37,.55);
+}
+@media (hover:hover){
+  .admin__btn--danger:hover{ background: linear-gradient(180deg, #CC4237 0%, #A92F28 55%, #82221D 100%); box-shadow: 0 1px 0 rgba(255,255,255,.25) inset, 0 5px 0 #5A1512, 0 16px 26px -10px rgba(158,43,37,.6); }
+}
+.admin__btn--danger:active{ box-shadow: 0 1px 0 rgba(255,255,255,.2) inset, 0 0 0 #5A1512 !important; }
+.admin__btn:disabled{ box-shadow: 0 2px 0 #E2D6C2 !important; }
+
+/* small round icon actions (edit / view / delete) */
+.admin__iconAct,
+.admin__iconBtn{
+  border-radius: 12px !important;
+  background: linear-gradient(180deg, #FFFFFF, #F3EBDD) !important;
+  border: 1px solid rgba(90,62,43,.16) !important;
+  box-shadow: 0 1px 0 #fff inset, 0 2px 0 #D7C6A9, 0 6px 12px -6px rgba(59,40,28,.35);
+  transition: transform .18s var(--lx-ease), box-shadow .18s var(--lx-ease), color .2s;
+}
+@media (hover:hover){
+  .admin__iconAct:hover,
+  .admin__iconBtn:hover{ transform: translateY(-2px) rotateX(10deg); box-shadow: 0 1px 0 #fff inset, 0 4px 0 #D7C6A9, 0 12px 18px -8px rgba(59,40,28,.45); }
+}
+.admin__iconAct:active,
+.admin__iconBtn:active{ transform: translateY(2px); box-shadow: 0 0 0 #D7C6A9; }
+.admin__iconAct--danger{ color: var(--lx-red) !important; }
+
+/* ---------- pills / chips ---------- */
+.admin__pill{
+  border-radius: 999px;
+  box-shadow: 0 1px 0 rgba(255,255,255,.7) inset, 0 2px 4px -2px rgba(59,40,28,.25);
+}
+.admin__pill--delivered{ background: linear-gradient(180deg, #E4F0E6, #D1E5D5); color: var(--lx-green); }
+.admin__pill--low{ background: linear-gradient(180deg, #F7E1DE, #EFCDC8); color: var(--lx-red); }
+.admin__pill--pending{ background: linear-gradient(180deg, #F1EEE9, #E3DED6); color: #5F584F; }
+.admin__pill--processing,
+.admin__pill--warn{ background: linear-gradient(180deg, #F6ECDA, #EADBBE); color: #7A5420; }
+.admin__pill--shipped{ background: linear-gradient(180deg, #ECE6DD, #DCD2C3); color: var(--lx-brown); }
+
+/* ---------- inputs: inset, carved into the surface ---------- */
+.admin__field input,
+.admin__field select,
+.admin__field textarea,
+.admin__searchInline,
+.admin__select{
+  background: linear-gradient(180deg, #FBF7F0, #FFFFFF) !important;
+  border: 1px solid rgba(90,62,43,.18) !important;
+  box-shadow: 0 2px 4px rgba(59,40,28,.08) inset, 0 1px 0 rgba(255,255,255,.9);
+  transition: border-color .25s, box-shadow .25s;
+}
+.admin__field input:focus,
+.admin__field select:focus,
+.admin__field textarea:focus,
+.admin__searchInline:focus-within,
+.admin__select:focus{
+  border-color: var(--lx-sand-2) !important;
+  box-shadow: 0 2px 4px rgba(59,40,28,.06) inset, 0 0 0 4px rgba(201,176,138,.28);
+  outline: none;
+}
+
+/* ---------- product / order rows lift out of the list ---------- */
+.admin__prow,
+.admin__listRow{
+  border-radius: 14px;
+  transition: transform .35s var(--lx-ease), box-shadow .35s var(--lx-ease), background .35s;
+}
+@media (hover:hover){
+  .admin__prow:hover,
+  .admin__listRow:hover{
+    background: linear-gradient(90deg, #FFFFFF, #FBF6EE);
+    transform: perspective(900px) translateZ(12px) translateY(-1px);
+    box-shadow: 0 2px 0 #E6D8C1, 0 14px 24px -14px rgba(59,40,28,.45);
+  }
+}
+.admin__prow img,
+.admin__listRow img{ box-shadow: 0 2px 0 #E6D8C1, 0 8px 14px -8px rgba(59,40,28,.45); }
+
+/* tables */
+.admin__table th{ color: var(--lx-grey); }
+@media (hover:hover){ .admin__table tbody tr:hover{ background: rgba(201,176,138,.12); } }
+
+/* mobile tab bar */
+.admin__tabbar{
+  background: rgba(255,255,255,.82) !important;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 -1px 0 rgba(90,62,43,.12), 0 -14px 30px -18px rgba(59,40,28,.45);
+}
+.admin__tabbar-item.is-active{ color: var(--lx-brown-2) !important; }
+.admin__tabbar-item.is-active svg{ filter: drop-shadow(0 4px 6px rgba(59,40,28,.35)); transform: translateY(-2px); }
+
+/* gentle idle float on the stat cards */
+@keyframes lxFloat{
+  0%,100%{ translate: 0 0; }
+  50%{ translate: 0 -3px; }
+}
+.admin__stat:not(.lx-hot),
+.an__kpi:not(.lx-hot){ animation: lxFloat 6s ease-in-out infinite; animation-delay: calc(var(--fx-i, 0) * -0.7s); }
+
+/* scrollbars */
+.admin ::-webkit-scrollbar{ width:10px; height:10px; }
+.admin ::-webkit-scrollbar-thumb{ background: linear-gradient(180deg, #C9B08A, #A88A60); border-radius: 10px; border: 2px solid #F1E8D9; }
+.admin ::-webkit-scrollbar-track{ background: transparent; }
+.admin ::selection{ background: rgba(201,176,138,.45); color: #15110D; }
+
+@media (prefers-reduced-motion: reduce){
+  .admin *{ animation: none !important; }
+  .admin__panel, .admin__stat, .admin__action, .an__panel, .an__kpi{ transform: none !important; }
+}
+
+/* The sidebar's mobile close (×) button rendered as a bare grey browser
+   button on desktop, where the sidebar is always open. Hidden there —
+   visibility keeps its space, so the sidebar layout doesn't move. */
+@media (min-width: 1024px){
+  #sidebarCloseBtn{ visibility: hidden; }
+}
