@@ -408,6 +408,132 @@ function showAddedToCartToast(name) {
   } catch {}
 }
 
+// 3D "fly to cart": lifts a glowing copy of the product photo off the page,
+// tumbles it along a curved arc (rotating in 3D, shrinking, leaving a trail
+// of gold sparks) into the header cart icon, which then bounces with a
+// ripple. Returns a Promise that resolves when it lands, so callers can
+// open the cart drawer afterwards. Skipped for reduced-motion users.
+function flyToCart(sourceEl, imgSrc) {
+  return new Promise((resolve) => {
+    try {
+      const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduced || !sourceEl || !document.body.animate) return resolve();
+      const from = sourceEl.getBoundingClientRect();
+      if (!from.width || !from.height) return resolve();
+      const vw = window.innerWidth, vh = window.innerHeight;
+
+      // Target: the visible header cart button, else the top corner.
+      const btn = Array.from(document.querySelectorAll("#cartBtn, .cart-btn")).find((b) => {
+        const r = b.getBoundingClientRect();
+        return r.width && r.bottom > 0 && r.top < vh && getComputedStyle(b).visibility !== "hidden";
+      });
+      const rtl = document.documentElement.dir === "rtl";
+      // Header scrolled away (common on phones): a gold cart bubble pops in
+      // at the top corner to catch the product, then fades out.
+      let bubble = null;
+      if (!btn) {
+        bubble = document.createElement("div");
+        const count = (Cart.read() || []).reduce((n, l) => n + (Number(l.qty) || 0), 0);
+        bubble.style.cssText = `position:fixed;top:16px;${rtl ? "left" : "right"}:16px;width:52px;height:52px;border-radius:50%;z-index:10001;pointer-events:none;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 30%,#fff3d6,#d9b878 55%,#a8823f);box-shadow:0 12px 30px rgba(20,17,12,.35),0 0 0 3px rgba(255,255,255,.85),0 0 28px rgba(201,169,110,.6)`;
+        bubble.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#1d1912" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 8h13l-1.2 12H6.7Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg><span class="cart-btn__count" style="position:absolute;top:-4px;${rtl ? "left" : "right"}:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#14110c;color:#fff;font:600 11px/20px Jost,sans-serif;text-align:center">${count}</span>`;
+        document.body.appendChild(bubble);
+        bubble.animate([{ transform: "scale(0) rotate(-90deg)", opacity: 0 }, { transform: "scale(1.15) rotate(8deg)", opacity: 1, offset: 0.7 }, { transform: "scale(1) rotate(0deg)", opacity: 1 }], { duration: 420, easing: "cubic-bezier(.3,1.4,.5,1)", fill: "forwards" });
+      }
+      const target = btn || bubble;
+      const to = target.getBoundingClientRect();
+      const tx = to.left + to.width / 2, ty = to.top + to.height / 2;
+
+      // Card size: the photo, capped so a full-width PDP image stays elegant.
+      const w = Math.min(from.width, 240);
+      const h = Math.min(from.height, 300, w * (from.height / from.width));
+      const sx = from.left + from.width / 2, sy = from.top + from.height / 2;
+
+      const stage = document.createElement("div");
+      stage.style.cssText = "position:fixed;inset:0;pointer-events:none;z-index:10000;perspective:900px;perspective-origin:50% 40%;overflow:hidden";
+      const card = document.createElement("div");
+      card.style.cssText = `position:absolute;left:0;top:0;width:${w}px;height:${h}px;margin:${-h / 2}px 0 0 ${-w / 2}px;border-radius:14px;overflow:hidden;transform-style:preserve-3d;will-change:transform,opacity,filter;background:#f5efe4 center/cover no-repeat;box-shadow:0 30px 60px -12px rgba(20,17,12,.55),0 0 0 1px rgba(201,169,110,.65),0 0 40px rgba(201,169,110,.45)`;
+      if (imgSrc) card.style.backgroundImage = `url("${String(imgSrc).replace(/"/g, "%22")}")`;
+      const shine = document.createElement("div");
+      shine.style.cssText = "position:absolute;inset:-40%;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.75) 48%,rgba(255,236,190,.35) 53%,transparent 65%);transform:translateX(-80%)";
+      card.appendChild(shine);
+      stage.appendChild(card);
+      document.body.appendChild(stage);
+
+      // Phase 1 (lift): the card pops forward off the page with a tilt.
+      // Phase 2 (flight): a bezier arc up and over to the cart, spinning a
+      // full turn in 3D and shrinking down to a coin.
+      const lift = 380, flight = 900, total = lift + flight;
+      const cx = (sx + tx) / 2 + (tx > sx ? -1 : 1) * Math.min(160, Math.abs(tx - sx) * 0.25);
+      const cy = Math.max(30, Math.min(sy, ty) - Math.max(140, Math.abs(sy - ty) * 0.45));
+      const liftOff = lift / total;
+      const frames = [
+        { offset: 0, transform: `translate3d(${sx}px,${sy}px,0) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1)`, opacity: 1, filter: "brightness(1)" },
+        { offset: liftOff, transform: `translate3d(${sx}px,${sy - 26}px,120px) rotateX(16deg) rotateY(-14deg) rotateZ(-3deg) scale(1.06)`, opacity: 1, filter: "brightness(1.08)" },
+      ];
+      const N = 24, path = [];
+      for (let i = 1; i <= N; i++) {
+        const t = i / N, u = 1 - t;
+        const x = u * u * sx + 2 * u * t * cx + t * t * tx;
+        const y = u * u * (sy - 26) + 2 * u * t * cy + t * t * ty;
+        const sc = 1.06 - (1.06 - 0.12) * Math.pow(t, 1.35);
+        path.push([x, y]);
+        frames.push({
+          offset: liftOff + (1 - liftOff) * t,
+          transform: `translate3d(${x}px,${y}px,${120 * (1 - t)}px) rotateX(${16 + 30 * t}deg) rotateY(${-14 + 374 * t}deg) rotateZ(${-3 + 18 * t}deg) scale(${sc})`,
+          opacity: t > 0.92 ? 0.1 + 0.9 * ((1 - t) / 0.08) : 1,
+          filter: `brightness(${1.08 + 0.3 * t})`,
+        });
+      }
+      card.animate(frames, { duration: total, easing: "linear", fill: "forwards" });
+      card.animate([{ borderRadius: "14px" }, { borderRadius: "14px", offset: liftOff }, { borderRadius: "50%" }], { duration: total, fill: "forwards" });
+      shine.animate([{ transform: "translateX(-80%)" }, { transform: "translateX(80%)" }], { duration: 650, delay: 120, easing: "ease-in-out", fill: "forwards" });
+
+      // Gold sparks: a trail behind the card, and a burst on landing.
+      const sparks = (x, y, n, spread, size, life) => {
+        for (let k = 0; k < n; k++) {
+          const d = document.createElement("i");
+          const sz = size * (0.5 + Math.random());
+          d.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;margin:${-sz / 2}px;border-radius:50%;background:radial-gradient(circle,#fff6dc 0,#e8c983 40%,rgba(201,169,110,0) 70%)`;
+          stage.appendChild(d);
+          const a = Math.random() * Math.PI * 2, r = spread * (0.4 + Math.random());
+          d.animate([
+            { transform: "translate(0,0) scale(1)", opacity: 1 },
+            { transform: `translate(${Math.cos(a) * r}px,${Math.sin(a) * r + 14}px) scale(0)`, opacity: 0 },
+          ], { duration: life * (0.7 + Math.random() * 0.6), easing: "cubic-bezier(.2,.7,.3,1)", fill: "forwards" });
+        }
+      };
+      path.forEach(([x, y], i) => {
+        if (i % 2) return;
+        setTimeout(() => sparks(x, y, 3, 22, 7, 600), lift + (flight * (i + 1)) / N);
+      });
+
+      setTimeout(() => {
+        sparks(tx, ty, 16, 46, 8, 700);
+        const ring = document.createElement("i");
+        ring.style.cssText = `position:absolute;left:${tx}px;top:${ty}px;width:46px;height:46px;margin:-23px;border-radius:50%;border:2px solid #c9a96e;box-shadow:0 0 18px rgba(201,169,110,.7)`;
+        stage.appendChild(ring);
+        ring.animate([{ transform: "scale(.3)", opacity: 1 }, { transform: "scale(2.2)", opacity: 0 }], { duration: 650, easing: "cubic-bezier(.2,.7,.3,1)", fill: "forwards" });
+        if (bubble) setTimeout(() => {
+          bubble.animate([{ transform: "scale(1)", opacity: 1 }, { transform: "scale(.4) translateY(-20px)", opacity: 0 }], { duration: 380, easing: "ease-in", fill: "forwards" }).onfinish = () => bubble.remove();
+        }, 1000);
+        if (target) {
+          const btn = target;
+          btn.animate([
+            { transform: "scale(1) rotate(0deg)" }, { transform: "scale(1.35) rotate(-12deg)" },
+            { transform: "scale(.9) rotate(8deg)" }, { transform: "scale(1.12) rotate(-4deg)" }, { transform: "scale(1) rotate(0deg)" },
+          ], { duration: 700, easing: "ease-out" });
+          const badge = btn.querySelector(".cart-btn__count");
+          if (badge) badge.animate([{ transform: "scale(1)" }, { transform: "scale(1.7)" }, { transform: "scale(1)" }], { duration: 500, delay: 80, easing: "cubic-bezier(.3,1.6,.5,1)" });
+        }
+        resolve();
+        setTimeout(() => stage.remove(), 900);
+      }, total - 40);
+    } catch (e) {
+      resolve();
+    }
+  });
+}
+
 // A cart line's display name in the current language. Lines keep the
 // English name in `name` (that's what an order records) plus `nameAr`.
 function cartLineName(l) {

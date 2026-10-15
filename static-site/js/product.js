@@ -471,7 +471,10 @@
           state.added = false;
           render();
         }, 1400);
-        document.getElementById("cartBtn") && document.getElementById("cartBtn").click();
+        const mainImg = document.getElementById("pdpMainImg");
+        const openCart = () => document.getElementById("cartBtn") && document.getElementById("cartBtn").click();
+        if (typeof flyToCart === "function" && mainImg) flyToCart(mainImg, mainImg.currentSrc || mainImg.src).then(() => setTimeout(openCart, 250));
+        else openCart();
       });
 
     const favBtn = document.getElementById("pdpFavBtn");
