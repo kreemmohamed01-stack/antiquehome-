@@ -31,7 +31,7 @@ function plain(s, max) {
 // copy of the Cloudinary original, which is what share previews want.
 function shareImage(url) {
   if (url) url = String(url).split("#")[0]; // drop the "#x,y,zoom" focal-point suffix
-  if (!url) return `${SITE_URL}/og-image.png`;
+  if (!url) return `${SITE_URL}/og-logo-v2.png`;
   if (url.includes("res.cloudinary.com") && url.includes("/upload/")) {
     return url.replace("/upload/", "/upload/f_jpg,q_auto,w_1200/");
   }
