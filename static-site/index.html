@@ -130,12 +130,12 @@
     setTimeout(function () { if (intro.parentNode) intro.parentNode.removeChild(intro); }, 800);
   }
   window.AH_INTRO_PENDING = function () { return !finished; };
-  video.addEventListener("ended", function () { setTimeout(finish, 250); });
+  video.addEventListener("ended", function () { setTimeout(finish, 400); }); // let the final logo + tagline read
   video.addEventListener("error", finish);
   document.getElementById("introSkip").addEventListener("click", finish);
   var soundBtn = document.getElementById("introSound");
   soundBtn.addEventListener("click", function () { video.muted = false; soundBtn.hidden = true; });
-  setTimeout(finish, 9000); // safety net: a stalled download never traps anyone on the intro
+  setTimeout(finish, 6000); // safety net (the film is ~2.7s): a stalled download never traps anyone on the intro
   video.src = "/intro.mp4";
   video.muted = false;
   var p = video.play();
