@@ -1,3 +1,34 @@
+// Text fields that aren't visible at load (newsletter boxes, the search
+// and promo fields in closed drawers) ship inside <template class=
+// "lazy-field">: the first text field a page creates costs ~150ms of
+// main-thread time on a phone, so they're only created on the visitor's
+// first scroll, tap or key press — always before they can reach one.
+// Code using them looks them up by id when it needs them.
+function materializeFields() {
+  const tpls = document.querySelectorAll("template.lazy-field");
+  if (!tpls.length) return;
+  const lang = window.AH_I18N && AH_I18N.getLang && AH_I18N.getLang();
+  tpls.forEach((tpl) => {
+    const field = tpl.content.firstElementChild;
+    tpl.replaceWith(tpl.content);
+    // the page may already be in Arabic: translate the placeholder now
+    const key = field && field.getAttribute("data-i18n-placeholder");
+    if (key && lang === "ar" && window.AH_DICTIONARY && AH_DICTIONARY[key]) {
+      field.setAttribute("data-i18n-ph-en", field.placeholder || "");
+      field.placeholder = AH_DICTIONARY[key];
+    }
+  });
+}
+(function () {
+  const evts = ["scroll", "wheel", "pointerdown", "touchstart", "keydown"];
+  function on() {
+    evts.forEach((e) => window.removeEventListener(e, on, true));
+    window.AH_FIELDS_ON = true; // markup injected after this materializes itself
+    materializeFields();
+  }
+  evts.forEach((e) => window.addEventListener(e, on, { capture: true, passive: true }));
+})();
+
 // Storefront reads served from the single /api/settings?key=public
 // bundle (one request per page instead of one per setting).
 const SITE_BUNDLE_PATHS = {

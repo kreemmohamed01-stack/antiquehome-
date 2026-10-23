@@ -961,8 +961,7 @@
   font-size:8.5px;
   letter-spacing:.11em;
   text-transform:uppercase;
-  color: var(--gold-deep);
-  opacity:.85;
+  color: #7A6040; /* gold-deep is too light for 8.5px text on the card (WCAG AA) */
 }
 .pcard__name{
   margin:0 0 4px;
@@ -984,7 +983,7 @@
   margin-left:3px;
   font-family: var(--sans);
   font-size:9px;
-  color: var(--ink-400);
+  color: #6E6457; /* AA contrast on the card */
 }
 .pcard__price{
   margin:0;

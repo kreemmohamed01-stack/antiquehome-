@@ -375,7 +375,7 @@
   cursor:pointer;
   transition: border-color .25s var(--ease), background .25s var(--ease);
 }
-.pdp__size small{ font-size:10px; font-weight:400; color: var(--ink-400); }
+.pdp__size small{ font-size:10px; font-weight:400; color: #675D50; /* AA contrast on the selected (paper-2) chip too */ }
 .pdp__size.is-active{ border-color: var(--gold-deep); background: var(--paper-2); }
 @media (hover:hover){ .pdp__size:hover{ border-color: var(--gold-deep); } }
 

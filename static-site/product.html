@@ -15,12 +15,14 @@
 <link rel="preconnect" href="https://res.cloudinary.com" />
 <link rel="preload" as="image" href="/خلفيه منتجات.webp" fetchpriority="high" />
 <link rel="preload" as="fetch" href="/api/settings?key=public" crossorigin="anonymous" />
-<link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-garamond.woff2" crossorigin />
-<link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-garamond-italic.woff2" crossorigin />
-<link rel="preload" as="font" type="font/woff2" href="/fonts/jost.woff2" crossorigin />
-<!-- Self-hosted (same-origin, cached a year) instead of Google Fonts: no extra
-     DNS/TLS round trips and no late font swap pushing back the first paint. -->
-<style>@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:300 600;font-display:swap;src:url(/fonts/cormorant-garamond.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:300 400;font-display:swap;src:url(/fonts/cormorant-garamond-italic.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:'Jost';font-style:normal;font-weight:300 600;font-display:swap;src:url(/fonts/jost.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:'Dancing Script';font-style:normal;font-weight:500 700;font-display:swap;src:url(/fonts/dancing-script.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}</style>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-garamond-core.woff2" crossorigin />
+<link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-garamond-italic-core.woff2" crossorigin />
+<link rel="preload" as="font" type="font/woff2" href="/fonts/jost-core.woff2" crossorigin />
+<!-- Self-hosted fonts (same-origin, cached a year). Each family has a small
+     "-core" file (basic Latin, what the site's own text uses) that is preloaded,
+     and the full Latin file, only downloaded if a rarer accented character
+     appears on the page (unicode-range). -->
+<style>@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:300 600;font-display:swap;src:url(/fonts/cormorant-garamond.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:300 600;font-display:swap;src:url(/fonts/cormorant-garamond-core.woff2) format('woff2');unicode-range:U+0020-007E,U+00A0,U+00A9,U+00B7,U+00E9,U+00D7,U+2013-2014,U+2018-2019,U+201C-201D,U+2022,U+2026,U+20AC}@font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:300 400;font-display:swap;src:url(/fonts/cormorant-garamond-italic.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:300 400;font-display:swap;src:url(/fonts/cormorant-garamond-italic-core.woff2) format('woff2');unicode-range:U+0020-007E,U+00A0,U+00A9,U+00B7,U+00E9,U+00D7,U+2013-2014,U+2018-2019,U+201C-201D,U+2022,U+2026,U+20AC}@font-face{font-family:'Jost';font-style:normal;font-weight:300 600;font-display:swap;src:url(/fonts/jost.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:'Jost';font-style:normal;font-weight:300 600;font-display:swap;src:url(/fonts/jost-core.woff2) format('woff2');unicode-range:U+0020-007E,U+00A0,U+00A9,U+00B7,U+00E9,U+00D7,U+2013-2014,U+2018-2019,U+201C-201D,U+2022,U+2026,U+20AC}@font-face{font-family:'Dancing Script';font-style:normal;font-weight:500 700;font-display:swap;src:url(/fonts/dancing-script.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:'Dancing Script';font-style:normal;font-weight:500 700;font-display:swap;src:url(/fonts/dancing-script-core.woff2) format('woff2');unicode-range:U+0020-007E,U+00A0,U+00A9,U+00B7,U+00E9,U+00D7,U+2013-2014,U+2018-2019,U+201C-201D,U+2022,U+2026,U+20AC}</style>
 <link rel="stylesheet" href="/css/base.css" />
 <link rel="stylesheet" href="/css/shop.css" />
 <link rel="stylesheet" href="/css/product.css" />
@@ -85,7 +87,7 @@
        paints straight away instead of after the product data loads. -->
   <main class="pdp">
     <div class="pdp__bg" aria-hidden="true"><img src="/خلفيه منتجات.webp" alt="" loading="eager" fetchpriority="high" /></div>
-    <div style="position:relative;min-height:70vh;display:flex;align-items:center;justify-content:center">
+    <div style="position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center">
       <div aria-hidden="true" style="width:34px;height:34px;border-radius:50%;border:2.5px solid rgba(201,162,39,.25);border-top-color:#C9A227;animation:pdpSpin .8s linear infinite"></div>
     </div>
   </main>

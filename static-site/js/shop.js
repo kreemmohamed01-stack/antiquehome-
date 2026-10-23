@@ -427,7 +427,7 @@
         </a>
         <div class="pcard__body">
           <p class="pcard__cat">${p.material || (cat ? (window.AH_I18N ? window.AH_I18N.categoryName(cat) : cat.name) : "")}${p.size_cm ? ` • ${p.size_cm} cm` : ""}</p>
-          <h3 class="pcard__name"><a href="/product/${encodeURIComponent(p.slug)}" style="color:inherit;text-decoration:none">${pname}</a></h3>
+          <h2 class="pcard__name"><a href="/product/${encodeURIComponent(p.slug)}" style="color:inherit;text-decoration:none">${pname}</a></h2>
           <span class="pcard__stars" aria-hidden="true">${stars}<em>(${p.review_count || 0})</em></span>
           <p class="pcard__price">${priceHtml}</p>
         </div>

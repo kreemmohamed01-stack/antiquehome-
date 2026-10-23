@@ -488,7 +488,7 @@
     const promoToggleBtn = document.getElementById("promoToggle");
     const promoBodyEl = document.getElementById("promoBody");
     const promoFormEl = document.getElementById("promoForm");
-    const promoInputEl = document.getElementById("promoInput");
+    const promoInput = () => document.getElementById("promoInput"); // created lazily, see js/api.js
     const promoNoteEl = document.getElementById("promoNote");
 
     if (promoToggleBtn && promoBodyEl) {
@@ -498,7 +498,7 @@
         promoBodyEl.classList.toggle("is-open", !open);
         if (!open) {
           const applied = getAppliedCoupon();
-          if (applied && promoInputEl) promoInputEl.value = applied.code;
+          if (applied && promoInput()) promoInput().value = applied.code;
         }
       });
     }
@@ -506,7 +506,7 @@
     if (promoFormEl) {
       promoFormEl.addEventListener("submit", async (e) => {
         e.preventDefault();
-        const code = (promoInputEl && promoInputEl.value.trim()) || "";
+        const code = (promoInput() && promoInput().value.trim()) || "";
         if (!code) return;
         if (promoNoteEl) { promoNoteEl.textContent = t("checking", "Checking…"); promoNoteEl.className = "promo__note"; }
         try {
@@ -524,9 +524,9 @@
 
     // ---- search filter ----
     const searchForm = document.getElementById("searchForm");
-    const searchInput = document.getElementById("searchInput");
     function onSearchSubmit(e) {
       e.preventDefault();
+      const searchInput = document.getElementById("searchInput"); // created lazily, see js/api.js
       const q = ((searchInput && searchInput.value) || "").trim();
       window.location.href = "/shop.html" + (q ? "?q=" + encodeURIComponent(q) : "");
     }
@@ -540,11 +540,11 @@
     function wireNewsletterForm(formId, inputId, noteId, errorMsg) {
       const form = document.getElementById(formId);
       if (!form) return;
-      const input = document.getElementById(inputId);
       const note = document.getElementById(noteId);
       const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
+        const input = document.getElementById(inputId); // created lazily, see js/api.js
         const value = ((input && input.value) || "").trim();
         if (!emailRe.test(value)) {
           if (note) { note.textContent = errorMsg; note.classList.add("err"); }
@@ -559,13 +559,12 @@
           if (note) { note.textContent = t("newsletterError", "Something went wrong — please try again."); note.classList.add("err"); }
         }
       });
-      input &&
-        input.addEventListener("input", () => {
-          if (note && note.textContent) {
-            note.textContent = "";
-            note.classList.remove("err");
-          }
-        });
+      form.addEventListener("input", () => {
+        if (note && note.textContent) {
+          note.textContent = "";
+          note.classList.remove("err");
+        }
+      });
     }
 
     wireNewsletterForm("inspireForm", "inspireEmail", "inspireNote", t("invalidEmail", "Please enter a valid email address."));
@@ -626,9 +625,10 @@
       const slow = conn.saveData || /(^|-)(2g|3g)$/.test(conn.effectiveType || "");
       const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (slow || still) return;
-      if (window.AH_INTRO_PENDING && window.AH_INTRO_PENDING()) {
-        // Let the brand intro have the connection to itself first.
-        document.addEventListener("ah:introdone", heroVideo, { once: true });
+      // The poster paints first; the video only starts downloading once
+      // the page itself has fully loaded, so it never delays first paint.
+      if (document.readyState !== "complete") {
+        window.addEventListener("load", () => setTimeout(heroVideo, 300), { once: true });
         return;
       }
       if (!video.getAttribute("src") && video.dataset.src) video.src = video.dataset.src;

@@ -60,7 +60,7 @@
         <h2 class="fcol__title" data-i18n="footNewsletterTitle">Newsletter</h2>
         <p class="fnews__text" data-i18n-html="footNewsletterText">Stay inspired with new<br />arrivals, stories &amp; offers.</p>
         <form class="fnews" id="footForm">
-          <input id="footEmail" type="email" name="email" autocomplete="email" placeholder="Enter your email" data-i18n-placeholder="footEmailPlaceholder" aria-label="Your email address" required />
+          <template class="lazy-field"><input id="footEmail" type="email" name="email" autocomplete="email" placeholder="Enter your email" data-i18n-placeholder="footEmailPlaceholder" aria-label="Your email address" required /></template>
           <button type="submit" aria-label="Subscribe">
             <svg viewBox="0 0 26 12" aria-hidden="true"><line x1="0" y1="6" x2="21" y2="6"></line><polyline points="16.4,1.6 21.4,6 16.4,10.4"></polyline></svg>
           </button>
@@ -327,7 +327,7 @@
         </button>
         <div class="promo__wrap" id="promoBody">
           <form class="promo__form" id="promoForm">
-            <input type="text" id="promoInput" placeholder="Enter promo code" data-i18n-placeholder="promoCodePlaceholder" aria-label="Promo code" autocomplete="off" />
+            <template class="lazy-field"><input type="text" id="promoInput" placeholder="Enter promo code" data-i18n-placeholder="promoCodePlaceholder" aria-label="Promo code" autocomplete="off" /></template>
             <button type="submit" data-i18n="applyBtn2">Apply</button>
           </form>
           <p class="promo__note" id="promoNote" role="status" aria-live="polite"></p>
@@ -377,7 +377,7 @@
 
       <form class="sfield" id="searchForm" action="/shop.html">
         <svg class="sfield__ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.4"></circle><line x1="15.7" y1="15.7" x2="20.2" y2="20.2"></line></svg>
-        <input type="text" id="searchInput" name="q" placeholder="Search for products, collections&hellip;" data-i18n-placeholder="searchPlaceholder" aria-label="Search for products or collections" autocomplete="off" />
+        <template class="lazy-field"><input type="text" id="searchInput" name="q" placeholder="Search for products, collections&hellip;" data-i18n-placeholder="searchPlaceholder" aria-label="Search for products or collections" autocomplete="off" /></template>
         <button type="submit" aria-label="Search">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 14 10 22 12 14 14 12 22 10 14 2 12 10 10Z"></path></svg>
         </button>
@@ -505,6 +505,7 @@
   ready(function () {
     const slot = document.getElementById("chromeSlot");
     if (slot) slot.outerHTML = CHROME_HTML;
+    if (window.AH_FIELDS_ON) materializeFields(); // visitor already interacted (see js/api.js)
     applySocialLinks();
     applyAnnouncement();
     // i18n.js's own applyLang() already ran once (on DOMContentLoaded,
