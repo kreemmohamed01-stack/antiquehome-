@@ -941,7 +941,7 @@ html[dir="rtl"] .lang-btn__label{ font-family: "Tajawal", sans-serif; letter-spa
     opacity 1.05s cubic-bezier(.16,.84,.26,1) var(--rd, 0s),
     transform 1.05s cubic-bezier(.16,.84,.26,1) var(--rd, 0s),
     filter 1.05s cubic-bezier(.16,.84,.26,1) var(--rd, 0s);
-  will-change: opacity, transform;
+  /* no will-change: it kept a GPU layer alive for every reveal element on the page */
 }
 .rv--up   { transform: translateY(28px); }
 .rv--left { transform: translateX(-38px); }
@@ -5283,3 +5283,30 @@ html[dir="rtl"] .lang-btn__label{ font-family: "Tajawal", sans-serif; letter-spa
     margin-inline:auto;
   }
 }
+
+/* =========================================================
+   RENDERING PERFORMANCE
+   Below-the-fold sections skip style/layout/paint until they near the
+   viewport (each already clips with overflow:hidden, so the containment
+   this implies changes nothing visually). The intrinsic size is only a
+   placeholder height for the scrollbar; `auto` swaps in the real height
+   once a section has been rendered.
+   ========================================================= */
+.cats,
+.story,
+.journey,
+.foot{
+  content-visibility:auto;
+  contain-intrinsic-size: auto 1100px;
+}
+
+/* text for screen readers only */
+.sr-only{
+  position:absolute !important;
+  width:1px; height:1px;
+  padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0 0 0 0);
+  white-space:nowrap; border:0;
+}
+/* 24px minimum tap target (WCAG 2.2) */
+.lang-btn{ min-height:24px; }

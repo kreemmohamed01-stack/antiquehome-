@@ -169,11 +169,11 @@
               <button class="icon-btn" type="button" id="searchBtn" aria-haspopup="true" aria-expanded="false" aria-controls="searchDrawer" aria-label="Search">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.4"></circle><line x1="15.7" y1="15.7" x2="20.2" y2="20.2"></line></svg>
               </button>
-              <button class="icon-btn cart-btn" type="button" id="cartBtn" aria-haspopup="true" aria-expanded="false" aria-controls="cartDrawer" aria-label="Shopping bag">
+              <button class="icon-btn cart-btn" type="button" id="cartBtn" aria-haspopup="true" aria-expanded="false" aria-controls="cartDrawer"><span class="sr-only">Shopping bag</span>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 7.8h12.8l1 12.4H4.6z"></path><path d="M8.9 9.6V6.6a3.1 3.1 0 0 1 6.2 0v3"></path></svg>
                 <span class="cart-btn__count">0</span>
               </button>
-              <button class="icon-btn lang-btn" type="button" id="langBtn" aria-label="Switch language">
+              <button class="icon-btn lang-btn" type="button" id="langBtn"><span class="sr-only">Switch language:</span>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.4"></circle><path d="M2.6 12h18.8"></path><path d="M12 2.6c2.6 2.6 4 5.9 4 9.4s-1.4 6.8-4 9.4c-2.6-2.6-4-5.9-4-9.4s1.4-6.8 4-9.4Z"></path></svg>
                 <span class="lang-btn__label" id="langBtnLabel"></span>
               </button>
@@ -222,11 +222,11 @@
                 <button class="icon-btn" type="button" id="searchBtn" aria-haspopup="true" aria-expanded="false" aria-controls="searchDrawer" aria-label="Search">
                   <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.4"></circle><line x1="15.7" y1="15.7" x2="20.2" y2="20.2"></line></svg>
                 </button>
-                <button class="icon-btn cart-btn" type="button" id="cartBtn" aria-haspopup="true" aria-expanded="false" aria-controls="cartDrawer" aria-label="Shopping bag">
+                <button class="icon-btn cart-btn" type="button" id="cartBtn" aria-haspopup="true" aria-expanded="false" aria-controls="cartDrawer"><span class="sr-only">Shopping bag</span>
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 7.8h12.8l1 12.4H4.6z"></path><path d="M8.9 9.6V6.6a3.1 3.1 0 0 1 6.2 0v3"></path></svg>
                   <span class="cart-btn__count">0</span>
                 </button>
-                <button class="icon-btn lang-btn" type="button" id="langBtn" aria-label="Switch language">
+                <button class="icon-btn lang-btn" type="button" id="langBtn"><span class="sr-only">Switch language:</span>
                   <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.4"></circle><path d="M2.6 12h18.8"></path><path d="M12 2.6c2.6 2.6 4 5.9 4 9.4s-1.4 6.8-4 9.4c-2.6-2.6-4-5.9-4-9.4s1.4-6.8 4-9.4Z"></path></svg>
                   <span class="lang-btn__label" id="langBtnLabel"></span>
                 </button>

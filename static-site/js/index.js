@@ -295,6 +295,13 @@
     }
     document.querySelectorAll("img[data-cat-img]").forEach((img) => {
       const { src, position, zoom } = categoryImageUrl(img.dataset.catImg, categories, Number(img.dataset.catW), img.dataset.catShape);
+      // 3-up square tiles (max ~420px wide): offer smaller Cloudinary
+      // sizes so a phone isn't sent the 700px version for a 130px tile.
+      const w = img.dataset.catW;
+      if (src.includes(`w_${w}/`)) {
+        img.sizes = "(max-width: 1300px) 33vw, 420px";
+        img.srcset = [240, 400, 700].map((x) => `${src.replace(`w_${w}/`, `w_${x}/`)} ${x}w`).join(", ");
+      }
       if (img.getAttribute("src") !== src) img.src = src;
       img.style.objectPosition = position;
       img.style.setProperty("--cat-zoom", zoom);

@@ -131,7 +131,7 @@
           <span class="chk__brand-name">ANTIQUE HOME</span>
           <span class="chk__brand-sub">VASE &amp; DECOR</span>
         </a>
-        <button class="icon-btn lang-btn no-print" type="button" id="langBtn" aria-label="Switch language" style="position:static">
+        <button class="icon-btn lang-btn no-print" type="button" id="langBtn" style="position:static"><span class="sr-only">Switch language:</span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.4"></circle><path d="M2.6 12h18.8"></path><path d="M12 2.6c2.6 2.6 4 5.9 4 9.4s-1.4 6.8-4 9.4c-2.6-2.6-4-5.9-4-9.4s1.4-6.8 4-9.4Z"></path></svg>
           <span class="lang-btn__label" id="langBtnLabel">العربية</span>
         </button>
