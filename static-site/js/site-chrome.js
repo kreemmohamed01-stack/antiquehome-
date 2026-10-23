@@ -622,37 +622,43 @@
       const slow = conn.saveData || /(^|-)(2g|3g)$/.test(conn.effectiveType || "");
       const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (slow || still) return;
-      if (window.AH_INTRO_PENDING && window.AH_INTRO_PENDING()) {
-        // Let the brand intro have the connection to itself first.
-        document.addEventListener("ah:introdone", heroVideo, { once: true });
-        return;
-      }
-      // The poster paints first; the video only starts downloading once
-      // the page itself has fully loaded, so it never delays first paint.
-      if (document.readyState !== "complete") {
-        window.addEventListener("load", () => setTimeout(heroVideo, 300), { once: true });
-        return;
-      }
-      const hd = window.innerWidth >= 700 && video.dataset.srcHd;
-      if (!video.getAttribute("src") && video.dataset.src) video.src = hd || video.dataset.src;
       function play() {
         const p = video.play();
         if (p && typeof p.catch === "function") p.catch(() => {});
       }
+      function start() {
+        const hd = window.innerWidth >= 700 && video.dataset.srcHd;
+        if (!video.getAttribute("src") && video.dataset.src) video.src = hd || video.dataset.src;
+        play();
+        document.addEventListener("visibilitychange", () => {
+          if (!document.hidden && video.paused) play();
+        });
+        ["touchstart", "click"].forEach((evt) => {
+          const handler = () => {
+            if (video.paused) play();
+            document.removeEventListener(evt, handler);
+          };
+          document.addEventListener(evt, handler, { passive: true });
+        });
+      }
 
-      play();
-
-      document.addEventListener("visibilitychange", () => {
-        if (!document.hidden && video.paused) play();
-      });
-
-      ["touchstart", "click"].forEach((evt) => {
-        const handler = () => {
-          if (video.paused) play();
-          document.removeEventListener(evt, handler);
-        };
-        document.addEventListener(evt, handler, { passive: true });
-      });
+      const film = document.getElementById("introVideo");
+      if (window.AH_INTRO_PENDING && window.AH_INTRO_PENDING() && film) {
+        // The brand intro's own (small) film downloads first; this one then
+        // loads behind the intro, so it is already playing when it fades out.
+        let begun = false;
+        const go = () => { if (!begun) { begun = true; start(); } };
+        if (film.readyState >= 4) go();
+        else {
+          film.addEventListener("canplaythrough", go, { once: true });
+          document.addEventListener("ah:introdone", go, { once: true });
+        }
+        return;
+      }
+      // No intro: the poster paints first and the video only starts
+      // downloading once the page has fully loaded.
+      if (document.readyState !== "complete") window.addEventListener("load", () => setTimeout(start, 300), { once: true });
+      else start();
     })();
 
     // ---- journey video (homepage, far below the fold) ----

@@ -169,7 +169,8 @@ a{ color:inherit; text-decoration:none; }
 /* The poster is a plain <img> under the video (a video's own poster
    is decoded before the page's first frame, delaying it); the video
    covers it once it has frames to show. */
-.hero__media > .hero__video{ position:absolute; inset:0; }
+.hero__poster{ display:contents; }
+.hero__media .hero__video{ position:absolute; inset:0; }
 
 @keyframes kenburns{
   from{ transform: scale(1.04); }
