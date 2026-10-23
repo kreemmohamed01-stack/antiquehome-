@@ -461,10 +461,6 @@
 </button>
 `;
 
-  function ready(fn) {
-    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
-    else fn();
-  }
 
   // Rewrites every hardcoded WhatsApp/Instagram/Facebook link on the page
   // (chrome + any page-specific ones, e.g. index.html's own CTA buttons)
@@ -502,7 +498,7 @@
     document.querySelectorAll(".promo-bar__text span").forEach((span) => { span.textContent = ann.text; });
   }
 
-  ready(function () {
+  afterFirstPaint(function () {
     const slot = document.getElementById("chromeSlot");
     if (slot) slot.outerHTML = CHROME_HTML;
     if (window.AH_FIELDS_ON) materializeFields(); // visitor already interacted (see js/api.js)

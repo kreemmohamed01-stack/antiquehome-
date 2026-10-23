@@ -1,10 +1,31 @@
 // Homepage data: New Arrivals rail + sale banner. Ported from app/page.tsx +
 // SaleBanner.tsx server components.
 (function () {
-  function ready(fn) {
-    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
-    else fn();
-  }
+  // Below-the-fold photos ship as data-src / data-srcset / data-poster and
+  // load when their section comes within ~800px of the screen. Native
+  // loading="lazy" fetches anything within a couple of screens, which
+  // pulled ~150KB of decorative photos into the first-paint window.
+  // (Sections are watched, not the images: content-visibility:auto doesn't
+  // lay out a far-off section's contents, so its images have no box yet.)
+  (function lazyMedia() {
+    const load = (section) => {
+      section.querySelectorAll("img[data-src]").forEach((el) => {
+        if (!el.getAttribute("src")) el.src = el.dataset.src; // keep an admin photo index.js already set
+      });
+      section.querySelectorAll("source[data-srcset]").forEach((el) => { el.srcset = el.dataset.srcset; });
+      section.querySelectorAll("video[data-poster]").forEach((el) => { el.poster = el.dataset.poster; });
+    };
+    const sections = document.querySelectorAll(".cats, .story, .journey");
+    if (!("IntersectionObserver" in window)) { sections.forEach(load); return; }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(e.target);
+        load(e.target);
+      });
+    }, { rootMargin: "800px 0px" });
+    sections.forEach((s) => io.observe(s));
+  })();
 
   function bannerMarkup({ eyebrow, pct, btnLabel, btnHref }) {
     return `
@@ -308,7 +329,8 @@
     });
   }
 
-  ready(function () {
+  // Everything here is below the fold: start after the first paint.
+  afterFirstPaint(function () {
     loadArrivals();
     loadSaleBanner();
     loadHeroContent();

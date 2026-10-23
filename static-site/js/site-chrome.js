@@ -2,10 +2,6 @@
 // HeroVideo.tsx, ProductRail's rail-nav bits, MusicPlayer.tsx and AboutStats.tsx.
 // Depends on js/api.js having already run (Cart, fmtMoney, etc).
 (function () {
-  function ready(fn) {
-    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
-    else fn();
-  }
   function t(key, fallbackEn) {
     return window.AH_I18N ? window.AH_I18N.t(key, fallbackEn) : fallbackEn;
   }
@@ -14,7 +10,7 @@
   // Any element marked data-rv fades/slides into view the first time it
   // scrolls into the viewport (direction set by its rv--up/rv--left/
   // rv--zoom class, see sections.css). Exposed as window.AH_REVEAL so
-  // pages that build their content in JS after this file's own ready()
+  // pages that build their content in JS after this file's own init
   // pass (shop.js, product.js, checkout.js, order-confirmation.js) can
   // call AH_REVEAL.scan() once their markup exists, to pick up the
   // data-rv elements it just added — scan() is safe to call repeatedly,
@@ -79,7 +75,7 @@
     } catch {}
   })();
 
-  ready(function () {
+  afterFirstPaint(function () {
     scanReveal(document);
 
     // ---- shared scroll lock ----
@@ -620,18 +616,25 @@
       if (!video) return;
       // Ships with data-src + a poster: on Data Saver, a slow (2G/3G)
       // connection or reduced-motion, visitors keep the still poster and
-      // the ~0.5MB video is never downloaded.
+      // the video is never downloaded. Phones get the 720p file (~2MB),
+      // tablets/desktops the 1080p one (data-src-hd).
       const conn = navigator.connection || {};
       const slow = conn.saveData || /(^|-)(2g|3g)$/.test(conn.effectiveType || "");
       const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (slow || still) return;
+      if (window.AH_INTRO_PENDING && window.AH_INTRO_PENDING()) {
+        // Let the brand intro have the connection to itself first.
+        document.addEventListener("ah:introdone", heroVideo, { once: true });
+        return;
+      }
       // The poster paints first; the video only starts downloading once
       // the page itself has fully loaded, so it never delays first paint.
       if (document.readyState !== "complete") {
         window.addEventListener("load", () => setTimeout(heroVideo, 300), { once: true });
         return;
       }
-      if (!video.getAttribute("src") && video.dataset.src) video.src = video.dataset.src;
+      const hd = window.innerWidth >= 700 && video.dataset.srcHd;
+      if (!video.getAttribute("src") && video.dataset.src) video.src = hd || video.dataset.src;
       function play() {
         const p = video.play();
         if (p && typeof p.catch === "function") p.catch(() => {});

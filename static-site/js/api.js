@@ -4,6 +4,39 @@
 // main-thread time on a phone, so they're only created on the visitor's
 // first scroll, tap or key press — always before they can reach one.
 // Code using them looks them up by id when it needs them.
+// Runs fn once the page's first frame is on screen (DOM ready, then the
+// next animation frame, then a task). The shared footer / menus / drawers
+// are built this way: they're off-screen at load, and building them before
+// the first paint held it back on phones.
+// Waits for the browser's own first-contentful-paint entry (the frame is
+// actually on screen, not just painted on the main thread); falls back to
+// a frame + task where paint timing isn't supported, and never waits more
+// than 3s. Callbacks run in the order they were registered, each in its
+// own task.
+const afterFirstPaint = (function () {
+  const queue = [];
+  let painted = false, domReady = document.readyState !== "loading", flushed = false;
+  function flush() {
+    if (flushed || !painted || !domReady) return;
+    flushed = true;
+    queue.splice(0).forEach((fn) => setTimeout(fn, 0)); // separate tasks: no one long task
+  }
+  function markPainted() { painted = true; flush(); }
+  try {
+    new PerformanceObserver((list, obs) => {
+      if (list.getEntriesByName("first-contentful-paint").length) { obs.disconnect(); markPainted(); }
+    }).observe({ type: "paint", buffered: true });
+  } catch (e) {
+    requestAnimationFrame(() => setTimeout(markPainted, 0));
+  }
+  setTimeout(markPainted, 3000);
+  if (!domReady) document.addEventListener("DOMContentLoaded", () => { domReady = true; flush(); });
+  return function (fn) {
+    if (flushed) setTimeout(fn, 0);
+    else queue.push(fn);
+  };
+})();
+
 function materializeFields() {
   const tpls = document.querySelectorAll("template.lazy-field");
   if (!tpls.length) return;
@@ -692,8 +725,9 @@ function trackEvent(event, productSlug) {
   } catch {}
 }
 
-// Visitor tracking beacon — fires on every page's load.
-(function track() {
+// Visitor tracking beacon — fires on every page's load (once the page is
+// on screen, so its request never competes with the first paint).
+afterFirstPaint(function track() {
   try {
     const visitorId = ahIdFrom(localStorage, "ah_vid");
     const sessionId = ahIdFrom(sessionStorage, "ah_sid");
@@ -703,4 +737,4 @@ function trackEvent(event, productSlug) {
       referrer: document.referrer || null,
     });
   } catch {}
-})();
+});

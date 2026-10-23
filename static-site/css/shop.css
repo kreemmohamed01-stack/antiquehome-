@@ -325,7 +325,7 @@
 }
 
 .catrail__item--active .catrail__ico{ border-color: var(--gold-deep); box-shadow:0 0 0 2px rgba(185,149,91,.18); }
-.catrail__item--active .catrail__label{ color: var(--gold-deep); font-weight:500; }
+.catrail__item--active .catrail__label{ color: #7A6040; font-weight:500; } /* darker gold: AA contrast */
 
 @media (min-width: 700px){
   .catrail{ padding:24px 0; }
@@ -762,7 +762,7 @@
 }
 .filters__cats a svg{ width:12px; height:9px; fill:none; stroke:var(--gold-deep); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex:none; opacity:0; }
 .filters__cats a:hover{ color: var(--ink-900); }
-.filters__cats li.is-active a{ color: var(--gold-deep); font-weight:500; }
+.filters__cats li.is-active a{ color: #7A6040; font-weight:500; } /* darker gold: AA contrast */
 .filters__cats li.is-active a svg{ opacity:1; }
 
 .filters__price{ padding-top:2px; }
@@ -1154,7 +1154,7 @@
   stroke-width:2; stroke-linecap:round; stroke-linejoin:round;
   opacity:0;
 }
-.sheet .filters__cats li.is-active a{ color: var(--gold-deep); font-weight:500; }
+.sheet .filters__cats li.is-active a{ color: #7A6040; font-weight:500; }
 .sheet .filters__cats li.is-active a svg{ opacity:1; }
 
 .sheet .filters__range{ width:100%; accent-color: var(--gold-deep); margin-bottom:8px; }
