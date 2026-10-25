@@ -53,6 +53,7 @@
           <li><a href="https://wa.me/201105288355" target="_blank" rel="noopener noreferrer"><span class="fcol__ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8.2 4.4H6a2.2 2.2 0 0 0-2.2 2.2c0 7.4 5.8 13.2 13.2 13.2a2.2 2.2 0 0 0 2.2-2.2v-2l-4-1.5-1.8 1.8a12.4 12.4 0 0 1-5.1-5.1L10 8.8Z"/></svg></span><span data-i18n="footContactUs">Contact Us</span></a></li>
           <li><a href="/privacy.html"><span class="fcol__ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3.4 19.6 6v6.2c0 4.8-3.2 8-7.6 9.4-4.4-1.4-7.6-4.6-7.6-9.4V6Z"/><polyline points="9,12.2 11.2,14.4 15.2,10"/></svg></span><span data-i18n="footPrivacyPolicy">Privacy Policy</span></a></li>
           <li><a href="/terms.html"><span class="fcol__ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3.4h8.4l4 4v13.2H6Z"/><polyline points="14.2,3.6 14.2,7.6 18.2,7.6"/><line x1="8.8" y1="12" x2="15.4" y2="12"/><line x1="8.8" y1="15.6" x2="13.4" y2="15.6"/></svg></span><span data-i18n="footTermsConditions">Terms &amp; Conditions</span></a></li>
+          <li><a href="/sitemap"><span class="fcol__ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="9" y="3.4" width="6" height="4.4" rx=".8"/><rect x="3.4" y="16.2" width="6" height="4.4" rx=".8"/><rect x="14.6" y="16.2" width="6" height="4.4" rx=".8"/><path d="M12 7.8v4.2M6.4 16.2V12h11.2v4.2"/></svg></span><span data-i18n="footSitemap">Sitemap</span></a></li>
         </ul>
       </nav>
 

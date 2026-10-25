@@ -359,6 +359,7 @@ window.AH_DICTIONARY = {
   footContactUs: "تواصل معنا",
   footPrivacyPolicy: "سياسة الخصوصية",
   footTermsConditions: "الشروط والأحكام",
+  footSitemap: "خريطة الموقع",
   footNewsletterTitle: "النشرة البريدية",
   footNewsletterText: "ابقي على اطلاع بأحدث القطع<br />والقصص والعروض.",
   footEmailPlaceholder: "أدخلي بريدكِ الإلكتروني",

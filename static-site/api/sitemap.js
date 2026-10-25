@@ -6,6 +6,7 @@
 const { sql } = require("./_db.js");
 const { SITE_URL } = require("./_seo.js");
 const productPage = require("./_product-page.js");
+const sitemapPage = require("./_sitemap-page.js");
 
 const STATIC_PAGES = [
   { path: "/", changefreq: "daily", priority: "1.0" },
@@ -15,6 +16,7 @@ const STATIC_PAGES = [
   { path: "/returns.html", changefreq: "yearly", priority: "0.3" },
   { path: "/terms.html", changefreq: "yearly", priority: "0.2" },
   { path: "/privacy.html", changefreq: "yearly", priority: "0.2" },
+  { path: "/sitemap", changefreq: "weekly", priority: "0.4" },
 ];
 
 function xmlEscape(s) {
@@ -42,6 +44,8 @@ module.exports = async (req, res) => {
   // /product/<slug> is also served from here (see vercel.json) — Vercel
   // Hobby caps a deployment at 12 functions, so it shares this one.
   if (req.query.product !== undefined) return productPage(req, res, String(req.query.product));
+  // /sitemap (the human-readable page linked from the footer) shares it too.
+  if (req.query.html !== undefined) return sitemapPage(req, res);
   try {
     const [products, categories] = await Promise.all([
       sql`SELECT slug, name, image_urls, created_at FROM products WHERE status = 'active'`,
