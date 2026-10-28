@@ -133,6 +133,18 @@ a{ color:inherit; text-decoration:none; }
   object-fit:contain; /* portrait film: full-bleed on phones, centred on desktop */
 }
 
+.hero__video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+  display:block;
+  /* gently warm the footage without washing it out */
+  filter: saturate(1.02) contrast(1.02);
+  transform: scale(1.04);
+  animation: kenburns 26s var(--ease) infinite alternate;
+}
+
 /* The poster is a plain <img> under the video (a video's own poster
    is decoded before the page's first frame, delaying it); the video
    covers it once it has frames to show. */
