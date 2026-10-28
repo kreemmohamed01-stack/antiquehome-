@@ -137,7 +137,7 @@
         </button>
         <span class="chk__secure">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.8" y="10.4" width="14.4" height="10.4" rx="1.8"></rect><path d="M8.1 10.4V7.6a3.9 3.9 0 0 1 7.8 0v2.8"></path></svg>
-          ${t("secureCheckout", "Secure Checkout")}
+          ${t("secureCheckout", "Secure Check Out")}
         </span>
       </header>
 

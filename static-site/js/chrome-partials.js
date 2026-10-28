@@ -346,7 +346,7 @@
 
       <a class="dw-btn dw-btn--dark" href="/checkout.html" id="checkoutBtn" style="display:none">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 7.8h12.8l1 12.4H4.6z"></path><path d="M8.9 9.6V6.6a3.1 3.1 0 0 1 6.2 0v3"></path></svg>
-        <span data-i18n="proceedToCheckout">Proceed to Checkout</span>
+        <span data-i18n="proceedToCheckout">Proceed to Check Out</span>
       </a>
 
       <ul class="dw-trust">
