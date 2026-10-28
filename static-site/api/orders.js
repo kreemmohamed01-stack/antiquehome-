@@ -121,6 +121,67 @@ async function notifyOwnerOnWhatsApp(order, b) {
   }
 }
 
+// Stock lines for an order: one per product (+ size), quantities summed so
+// two cart lines of the same piece (different colours) count together.
+function stockLines(items) {
+  const m = new Map();
+  for (const i of items) {
+    const k = `${i.productId}::${i.variantLabel || ""}`;
+    const cur = m.get(k) || { productId: i.productId, variantLabel: i.variantLabel || null, name: i.name, qty: 0 };
+    cur.qty += Number(i.qty) || 0;
+    m.set(k, cur);
+  }
+  return [...m.values()];
+}
+
+// Adds `delta` (negative = take) to a product's stock and, for a size, to
+// that size's own stock too. With `onlyIfAvailable` the row is only
+// changed when enough is left; the check and the update are one statement,
+// so two shoppers buying the last piece at once can't both get it.
+async function adjustStock(line, delta, onlyIfAvailable) {
+  const need = -delta;
+  if (!line.variantLabel) {
+    const rows = onlyIfAvailable
+      ? await sql`UPDATE products SET stock_qty = stock_qty + ${delta} WHERE id = ${line.productId} AND stock_qty >= ${need} RETURNING id`
+      : await sql`UPDATE products SET stock_qty = GREATEST(0, stock_qty + ${delta}) WHERE id = ${line.productId} RETURNING id`;
+    return rows.length > 0;
+  }
+  const rows = await sql`
+    UPDATE products SET
+      variants = (
+        SELECT jsonb_agg(CASE WHEN e->>'label' = ${line.variantLabel}
+          THEN jsonb_set(e, '{stock}', to_jsonb(GREATEST(0, COALESCE((e->>'stock')::numeric, 0) + ${delta})))
+          ELSE e END ORDER BY ord)
+        FROM jsonb_array_elements(variants) WITH ORDINALITY AS x(e, ord)
+      ),
+      stock_qty = GREATEST(0, stock_qty + ${delta})
+    WHERE id = ${line.productId}
+      AND (NOT ${onlyIfAvailable} OR EXISTS (
+        SELECT 1 FROM jsonb_array_elements(variants) e
+        WHERE e->>'label' = ${line.variantLabel} AND COALESCE((e->>'stock')::numeric, 0) >= ${need}))
+    RETURNING id`;
+  return rows.length > 0;
+}
+
+// Takes every line's stock or none of it: if any line is short, whatever
+// was already taken is put back and the short line is returned.
+async function reserveStock(items) {
+  const taken = [];
+  for (const line of stockLines(items)) {
+    if (!(await adjustStock(line, -line.qty, true))) {
+      for (const t of taken) await adjustStock(t, t.qty, false);
+      return line;
+    }
+    taken.push(line);
+  }
+  return null;
+}
+
+async function orderStockLines(orderId) {
+  const rows = await sql`SELECT product_id, variant_label, name_snapshot, qty FROM order_items WHERE order_id = ${orderId} AND product_id IS NOT NULL`;
+  return stockLines(rows.map((r) => ({ productId: r.product_id, variantLabel: r.variant_label, name: r.name_snapshot, qty: r.qty })));
+}
+
 module.exports = async (req, res) => {
   try {
     // GET /api/orders?id=123  -> single order + items (public, needed by
@@ -162,27 +223,41 @@ module.exports = async (req, res) => {
       }
       Object.assign(body, priced);
 
+      const short = await reserveStock(body.items);
+      if (short) {
+        res.status(409).json({ error: `Sorry, "${short.name}"${short.variantLabel ? ` (${short.variantLabel})` : ""} just sold out or doesn't have enough pieces left. Please update your bag and try again.` });
+        return;
+      }
+
       const orderNumber = "AH-" + Date.now().toString(36).toUpperCase().slice(-8);
 
-      const orderRows = await sql`
-        INSERT INTO orders (
-          order_number, customer_name, email, phone, governorate, city, address,
-          delivery_method, payment_method, payment_reference, payment_sender_name, notes, subtotal, shipping, discount, coupon_code, total, status
-        ) VALUES (
-          ${orderNumber}, ${body.fullName}, ${body.email}, ${body.phone},
-          ${body.governorate || null}, ${body.city || null}, ${body.address || null},
-          ${body.delivery}, ${body.payment}, ${body.paymentReference || null}, ${body.paymentSenderName || null}, ${body.notes || null},
-          ${body.subtotal}, ${body.shipping}, ${body.discount || 0}, ${body.couponCode || null}, ${body.total}, 'pending'
-        ) RETURNING id, order_number
-      `;
-      const order = orderRows[0];
-
-      for (const item of body.items) {
-        await sql`
-          INSERT INTO order_items (order_id, product_id, name_snapshot, price_snapshot, image_snapshot, variant_label, color_name, qty)
-          VALUES (${order.id}, ${item.productId}, ${item.name}, ${item.price}, ${item.image}, ${item.variantLabel}, ${item.colorName}, ${item.qty})
+      let order;
+      try {
+        const orderRows = await sql`
+          INSERT INTO orders (
+            order_number, customer_name, email, phone, governorate, city, address,
+            delivery_method, payment_method, payment_reference, payment_sender_name, notes, subtotal, shipping, discount, coupon_code, total, status
+          ) VALUES (
+            ${orderNumber}, ${body.fullName}, ${body.email}, ${body.phone},
+            ${body.governorate || null}, ${body.city || null}, ${body.address || null},
+            ${body.delivery}, ${body.payment}, ${body.paymentReference || null}, ${body.paymentSenderName || null}, ${body.notes || null},
+            ${body.subtotal}, ${body.shipping}, ${body.discount || 0}, ${body.couponCode || null}, ${body.total}, 'pending'
+          ) RETURNING id, order_number
         `;
-        await sql`UPDATE products SET stock_qty = GREATEST(0, stock_qty - ${item.qty}) WHERE id = ${item.productId}`;
+        order = orderRows[0];
+
+        // Stock was already taken by reserveStock() above.
+        for (const item of body.items) {
+          await sql`
+            INSERT INTO order_items (order_id, product_id, name_snapshot, price_snapshot, image_snapshot, variant_label, color_name, qty)
+            VALUES (${order.id}, ${item.productId}, ${item.name}, ${item.price}, ${item.image}, ${item.variantLabel}, ${item.colorName}, ${item.qty})
+          `;
+        }
+      } catch (err) {
+        // Saving failed: give the reserved pieces back and drop the half-saved order.
+        for (const line of stockLines(body.items)) await adjustStock(line, line.qty, false).catch(() => {});
+        if (order) await sql`DELETE FROM orders WHERE id = ${order.id}`.catch(() => {});
+        throw err;
       }
 
       await notifyOwnerOnWhatsApp(order, body);
@@ -199,7 +274,14 @@ module.exports = async (req, res) => {
       const body = await readBody(req);
       const allowed = ["pending", "processing", "shipped", "delivered", "cancelled"];
       if (!allowed.includes(body.status)) { res.status(400).json({ error: "Invalid status" }); return; }
-      await sql`UPDATE orders SET status = ${body.status} WHERE id = ${id}`;
+      // Cancelling puts the pieces back in stock; un-cancelling takes them again.
+      const prev = await sql`UPDATE orders o SET status = ${body.status} FROM (SELECT id, status FROM orders WHERE id = ${id} FOR UPDATE) old
+        WHERE o.id = old.id RETURNING old.status AS was`;
+      const was = prev[0] && prev[0].was;
+      if (was && (was === "cancelled") !== (body.status === "cancelled")) {
+        const sign = body.status === "cancelled" ? 1 : -1;
+        for (const line of await orderStockLines(id)) await adjustStock(line, sign * line.qty, false);
+      }
       res.status(200).json({ ok: true });
       return;
     }

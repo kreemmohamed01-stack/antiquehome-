@@ -633,8 +633,11 @@
       });
       Cart.clear();
       window.location.href = "/order-confirmation.html?id=" + encodeURIComponent(data.id);
-    } catch {
-      state.error = t("errPlaceOrder", "Something went wrong placing your order. Please try again.");
+    } catch (err) {
+      // A 409 explains which piece sold out — show that instead of the generic error.
+      state.error = (err && err.data && err.data.error && /sold out|no longer available/i.test(err.data.error))
+        ? err.data.error
+        : t("errPlaceOrder", "Something went wrong placing your order. Please try again.");
       state.placing = false;
       render();
     }
