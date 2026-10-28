@@ -1,5 +1,5 @@
 const { sql, edgeCache } = require("./_db.js");
-const { getSession } = require("./_auth.js");
+const { getValidSession } = require("./_auth.js");
 
 // Generic key/value site-settings store, backed by the existing `settings`
 // (key text, value jsonb) table. One route handles every settings screen
@@ -65,7 +65,7 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const session = getSession(req);
+    const session = await getValidSession(req);
     if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
 
     if (req.method === "POST") {

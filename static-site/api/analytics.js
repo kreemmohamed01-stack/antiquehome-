@@ -1,5 +1,5 @@
 const { sql } = require("./_db.js");
-const { getSession } = require("./_auth.js");
+const { getValidSession } = require("./_auth.js");
 
 async function safe(fn, fallback) {
   try { return await fn(); } catch (err) { console.error(err); return fallback; }
@@ -97,7 +97,7 @@ async function dashboardData() {
 }
 
 module.exports = async (req, res) => {
-  const session = getSession(req);
+  const session = await getValidSession(req);
   if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
 
   if (req.query.mode === "dashboard") {

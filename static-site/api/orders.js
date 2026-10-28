@@ -1,5 +1,5 @@
 const { sql, effectiveSalePercent, priceWithSale, getSiteSale } = require("./_db.js");
-const { getSession } = require("./_auth.js");
+const { getValidSession } = require("./_auth.js");
 
 async function readBody(req) {
   let body = req.body;
@@ -137,7 +137,7 @@ module.exports = async (req, res) => {
 
     // GET /api/orders  -> admin list, needs a session.
     if (req.method === "GET") {
-      const session = getSession(req);
+      const session = await getValidSession(req);
       if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
       const rows = await sql`
         SELECT o.*, (SELECT COUNT(*) FROM order_items oi WHERE oi.order_id = o.id)::int AS item_count
@@ -192,7 +192,7 @@ module.exports = async (req, res) => {
 
     // PATCH /api/orders?id=123 -> admin status update.
     if (req.method === "PATCH") {
-      const session = getSession(req);
+      const session = await getValidSession(req);
       if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
       const id = Number(req.query.id);
       if (!id) { res.status(400).json({ error: "Missing id" }); return; }
@@ -206,7 +206,7 @@ module.exports = async (req, res) => {
 
     // DELETE /api/orders?id=123 -> admin deletes one order (items cascade).
     if (req.method === "DELETE" && req.query.id) {
-      const session = getSession(req);
+      const session = await getValidSession(req);
       if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
       const id = Number(req.query.id);
       if (!id) { res.status(400).json({ error: "Missing id" }); return; }
@@ -221,7 +221,7 @@ module.exports = async (req, res) => {
     // plan's 12-serverless-functions-per-deployment limit once
     // api/sitemap.js was added.
     if (req.method === "DELETE" && req.query.demo) {
-      const session = getSession(req);
+      const session = await getValidSession(req);
       if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
       await sql`DELETE FROM order_items WHERE order_id IN (SELECT id FROM orders WHERE is_demo = true)`;
       const removed = await sql`DELETE FROM orders WHERE is_demo = true RETURNING id`;

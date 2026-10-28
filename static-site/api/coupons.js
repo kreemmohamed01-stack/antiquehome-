@@ -1,5 +1,5 @@
 const { sql, edgeCache } = require("./_db.js");
-const { getSession } = require("./_auth.js");
+const { getValidSession } = require("./_auth.js");
 
 async function readBody(req) {
   let body = req.body;
@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const session = getSession(req);
+    const session = await getValidSession(req);
     if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
 
     if (req.method === "GET") {

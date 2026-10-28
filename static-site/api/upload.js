@@ -1,5 +1,5 @@
 const { v2: cloudinary } = require("cloudinary");
-const { getSession } = require("./_auth.js");
+const { getValidSession } = require("./_auth.js");
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
     res.status(405).json({ error: "Method not allowed" });
     return;
   }
-  const session = getSession(req);
+  const session = await getValidSession(req);
   if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
 
   try {

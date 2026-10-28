@@ -1,6 +1,6 @@
 // Combines login/logout/session/credentials into one function to stay
 // within Vercel Hobby's 12-serverless-function limit. Routed by ?action=.
-const { getSession, setSessionCookie, clearSessionCookie, verifyCredentials } = require("./_auth.js");
+const { getValidSession, setSessionCookie, clearSessionCookie, verifyCredentials, loginLocked, recordLoginFailure, clearLoginFailures, passwordProblem } = require("./_auth.js");
 const { sql } = require("./_db.js");
 const bcrypt = require("bcryptjs");
 
@@ -20,8 +20,14 @@ module.exports = async (req, res) => {
     const password = body.password || "";
     if (!email || !password) { res.status(400).json({ error: "Username and password are required." }); return; }
     try {
+      if (await loginLocked(req, email)) { res.status(429).json({ error: "Too many failed attempts. Try again in 15 minutes." }); return; }
       const session = await verifyCredentials(email, password);
-      if (!session) { res.status(401).json({ error: "Invalid username or password." }); return; }
+      if (!session) {
+        await recordLoginFailure(req, email);
+        res.status(401).json({ error: "Invalid username or password." });
+        return;
+      }
+      await clearLoginFailures(req, email);
       setSessionCookie(res, session);
       res.status(200).json({ ok: true });
     } catch (err) {
@@ -38,7 +44,7 @@ module.exports = async (req, res) => {
   }
 
   if (action === "session") {
-    const session = getSession(req);
+    const session = await getValidSession(req);
     if (!session) { res.status(401).json({ authenticated: false }); return; }
     res.status(200).json({ authenticated: true, email: session.email });
     return;
@@ -46,7 +52,7 @@ module.exports = async (req, res) => {
 
   if (action === "credentials") {
     if (req.method !== "POST") { res.status(405).json({ error: "Method not allowed" }); return; }
-    const session = getSession(req);
+    const session = await getValidSession(req);
     if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
     const body = await readBody(req);
     const currentPassword = body.currentPassword || "";
@@ -54,6 +60,8 @@ module.exports = async (req, res) => {
     const newPassword = body.newPassword || "";
     if (!currentPassword) { res.status(400).json({ error: "Enter your current password to confirm changes." }); return; }
     if (!newUsername) { res.status(400).json({ error: "Username cannot be empty." }); return; }
+    const weak = newPassword && passwordProblem(newPassword, newUsername);
+    if (weak) { res.status(400).json({ error: weak }); return; }
     try {
       const verified = await verifyCredentials(session.email, currentPassword);
       if (!verified) { res.status(401).json({ error: "Current password is incorrect." }); return; }
@@ -63,7 +71,9 @@ module.exports = async (req, res) => {
       } else {
         await sql`UPDATE admin_users SET email = ${newUsername} WHERE id = ${session.id}`;
       }
-      setSessionCookie(res, { id: session.id, email: newUsername });
+      // Re-issue this browser's session; every other one still carries the
+      // old username/password version and is now signed out.
+      setSessionCookie(res, await verifyCredentials(newUsername, newPassword || currentPassword));
       res.status(200).json({ ok: true });
     } catch (err) {
       console.error(err);

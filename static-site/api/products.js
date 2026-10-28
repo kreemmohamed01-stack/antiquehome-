@@ -1,6 +1,6 @@
 const { pingIndexNow } = require("./_seo.js");
 const { sql, edgeCache, getSiteSale } = require("./_db.js");
-const { getSession } = require("./_auth.js");
+const { getValidSession } = require("./_auth.js");
 
 function slugify(name) {
   return name.toLowerCase().trim()
@@ -158,7 +158,7 @@ module.exports = async (req, res) => {
     }
 
     // Everything past this point is an admin write action.
-    const session = getSession(req);
+    const session = await getValidSession(req);
     if (!session) { res.status(401).json({ error: "Unauthorized" }); return; }
 
     if (req.method === "POST") {
