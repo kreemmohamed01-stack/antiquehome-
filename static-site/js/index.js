@@ -92,7 +92,7 @@
     return `
       <article class="arr3d__card" data-i="${i}" data-href="/product/${encodeURIComponent(p.slug)}">
         <figure class="arr3d__media">
-          <img src="${cldUrl(img, 720)}" srcset="${cldUrl(img, 480)} 480w, ${cldUrl(img, 720)} 720w" sizes="(max-width: 440px) 70vw, 300px" decoding="async" alt="${esc(p.name)}" loading="lazy" draggable="false" style="object-position:${f.position};--zoom:${f.zoom}" />
+          <img src="${cldUrl(img, 720)}" srcset="${cldUrl(img, 360)} 360w, ${cldUrl(img, 540)} 540w, ${cldUrl(img, 720)} 720w" sizes="(max-width: 440px) 70vw, 300px" decoding="async" alt="${esc(p.name)}" loading="lazy" draggable="false" style="object-position:${f.position};--zoom:${f.zoom}" />
           <span class="arr3d__shade" aria-hidden="true"></span>
         </figure>
         <span class="arr3d__frame" aria-hidden="true"></span>

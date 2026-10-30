@@ -29,6 +29,11 @@
   let prevSlug = null;
   let nextSlug = null;
 
+  // Main photo at the width the screen needs (a phone gets ~640px, not 900px).
+  function pdpSrcset(img) {
+    return `${cldUrl(img, 480)} 480w, ${cldUrl(img, 640)} 640w, ${cldUrl(img, 900)} 900w, ${cldUrl(img, 1200)} 1200w`;
+  }
+
   function images() {
     const colorOptions = product.color_options || [];
     const own = colorOptions[state.colorIdx] && colorOptions[state.colorIdx].imageUrls;
@@ -104,7 +109,7 @@
       .map(
         (img, i) => `
       <button type="button" class="pdp__thumb${i === state.activeIdx ? " is-active" : ""}" data-thumb="${i}" aria-label="View image ${i + 1}">
-        <img src="${cldUrl(img, 160)}" alt="" loading="lazy" />
+        <img src="${cldUrl(img, 120)}" alt="" loading="lazy" decoding="async" width="120" height="120" />
       </button>`
       )
       .join("");
@@ -191,7 +196,7 @@
             <div class="pdp__thumbs">${thumbsHtml}</div>
 
             <figure class="pdp__main">
-              <img id="pdpMainImg" src="${cldUrl(activeImg, 900)}" alt="${pname}" loading="eager" fetchpriority="high" />
+              <img id="pdpMainImg" src="${cldUrl(activeImg, 900)}" srcset="${pdpSrcset(activeImg)}" sizes="(max-width: 900px) 92vw, 50vw" alt="${pname}" loading="eager" fetchpriority="high" />
               <span class="pdp__count">
                 <em>${String(state.activeIdx + 1).padStart(2, "0")}</em><i></i><b>${String(imgs.length).padStart(2, "0")}</b>
               </span>
@@ -337,6 +342,7 @@
       if (mainImgEl) {
         mainImgEl.classList.add("is-fading");
         setTimeout(() => {
+          mainImgEl.srcset = pdpSrcset(imgList[state.activeIdx]);
           mainImgEl.src = cldUrl(imgList[state.activeIdx], 900);
           mainImgEl.classList.remove("is-fading");
         }, 180);

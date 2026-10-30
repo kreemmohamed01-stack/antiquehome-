@@ -417,7 +417,7 @@
       <article class="pcard rv rv--zoom" data-rv style="--rd:${rd}s" data-name="${p.name}" data-price="${p.price}" data-size="${p.size_cm || ""}" data-material="${(p.material || "").toLowerCase()}" data-color="${(p.colors || []).join(",")}">
         <a class="pcard__media" href="/product/${encodeURIComponent(p.slug)}">
           ${badge}
-          <img src="${cldUrl(img, 480)}" alt="${p.name}" loading="lazy" style="object-position:${splitFocal(img).position};--zoom:${splitFocal(img).zoom}" />
+          <img src="${cldUrl(img, 480)}" srcset="${cldUrl(img, 320)} 320w, ${cldUrl(img, 480)} 480w, ${cldUrl(img, 640)} 640w" sizes="(max-width: 700px) 44vw, 300px" alt="${p.name}" loading="lazy" decoding="async" style="object-position:${splitFocal(img).position};--zoom:${splitFocal(img).zoom}" />
           <button class="fav" type="button" aria-label="Save ${p.name}" aria-pressed="false" onclick="event.preventDefault()">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.4 4.6 13.2a4.6 4.6 0 1 1 7.4-5.3 4.6 4.6 0 1 1 7.4 5.3Z"></path></svg>
           </button>
