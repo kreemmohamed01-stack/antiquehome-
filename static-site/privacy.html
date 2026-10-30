@@ -46,29 +46,34 @@
 <script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/admin/*","/api/*","/checkout.html","/order-confirmation.html*"]}}]},"eagerness":"moderate"}]}</script>
 </head>
 <body class="policy-body">
-<!-- page-loader: white screen with a 0→100% counter until the page has
-     loaded. The count eases toward 90% while loading, jumps to 100% on
-     window "load", then fades out; a 5s cap means a slow image never keeps
-     anyone waiting. The brand intro (index) sits above it (z-index). -->
+<!-- page-loader: white screen with "Loading" written in the brand serif;
+     a gold copy of the word fills in from left to right (with a hairline
+     under it) as the page loads, then fades out. The fill eases toward 90%
+     while loading and completes on window "load"; a 5s cap means a slow
+     image never keeps anyone waiting. The brand intro (index) sits above it. -->
 <div id="pageLoader" class="pl" role="progressbar" aria-label="Loading" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-  <svg class="pl__ring" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44"></circle><circle class="pl__bar" id="plBar" cx="50" cy="50" r="44"></circle></svg>
-  <span class="pl__num" id="plNum">0%</span>
+  <div class="pl__word" aria-hidden="true">
+    <span class="pl__base">Loading</span>
+    <span class="pl__fill" id="plFill">Loading</span>
+  </div>
+  <span class="pl__line" aria-hidden="true"><i id="plLine"></i></span>
 </div>
 <style>
-.pl{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:#fff;transition:opacity .45s ease,visibility .45s}
+.pl{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:#fff;transition:opacity .6s ease,visibility .6s}
 .pl.is-done{opacity:0;visibility:hidden}
-.pl__ring{position:absolute;width:112px;height:112px;transform:rotate(-90deg)}
-.pl__ring circle{fill:none;stroke:#EFE8DC;stroke-width:2.4}
-.pl__ring .pl__bar{stroke:#C9B48A;stroke-linecap:round;stroke-dasharray:276.5;stroke-dashoffset:276.5;transition:stroke-dashoffset .2s linear}
-.pl__num{font:500 20px/1 "Jost","Helvetica Neue",Arial,sans-serif;letter-spacing:.06em;color:#4A3B2E;font-variant-numeric:tabular-nums}
+.pl__word{position:relative;font:italic 300 clamp(34px,8vw,52px)/1 "Cormorant Garamond","Times New Roman",Georgia,serif;letter-spacing:.32em;margin-right:-.32em;white-space:nowrap}
+.pl__base{color:#EFE8DC}
+.pl__fill{position:absolute;inset:0;color:transparent;background:linear-gradient(100deg,#B89A66 0%,#E3D5BC 45%,#A8875A 70%,#C9B48A 100%);-webkit-background-clip:text;background-clip:text;clip-path:inset(0 100% 0 0);transition:clip-path .25s linear}
+.pl__line{position:relative;width:min(180px,46vw);height:1px;background:#EFE8DC;overflow:hidden}
+.pl__line i{position:absolute;inset:0;background:#C9B48A;transform:scaleX(0);transform-origin:left;transition:transform .25s linear}
 </style>
 <script>
 (function () {
-  var el = document.getElementById("pageLoader"), num = document.getElementById("plNum"), bar = document.getElementById("plBar");
-  var shown = 0, target = 0, done = false, t0 = Date.now();
+  var el = document.getElementById("pageLoader"), fill = document.getElementById("plFill"), line = document.getElementById("plLine");
+  var shown = 0, target = 0, done = false;
   function paint() {
-    num.textContent = shown + "%";
-    bar.style.strokeDashoffset = 276.5 * (1 - shown / 100);
+    fill.style.clipPath = "inset(0 " + (100 - shown) + "% 0 0)";
+    line.style.transform = "scaleX(" + shown / 100 + ")";
     el.setAttribute("aria-valuenow", shown);
   }
   function tick() {
@@ -76,7 +81,7 @@
     if (shown < target) shown = Math.min(100, Math.ceil(shown + Math.max(1, (target - shown) * (done ? 0.35 : 0.15))));
     paint();
     if (shown >= 100) {
-      setTimeout(function () { el.classList.add("is-done"); setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 500); }, 120);
+      setTimeout(function () { el.classList.add("is-done"); setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 650); }, 250);
       return;
     }
     requestAnimationFrame(tick);
