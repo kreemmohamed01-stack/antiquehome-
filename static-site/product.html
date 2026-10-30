@@ -35,12 +35,13 @@
 <script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/admin/*","/api/*","/checkout.html","/order-confirmation.html*"]}}]},"eagerness":"moderate"}]}</script>
 </head>
 <body>
-<!-- page-loader: white screen with "Loading" written in the brand serif;
-     a gold copy of the word fills in from left to right (with a hairline
-     under it) as the page loads, then fades out. The fill eases toward 90%
-     while loading and completes on window "load"; a 5s cap means a slow
-     image never keeps anyone waiting. The brand intro (index) sits above it. -->
-<div id="pageLoader" class="pl" role="progressbar" aria-label="Loading" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+<!-- page-loader: only for a slow page. If the page is still parsing 900ms
+     after the click, a white screen with "Loading" in the brand serif fades
+     in; a gold copy of the word fills left to right (with a hairline under
+     it) and it fades out on window "load" (5s cap). A page that is already
+     showing never gets covered, so fast loads (and page-speed scores) are
+     untouched. The brand intro (index) sits above it. -->
+<div id="pageLoader" class="pl" hidden role="progressbar" aria-label="Loading" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
   <div class="pl__word" aria-hidden="true">
     <span class="pl__base">Loading</span>
     <span class="pl__fill" id="plFill">Loading</span>
@@ -48,8 +49,8 @@
   <span class="pl__line" aria-hidden="true"><i id="plLine"></i></span>
 </div>
 <style>
-.pl{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:#fff;transition:opacity .6s ease,visibility .6s}
-.pl.is-done{opacity:0;visibility:hidden}
+.pl{position:fixed;inset:0;z-index:9999;display:flex;opacity:0;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:#fff;transition:opacity .6s ease,visibility .6s}
+.pl[hidden]{display:none}.pl.is-on{opacity:1}.pl.is-done{opacity:0;visibility:hidden}
 .pl__word{position:relative;font:italic 300 clamp(34px,8vw,52px)/1 "Cormorant Garamond","Times New Roman",Georgia,serif;letter-spacing:.32em;margin-right:-.32em;white-space:nowrap}
 .pl__base{color:#EFE8DC}
 .pl__fill{position:absolute;inset:0;color:transparent;background:linear-gradient(100deg,#B89A66 0%,#E3D5BC 45%,#A8875A 70%,#C9B48A 100%);-webkit-background-clip:text;background-clip:text;clip-path:inset(0 100% 0 0);transition:clip-path .25s linear}
@@ -78,9 +79,13 @@
   function finish() { done = true; target = 100; }
   document.addEventListener("readystatechange", function () { if (document.readyState === "interactive") target = Math.max(target, 70); });
   window.addEventListener("load", finish);
-  window.addEventListener("pageshow", function (e) { if (e.persisted) { shown = 100; finish(); } });
-  setTimeout(finish, 5000);
-  requestAnimationFrame(tick);
+  window.addEventListener("pageshow", function (e) { if (e.persisted && el.parentNode) el.parentNode.removeChild(el); });
+  setTimeout(function () {
+    if (document.readyState !== "loading" || done) { el.parentNode && el.parentNode.removeChild(el); return; }
+    el.hidden = false;
+    requestAnimationFrame(function () { el.classList.add("is-on"); requestAnimationFrame(tick); });
+    setTimeout(finish, 5000);
+  }, 900);
 })();
 </script>
 <!-- /page-loader -->
