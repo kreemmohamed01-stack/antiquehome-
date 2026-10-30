@@ -60,6 +60,50 @@
 <script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/admin/*","/api/*","/checkout.html","/order-confirmation.html*"]}}]},"eagerness":"moderate"}]}</script>
 </head>
 <body>
+<!-- page-loader: white screen with a 0→100% counter until the page has
+     loaded. The count eases toward 90% while loading, jumps to 100% on
+     window "load", then fades out; a 5s cap means a slow image never keeps
+     anyone waiting. The brand intro (index) sits above it (z-index). -->
+<div id="pageLoader" class="pl" role="progressbar" aria-label="Loading" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+  <svg class="pl__ring" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44"></circle><circle class="pl__bar" id="plBar" cx="50" cy="50" r="44"></circle></svg>
+  <span class="pl__num" id="plNum">0%</span>
+</div>
+<style>
+.pl{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:#fff;transition:opacity .45s ease,visibility .45s}
+.pl.is-done{opacity:0;visibility:hidden}
+.pl__ring{position:absolute;width:112px;height:112px;transform:rotate(-90deg)}
+.pl__ring circle{fill:none;stroke:#EFE8DC;stroke-width:2.4}
+.pl__ring .pl__bar{stroke:#C9B48A;stroke-linecap:round;stroke-dasharray:276.5;stroke-dashoffset:276.5;transition:stroke-dashoffset .2s linear}
+.pl__num{font:500 20px/1 "Jost","Helvetica Neue",Arial,sans-serif;letter-spacing:.06em;color:#4A3B2E;font-variant-numeric:tabular-nums}
+</style>
+<script>
+(function () {
+  var el = document.getElementById("pageLoader"), num = document.getElementById("plNum"), bar = document.getElementById("plBar");
+  var shown = 0, target = 0, done = false, t0 = Date.now();
+  function paint() {
+    num.textContent = shown + "%";
+    bar.style.strokeDashoffset = 276.5 * (1 - shown / 100);
+    el.setAttribute("aria-valuenow", shown);
+  }
+  function tick() {
+    if (!done) target = Math.min(90, target + (90 - target) * 0.06 + 0.4);
+    if (shown < target) shown = Math.min(100, Math.ceil(shown + Math.max(1, (target - shown) * (done ? 0.35 : 0.15))));
+    paint();
+    if (shown >= 100) {
+      setTimeout(function () { el.classList.add("is-done"); setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 500); }, 120);
+      return;
+    }
+    requestAnimationFrame(tick);
+  }
+  function finish() { done = true; target = 100; }
+  document.addEventListener("readystatechange", function () { if (document.readyState === "interactive") target = Math.max(target, 70); });
+  window.addEventListener("load", finish);
+  window.addEventListener("pageshow", function (e) { if (e.persisted) { shown = 100; finish(); } });
+  setTimeout(finish, 5000);
+  requestAnimationFrame(tick);
+})();
+</script>
+<!-- /page-loader -->
 
 <div id="shopHeroSlot"><script>
   // "All products": paint the hero photo straight from the HTML instead of
