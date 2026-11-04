@@ -13,11 +13,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/css/admin.css">
-<link rel="stylesheet" href="/css/admin-v3.css">
-<link rel="stylesheet" href="/css/admin-fx.css">
+<link rel="stylesheet" href="/css/admin/admin.css">
+<link rel="stylesheet" href="/css/admin/admin-v3.css">
+<link rel="stylesheet" href="/css/admin/admin-fx.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/css/admin-luxe.css">
+<link rel="stylesheet" href="/css/admin/admin-luxe.css">
 </head>
 <body>
 <div class="admin" id="admin-root">
@@ -36,35 +36,8 @@
 </div>
 
 <script src="/js/api.js"></script>
-<script src="/js/admin-shell.js"></script>
-<script>
-  (async () => {
-    const session = await AdminShell.init({ active: "settings" });
-    if (!session) return;
-    document.getElementById("newUsername").value = session.email;
-
-    document.getElementById("settingsForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const errorBox = document.getElementById("settingsError");
-      const successBox = document.getElementById("settingsSuccess");
-      errorBox.style.display = "none";
-      successBox.style.display = "none";
-      try {
-        await API.post("/api/auth?action=credentials", {
-          currentPassword: document.getElementById("currentPassword").value,
-          newUsername: document.getElementById("newUsername").value,
-          newPassword: document.getElementById("newPassword").value,
-        });
-        successBox.style.display = "block";
-        document.getElementById("currentPassword").value = "";
-        document.getElementById("newPassword").value = "";
-      } catch (err) {
-        errorBox.textContent = err.message || "Failed to update credentials.";
-        errorBox.style.display = "block";
-      }
-    });
-  })();
-</script>
-<script src="/js/admin-luxe.js"></script>
+<script src="/js/admin/admin-shell.js"></script>
+<script src="/js/admin/pages/settings.js"></script>
+<script src="/js/admin/admin-luxe.js"></script>
 </body>
 </html>

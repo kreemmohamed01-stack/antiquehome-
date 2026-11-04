@@ -22,7 +22,7 @@
      "-core" file (basic Latin, what the site's own text uses) that is preloaded,
      and the full Latin file, only downloaded if a rarer accented character
      appears on the page (unicode-range). -->
-<style>@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:300 600;font-display:swap;src:url(/fonts/cormorant-garamond.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:300 600;font-display:swap;src:url(/fonts/cormorant-garamond-core.woff2) format('woff2');unicode-range:U+0020-007E,U+00A0,U+00A9,U+00B7,U+00E9,U+00D7,U+2013-2014,U+2018-2019,U+201C-201D,U+2022,U+2026,U+20AC}@font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:300 400;font-display:swap;src:url(/fonts/cormorant-garamond-italic.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:300 400;font-display:swap;src:url(/fonts/cormorant-garamond-italic-core.woff2) format('woff2');unicode-range:U+0020-007E,U+00A0,U+00A9,U+00B7,U+00E9,U+00D7,U+2013-2014,U+2018-2019,U+201C-201D,U+2022,U+2026,U+20AC}@font-face{font-family:'Jost';font-style:normal;font-weight:300 600;font-display:swap;src:url(/fonts/jost.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:'Jost';font-style:normal;font-weight:300 600;font-display:swap;src:url(/fonts/jost-core.woff2) format('woff2');unicode-range:U+0020-007E,U+00A0,U+00A9,U+00B7,U+00E9,U+00D7,U+2013-2014,U+2018-2019,U+201C-201D,U+2022,U+2026,U+20AC}@font-face{font-family:'Dancing Script';font-style:normal;font-weight:500 700;font-display:swap;src:url(/fonts/dancing-script.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:'Dancing Script';font-style:normal;font-weight:500 700;font-display:swap;src:url(/fonts/dancing-script-core.woff2) format('woff2');unicode-range:U+0020-007E,U+00A0,U+00A9,U+00B7,U+00E9,U+00D7,U+2013-2014,U+2018-2019,U+201C-201D,U+2022,U+2026,U+20AC}</style>
+<link rel="stylesheet" href="/css/fonts.css" />
 <link rel="stylesheet" href="/css/base.css" />
 <link rel="stylesheet" href="/css/shop.css" />
 <link rel="stylesheet" href="/css/product.css" />
@@ -48,46 +48,8 @@
   </div>
   <span class="pl__line" aria-hidden="true"><i id="plLine"></i></span>
 </div>
-<style>
-.pl{position:fixed;inset:0;z-index:9999;display:flex;opacity:0;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:#fff;transition:opacity .6s ease,visibility .6s}
-.pl[hidden]{display:none}.pl.is-on{opacity:1}.pl.is-done{opacity:0;visibility:hidden}
-.pl__word{position:relative;font:italic 300 clamp(34px,8vw,52px)/1 "Cormorant Garamond","Times New Roman",Georgia,serif;letter-spacing:.32em;margin-right:-.32em;white-space:nowrap}
-.pl__base{color:#EFE8DC}
-.pl__fill{position:absolute;inset:0;color:transparent;background:linear-gradient(100deg,#B89A66 0%,#E3D5BC 45%,#A8875A 70%,#C9B48A 100%);-webkit-background-clip:text;background-clip:text;clip-path:inset(0 100% 0 0);transition:clip-path .25s linear}
-.pl__line{position:relative;width:min(180px,46vw);height:1px;background:#EFE8DC;overflow:hidden}
-.pl__line i{position:absolute;inset:0;background:#C9B48A;transform:scaleX(0);transform-origin:left;transition:transform .25s linear}
-</style>
-<script>
-(function () {
-  var el = document.getElementById("pageLoader"), fill = document.getElementById("plFill"), line = document.getElementById("plLine");
-  var shown = 0, target = 0, done = false;
-  function paint() {
-    fill.style.clipPath = "inset(0 " + (100 - shown) + "% 0 0)";
-    line.style.transform = "scaleX(" + shown / 100 + ")";
-    el.setAttribute("aria-valuenow", shown);
-  }
-  function tick() {
-    if (!done) target = Math.min(90, target + (90 - target) * 0.06 + 0.4);
-    if (shown < target) shown = Math.min(100, Math.ceil(shown + Math.max(1, (target - shown) * (done ? 0.35 : 0.15))));
-    paint();
-    if (shown >= 100) {
-      setTimeout(function () { el.classList.add("is-done"); setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 650); }, 250);
-      return;
-    }
-    requestAnimationFrame(tick);
-  }
-  function finish() { done = true; target = 100; }
-  document.addEventListener("readystatechange", function () { if (document.readyState === "interactive") target = Math.max(target, 70); });
-  window.addEventListener("load", finish);
-  window.addEventListener("pageshow", function (e) { if (e.persisted && el.parentNode) el.parentNode.removeChild(el); });
-  setTimeout(function () {
-    if (document.readyState !== "loading" || done) { el.parentNode && el.parentNode.removeChild(el); return; }
-    el.hidden = false;
-    requestAnimationFrame(function () { el.classList.add("is-on"); requestAnimationFrame(tick); });
-    setTimeout(finish, 5000);
-  }, 900);
-})();
-</script>
+<link rel="stylesheet" href="/css/page-loader.css" />
+<script src="/js/page-loader.js" data-inline></script>
 <!-- /page-loader -->
 
 <div class="promo-bar" role="note">

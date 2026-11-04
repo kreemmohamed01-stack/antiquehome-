@@ -1,0 +1,908 @@
+// Dashboard page script: admin/products.html
+  let ALL_PRODUCTS = [];
+  let CATEGORIES = [];
+  let tab = "all";
+  let query = "";
+  let page = 1;
+  const PAGE_SIZE = 10;
+  let reorderCategoryId = "";
+  let NA_ORDER = [];
+  let SHOP_ORDER = []; // product ids in the order the all-products shop page shows them
+  let reorderList = []; // products in that category, in current drag order
+  let naSwapIdx = null; // New Arrivals: row picked by the first "Swap" click
+  let stockFilter = ""; // "", "in", "low", "out" — set by clicking a stock stat card
+
+  function fmt(n) { return "EGP " + Math.round(Number(n)).toLocaleString("en-US"); }
+  function priceHtml(p) {
+    const pct = Number(p.sale_percent) || 0;
+    if (pct <= 0) return fmt(p.price);
+    const now = Math.round(Number(p.price) * (1 - pct / 100));
+    return `<s style="opacity:.55;font-weight:400">${fmt(p.price)}</s> → <span style="color:var(--a-red);font-weight:700">${fmt(now)}</span> <span class="admin__pill admin__pill--low">Sale −${Math.round(pct)}%</span>`;
+  }
+
+  function stockPillHtml(p) {
+    const s = stockState(p);
+    if (s === "out") return `<span class="admin__pill admin__pill--low">Out of Stock</span>`;
+    if (s === "low") return `<span class="admin__pill admin__pill--warn">Low Stock</span>`;
+    return `<span class="admin__pill admin__pill--delivered">Active</span>`;
+  }
+
+  function render() {
+    const counts = {
+      all: ALL_PRODUCTS.length,
+      active: ALL_PRODUCTS.filter((p) => p.status === "active").length,
+      draft: ALL_PRODUCTS.filter((p) => p.status === "draft").length,
+      archived: ALL_PRODUCTS.filter((p) => p.status === "archived").length,
+    };
+    const inStock = ALL_PRODUCTS.filter((p) => stockState(p) === "in").length;
+    const low = ALL_PRODUCTS.filter((p) => stockState(p) === "low").length;
+    const out = ALL_PRODUCTS.filter((p) => stockState(p) === "out").length;
+    const avg = ALL_PRODUCTS.length ? ALL_PRODUCTS.reduce((s, p) => s + Number(p.price), 0) / ALL_PRODUCTS.length : 0;
+
+    document.getElementById("statStrip").innerHTML = `
+      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">Total Products</span></div><div class="admin__stat-value">${ALL_PRODUCTS.length}</div></div>
+      <button type="button" class="admin__stat admin__stat--btn${stockFilter === "in" ? " is-active" : ""}" data-stock="in"><div class="admin__stat-top"><span class="admin__stat-label">In Stock</span></div><div class="admin__stat-value">${inStock}</div></button>
+      <button type="button" class="admin__stat admin__stat--btn${stockFilter === "low" ? " is-active" : ""}" data-stock="low"><div class="admin__stat-top"><span class="admin__stat-label">Low Stock</span></div><div class="admin__stat-value" style="${low ? 'color:var(--a-amber)' : ''}">${low}</div></button>
+      <button type="button" class="admin__stat admin__stat--btn${stockFilter === "out" ? " is-active" : ""}" data-stock="out"><div class="admin__stat-top"><span class="admin__stat-label">Out of Stock</span></div><div class="admin__stat-value" style="${out ? 'color:var(--a-red)' : ''}">${out}</div></button>
+      <div class="admin__stat"><div class="admin__stat-top"><span class="admin__stat-label">Avg. Price</span></div><div class="admin__stat-value">${fmt(avg)}</div></div>
+    `;
+
+    document.querySelectorAll("[data-stock]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.stock;
+        stockFilter = stockFilter === key ? "" : key; // clicking the active one again clears it
+        page = 1;
+        render();
+      });
+    });
+
+    document.getElementById("tabRow").innerHTML = [
+      ["all", `All Products (${counts.all})`],
+      ["active", `Active (${counts.active})`],
+      ["draft", `Draft (${counts.draft})`],
+      ["archived", `Archived (${counts.archived})`],
+    ].map(([key, label]) => `<button type="button" class="admin__chip${tab === key ? " is-active" : ""}" data-tab="${key}">${label}</button>`).join("");
+
+    document.querySelectorAll("[data-tab]").forEach((btn) => {
+      btn.addEventListener("click", () => { tab = btn.dataset.tab; page = 1; render(); });
+    });
+
+    const listEl = document.getElementById("productsList");
+    const pagerEl = document.getElementById("pager");
+
+    if (reorderCategoryId) {
+      document.getElementById("reorderHint").style.display = "";
+      pagerEl.style.display = "none";
+      renderReorderList();
+      return;
+    }
+    document.getElementById("reorderHint").style.display = "none";
+
+    const stockHintEl = document.getElementById("stockFilterHint");
+    if (stockFilter) {
+      const label = { in: "In Stock", low: "Low Stock", out: "Out of Stock" }[stockFilter];
+      stockHintEl.style.display = "";
+      stockHintEl.innerHTML = `Showing only <strong>${label}</strong> products. <a href="#" id="clearStockFilter">Clear filter</a>`;
+      stockHintEl.querySelector("#clearStockFilter").addEventListener("click", (e) => {
+        e.preventDefault();
+        stockFilter = "";
+        page = 1;
+        render();
+      });
+    } else {
+      stockHintEl.style.display = "none";
+    }
+
+    let list = ALL_PRODUCTS;
+    if (tab !== "all") list = list.filter((p) => p.status === tab);
+    if (stockFilter) list = list.filter((p) => stockState(p) === stockFilter);
+    const needle = query.trim().toLowerCase();
+    if (needle) {
+      list = list.filter((p) =>
+        p.name.toLowerCase().includes(needle) ||
+        (p.sku || "").toLowerCase().includes(needle) ||
+        (p.category_name || "").toLowerCase().includes(needle)
+      );
+    }
+
+    const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+    const current = Math.min(page, totalPages);
+    const visible = list.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
+
+    if (visible.length === 0) {
+      listEl.innerHTML = `<div style="text-align:center;padding:50px 20px;color:var(--a-text-dim)"><p style="margin-bottom:16px">No products match this view.</p></div>`;
+    } else {
+      listEl.innerHTML = visible.map((p) => `
+        <div class="admin__prow">
+          <img src="${cldUrl(p.image_urls?.[0] || "/images/brand/logo.png", 80)}" alt="">
+          <div class="admin__prow-main">
+            <div class="admin__prow-name">${p.name}</div>
+            <div class="admin__prow-sku">SKU: ${p.sku || "—"} · ${p.category_name || "Uncategorised"}</div>
+          </div>
+          <div style="flex:none;text-align:right;min-width:90px">
+            <div style="font-size:12.5px;font-weight:600;color:var(--a-cream)">${priceHtml(p)}</div>
+            <div style="font-size:11px;color:${stockState(p) === "out" ? "var(--a-red)" : stockState(p) === "low" ? "var(--a-amber)" : "var(--a-green)"}">${p.stock_qty} in stock</div>
+          </div>
+          <div style="flex:none">${stockPillHtml(p)}</div>
+          ${rowActionsHtml(p)}
+        </div>
+      `).join("");
+    }
+
+    if (totalPages > 1) {
+      pagerEl.style.display = "flex";
+      pagerEl.innerHTML = Array.from({ length: totalPages }).map((_, i) =>
+        `<button type="button" class="${current === i + 1 ? "is-active" : ""}" data-page="${i + 1}">${i + 1}</button>`
+      ).join("");
+      pagerEl.querySelectorAll("[data-page]").forEach((btn) => {
+        btn.addEventListener("click", () => { page = Number(btn.dataset.page); render(); });
+      });
+    } else {
+      pagerEl.style.display = "none";
+    }
+
+    wireRowActions(listEl);
+  }
+
+  function rowActionsHtml(p) {
+    return `
+      <div class="admin__prow-actions">
+        <button type="button" class="admin__iconAct" data-edit="${p.id}" aria-label="Edit">
+          <svg viewBox="0 0 24 24"><path d="M4 16.4 15.4 5l3.6 3.6L7.6 20H4Z"></path></svg>
+        </button>
+        <a href="/product.html?slug=${p.slug}" class="admin__iconAct" target="_blank" aria-label="View">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.8"></circle></svg>
+        </a>
+        <button type="button" class="admin__iconAct admin__iconAct--danger" data-delete="${p.id}" data-name="${p.name}" aria-label="Delete">
+          <svg viewBox="0 0 24 24"><path d="M5.6 7.2h12.8l-1 12.4H6.6Z"></path></svg>
+        </button>
+      </div>`;
+  }
+
+  function wireRowActions(listEl) {
+    listEl.querySelectorAll("[data-edit]").forEach((btn) => {
+      btn.addEventListener("click", () => openForm(ALL_PRODUCTS.find((p) => p.id === Number(btn.dataset.edit))));
+    });
+    listEl.querySelectorAll("[data-delete]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const ok = await AdminShell.confirm({
+          title: "Delete this product?",
+          message: `"${btn.dataset.name}" will be permanently deleted. This cannot be undone.`,
+          confirmLabel: "Delete",
+        });
+        if (!ok) return;
+        try {
+          await API.del(`/api/products?id=${btn.dataset.delete}`);
+          await load();
+        } catch { alert("Failed to delete product."); }
+      });
+    });
+  }
+
+  // ---- Reorder-within-category view ----
+  // Shows every active-or-not product linked to the selected category, in
+  // their current drag order, with a drag handle per row — same native
+  // HTML5 drag-and-drop pattern as the product photo reorder above. Order
+  // is saved to the server (debounced) after each drop, not on a separate
+  // "Save" click, so it can't be left unsaved by navigating away.
+  let reorderSaveTimer = null;
+  function scheduleReorderSave() {
+    clearTimeout(reorderSaveTimer);
+    const statusEl = document.getElementById("reorderStatus");
+    if (statusEl) statusEl.textContent = "Saving…";
+    reorderSaveTimer = setTimeout(async () => {
+      const orderedIds = reorderList.map((p) => p.id);
+      try {
+        if (reorderCategoryId === "new") {
+          await API.post("/api/settings?key=new_arrivals_order", orderedIds);
+          NA_ORDER = orderedIds;
+        } else if (reorderCategoryId === "all") {
+          await API.post("/api/settings?key=shop_order", orderedIds);
+          SHOP_ORDER = orderedIds;
+        } else {
+          const catId = Number(reorderCategoryId);
+          await API.patch("/api/products?reorder=1", { categoryId: catId, orderedIds });
+          reorderList.forEach((p, i) => { p.category_sorts = { ...(p.category_sorts || {}), [catId]: i + 1 }; });
+        }
+        if (statusEl) statusEl.textContent = "Saved — the shop updates within about a minute.";
+      } catch {
+        if (statusEl) statusEl.textContent = "Failed to save order — try again.";
+      }
+    }, 500);
+  }
+
+  function swapPickerHtml(i) {
+    const targets = reorderList.map((p, j) => ({ p, j })).filter(({ j }) => (i < 7) !== (j < 7));
+    const head = i < 7 ? "Replace with one of the products below:" : "Swap into the home page — replaces:";
+    return `<div style="margin:-2px 0 10px 28px;padding:10px;border:1px solid var(--a-gold);border-radius:10px;background:rgba(201,169,110,.07)">
+      <div style="font-size:12px;color:var(--a-cream);margin-bottom:8px;font-weight:600">${head}</div>
+      ${targets.length ? targets.map(({ p, j }) => `
+        <button type="button" data-naswapwith="${j}" style="display:flex;align-items:center;gap:10px;width:100%;padding:6px 8px;margin-bottom:4px;border:1px solid transparent;border-radius:8px;background:rgba(255,255,255,.03);color:inherit;text-align:left;cursor:pointer" onmouseover="this.style.borderColor='var(--a-gold)'" onmouseout="this.style.borderColor='transparent'">
+          ${j < 7 ? `<span style="flex:none;font-size:11px;color:var(--a-gold);min-width:52px">Home #${j + 1}</span>` : ""}
+          <img src="${cldUrl(p.image_urls?.[0] || "/images/brand/logo.png", 60)}" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:6px;flex:none">
+          <span style="flex:1;font-size:12.5px">${p.name}</span>
+          <span style="flex:none;font-size:12px;color:var(--a-gold)">⇄</span>
+        </button>`).join("") : `<div style="font-size:12px;color:var(--a-text-dim)">No products to swap with.</div>`}
+    </div>`;
+  }
+
+  function renderReorderList() {
+    const listEl = document.getElementById("productsList");
+    if (!reorderList.length) {
+      listEl.innerHTML = `<div style="text-align:center;padding:50px 20px;color:var(--a-text-dim)"><p>No products in this category yet.</p></div>`;
+      return;
+    }
+    listEl.innerHTML = `<div style="display:flex;justify-content:flex-end;margin-bottom:8px"><span id="reorderStatus" style="font-size:11px;color:var(--a-text-dim)"></span></div>` +
+      reorderList.map((p, i) => `
+        ${reorderCategoryId === "new" && i === 7 ? `<div style="margin:14px 0 8px;padding:8px 12px;border-top:2px dashed var(--a-text-dim);color:var(--a-text-dim);font-size:12px">⬇ Not shown on the home page (only the top 7 appear)</div>` : ""}
+        ${reorderCategoryId === "new" && i === 0 ? `<div style="margin:0 0 8px;color:var(--a-text);font-size:12px;font-weight:600">⬇ These 7 appear on the home page, in this order</div>` : ""}
+        <div class="admin__prow" draggable="true" data-ridx="${i}" style="cursor:grab${naSwapIdx === i ? ";outline:2px solid var(--a-gold, #c9a96e);outline-offset:-2px" : ""}">
+          <span aria-hidden="true" style="flex:none;font-size:18px;color:var(--a-text-dim);padding:0 4px;cursor:grab">⠿</span>
+          <img src="${cldUrl(p.image_urls?.[0] || "/images/brand/logo.png", 80)}" alt="">
+          <div class="admin__prow-main">
+            <div class="admin__prow-name">${p.name}</div>
+            <div class="admin__prow-sku">SKU: ${p.sku || "—"} · ${priceHtml(p)}</div>
+          </div>
+          <div style="flex:none;text-align:right;min-width:40px;color:var(--a-text-dim);font-size:12px">${reorderCategoryId === "new" ? (i < 7 ? `Home #${i + 1}` : "—") : `#${i + 1}`}</div>
+          <div style="flex:none">${p.status === "active" ? stockPillHtml(p) : `<span class="admin__pill admin__pill--warn">${p.status === "draft" ? "Draft — hidden" : "Archived — hidden"}</span>`}</div>
+          ${reorderCategoryId === "new" ? `<button type="button" class="admin__btn admin__btn--outline admin__btn--sm" data-naswap="${i}" style="flex:none;padding:6px 12px;font-size:12px;white-space:nowrap${naSwapIdx === i ? ";background:var(--a-gold, #c9a96e);color:#111" : ""}">${naSwapIdx === i ? "Cancel" : "⇄ Swap"}</button>` : ""}
+          ${rowActionsHtml(p)}
+        </div>
+        ${reorderCategoryId === "new" && naSwapIdx === i ? swapPickerHtml(i) : ""}
+      `).join("");
+
+    // Swap: clicking "⇄ Swap" opens a picker right under that row listing
+    // the other group (the home-page 7 for a product below, or the products
+    // below for one of the 7); picking one trades their positions and saves.
+    listEl.querySelectorAll("[data-naswap]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const i = Number(btn.dataset.naswap);
+        naSwapIdx = naSwapIdx === i ? null : i;
+        renderReorderList();
+      });
+    });
+    listEl.querySelectorAll("[data-naswapwith]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const a = naSwapIdx, b = Number(btn.dataset.naswapwith);
+        [reorderList[a], reorderList[b]] = [reorderList[b], reorderList[a]];
+        naSwapIdx = null;
+        renderReorderList();
+        scheduleReorderSave();
+      });
+    });
+
+    wireRowActions(listEl);
+
+    let dragIdx = null;
+    listEl.querySelectorAll("[data-ridx]").forEach((row) => {
+      row.addEventListener("dragstart", () => { dragIdx = Number(row.dataset.ridx); });
+      row.addEventListener("dragover", (e) => e.preventDefault());
+      row.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const dropIdx = Number(row.dataset.ridx);
+        if (dragIdx === null || dragIdx === dropIdx) return;
+        const [moved] = reorderList.splice(dragIdx, 1);
+        reorderList.splice(dropIdx, 0, moved);
+        dragIdx = null;
+        renderReorderList();
+        scheduleReorderSave();
+      });
+    });
+  }
+
+  function openForm(product) {
+    const p = product || {};
+    const isNew = !product;
+
+    // ---- local editable state, seeded from the product ----
+    let media = (p.image_urls || []).slice();
+    let colorOptions = (p.color_options || []).map((c) => ({ name: c.name, hex: c.hex, imageUrls: c.imageUrls || [] }));
+    let variants = (p.variants || []).map((v) => ({ label: v.label, price: v.price, stock: v.stock, imageUrls: v.imageUrls || [] }));
+    let categoryIds = (p.category_ids && p.category_ids.length ? p.category_ids : (p.category_id ? [p.category_id] : []));
+
+    // Categories can have one level of subcategories (parent_id). The
+    // primary Category dropdown only lists top-level categories; picking
+    // one that has children reveals a second Subcategory dropdown scoped
+    // to just that category's children. If the product's current primary
+    // category IS itself a subcategory, both dropdowns pre-select correctly.
+    const TOP_CATEGORIES = CATEGORIES.filter((c) => !c.parent_id);
+    const subsOf = (parentId) => CATEGORIES.filter((c) => c.parent_id === parentId);
+    const primaryCat = CATEGORIES.find((c) => c.id === categoryIds[0]);
+    let selectedTopId = primaryCat ? (primaryCat.parent_id || primaryCat.id) : "";
+    let selectedSubId = primaryCat && primaryCat.parent_id ? primaryCat.id : "";
+
+    // Focal point + zoom, both encoded in the stored URL's fragment as
+    // "#x,y,zoom" (x/y percentages, zoom a 1.0-2.5 scale factor) — no DB
+    // schema change, image_urls stays a plain string array.
+    function splitFocal(url) {
+      const i = url.lastIndexOf("#");
+      if (i === -1) return { src: url, x: 50, y: 50, zoom: 1 };
+      const parts = url.slice(i + 1).split(",").map(Number);
+      const [x, y, zoom] = parts;
+      return {
+        src: url.slice(0, i),
+        x: isFinite(x) ? x : 50,
+        y: isFinite(y) ? y : 50,
+        zoom: isFinite(zoom) && zoom > 0 ? zoom : 1,
+      };
+    }
+    function joinFocal(src, x, y, zoom) {
+      return `${src}#${Math.round(x)},${Math.round(y)},${(zoom || 1).toFixed(2)}`;
+    }
+
+    document.getElementById("productModalBody").innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+        <h2 style="margin:0;font-family:var(--serif)">${isNew ? "Add New Product" : "Edit Product"}</h2>
+        <button type="button" id="cancelProductBtn" class="admin__iconAct" aria-label="Close" style="border-radius:50%">
+          <svg viewBox="0 0 24 24"><line x1="4.6" y1="4.6" x2="19.4" y2="19.4"></line><line x1="19.4" y1="4.6" x2="4.6" y2="19.4"></line></svg>
+        </button>
+      </div>
+
+      <div class="admin__formSection">
+        <h3>Product Images</h3>
+        <div id="mediaGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:10px"></div>
+        <input type="file" id="mediaFileInput" accept="image/*" multiple style="display:none">
+        <button type="button" class="admin__btn" id="mediaAddBtn">+ Add Photos</button>
+        <p class="admin__hint">Select as many photos as you want at once. Click the crop icon on a photo to drag and zoom it freely in a bigger view (the white dot marks the current crop point) — applying it also moves that photo to the MAIN spot. To swap two photos, click "Swap" on one (it highlights), then click "Swap" on the other — whichever lands in the first spot becomes MAIN. You can also just drag a photo onto another to reorder it.</p>
+      </div>
+
+      <div class="admin__formSection">
+        <h3>Color Options <span class="admin__hint-inline">(optional)</span></h3>
+        <div id="colorList"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <button type="button" class="admin__btn admin__btn--outline" id="addColorBtn">+ Add Color</button>
+        </div>
+        <p class="admin__hint">Give a piece color choices — e.g. "Beige" and "White" — each with its own swatch color, photos (picked from the photos above) and stock count. Leave empty for a product with no color choice.</p>
+      </div>
+
+      <div class="admin__formSection">
+        <div class="admin__field"><label>Name</label><input id="f_name" value="${p.name || ""}"></div>
+        <div class="admin__field">
+          <label>Arabic Name <span class="admin__hint-inline">(optional)</span></label>
+          <input id="f_nameAr" dir="rtl" style="text-align:right;font-family:'Tajawal',sans-serif" value="${p.name_ar || ""}" placeholder="اسم المنتج بالعربي">
+        </div>
+        <p class="admin__hint">Shown when a customer switches the storefront to Arabic. Leave blank to keep showing the English name for this product in Arabic mode.</p>
+      </div>
+
+      <div class="admin__formSection">
+        <div class="admin__field2">
+          <div class="admin__field">
+            <label>Category</label>
+            <select id="f_category">
+              <option value="">— None —</option>
+              ${TOP_CATEGORIES.map((c) => `<option value="${c.id}" ${selectedTopId === c.id ? "selected" : ""}>${c.name}</option>`).join("")}
+            </select>
+          </div>
+          <div class="admin__field"><label>Slug</label><input id="f_slug" value="${p.slug || ""}"></div>
+        </div>
+
+        <div class="admin__field" id="subcategoryField" style="${subsOf(selectedTopId).length ? "" : "display:none"}">
+          <label>Subcategory</label>
+          <select id="f_subcategory">
+            <option value="">— None —</option>
+            ${subsOf(selectedTopId).map((c) => `<option value="${c.id}" ${selectedSubId === c.id ? "selected" : ""}>${c.name}</option>`).join("")}
+          </select>
+          <p class="admin__hint" style="margin-top:6px">Pick which ${TOP_CATEGORIES.find((c) => c.id === selectedTopId) ? TOP_CATEGORIES.find((c) => c.id === selectedTopId).name : ""} subcategory this product belongs to — it'll show up under that subcategory on the storefront.</p>
+        </div>
+
+        <label style="display:block;margin:14px 0 8px;font-size:12px;color:var(--a-text-dim)">Also Show In — extra categories (optional)</label>
+        <div class="admin__checkGrid" id="alsoShowIn">
+          ${CATEGORIES.map((c) => `
+            <label class="admin__checkRow">
+              <input type="checkbox" value="${c.id}" ${categoryIds.includes(c.id) ? "checked" : ""}>
+              ${c.parent_id ? "&nbsp;&nbsp;&#8627; " : ""}${c.name}
+            </label>
+          `).join("")}
+        </div>
+        <p class="admin__hint">Tick any other category this piece should ALSO appear in — a product can stay listed under several categories at once. The Category (and Subcategory) above stay the main ones.</p>
+      </div>
+
+      <div class="admin__formSection">
+        <div class="admin__field2">
+          <div class="admin__field"><label>Price (EGP)</label><input id="f_price" type="number" value="${p.price || ""}"></div>
+          <div class="admin__field"><label>Sale Price (EGP, optional)</label><input id="f_salePrice" type="number" min="0" value="${p.sale_percent && p.price ? Math.round(Number(p.price) * (1 - Number(p.sale_percent) / 100)) : ""}" placeholder="e.g. 850"></div>
+        </div>
+        <div class="admin__field2">
+          <div class="admin__field"><label>Discount %</label><input id="f_salePercent" type="number" min="0" max="95" step="0.01" value="${p.sale_percent ? Number(p.sale_percent) : ""}" placeholder="e.g. 20"></div>
+          <div class="admin__field"><label>Discount Label (optional)</label><input id="f_saleLabel" value="${p.sale_label || ""}" placeholder="e.g. Autumn Sale"></div>
+        </div>
+        <label class="admin__toggleRow">
+          <input type="checkbox" id="f_onSale" ${p.sale_percent ? "checked" : ""}>
+          <span>Put this specific product on sale</span>
+        </label>
+        <p class="admin__hint" id="salePreview"></p>
+        <p class="admin__hint">Type EITHER the new Sale Price OR a Discount % — the other one fills in by itself and the sale switches on. The old price shows crossed out and the new one in red on the card, the product page and the cart. Untick (or clear both) to end the sale.</p>
+      </div>
+
+      <div class="admin__formSection">
+        <h3>Size Options <span class="admin__hint-inline">(optional)</span></h3>
+        <div id="sizeList"></div>
+        <button type="button" class="admin__btn admin__btn--outline" id="addSizeBtn">+ Add Size</button>
+        <p class="admin__hint">Add as many sizes as you like — each shows as a button on the product page with its own price and stock. Leave empty to sell as one size only.</p>
+      </div>
+
+      <div class="admin__formSection">
+        <div class="admin__field2">
+          <div class="admin__field"><label>Material</label><input id="f_material" value="${p.material || ""}" placeholder="e.g. Porcelain"></div>
+          <div class="admin__field"><label>Dimensions</label><input id="f_sizeCm" value="${p.size_cm || ""}" placeholder='e.g. 40 x 120 cm'></div>
+        </div>
+        <div class="admin__field2">
+          <div class="admin__field"><label>SKU (optional)</label><input id="f_sku" value="${p.sku || ""}"></div>
+          <div class="admin__field"><label>Weight (kg, optional)</label><input id="f_weight" type="number" step="0.1" value="${p.weight_kg || ""}" placeholder="e.g. 2.5"></div>
+        </div>
+        <p class="admin__hint">Weight adds a per-kg shipping surcharge on top of each governorate's base shipping price — set the per-kg rate in Shipping settings. Leave empty for no surcharge on this item.</p>
+      </div>
+
+      <div class="admin__formSection">
+        <div class="admin__field2">
+          <div class="admin__field"><label>Stock Quantity</label><input id="f_stock" type="number" value="${p.stock_qty ?? ""}"></div>
+          <div class="admin__field"><label>Low Stock Alert Threshold</label><input id="f_threshold" type="number" value="${p.low_stock_threshold ?? 5}"></div>
+        </div>
+        <div class="admin__field"><label>Status</label>
+          <select id="f_status">
+            <option value="active" ${p.status === "active" ? "selected" : ""}>Active</option>
+            <option value="draft" ${p.status === "draft" ? "selected" : ""}>Draft</option>
+            <option value="archived" ${p.status === "archived" ? "selected" : ""}>Archived</option>
+          </select>
+        </div>
+        <p class="admin__hint">If Color Options above have their own stock counts, this number is added up from them automatically.</p>
+      </div>
+
+      <div class="admin__formSection">
+        <div class="admin__field"><label>Description</label><textarea id="f_description" rows="4">${p.description || ""}</textarea></div>
+      </div>
+
+      <div class="admin__formSection">
+        <label class="admin__toggleRow"><input type="checkbox" id="f_newArrival" ${p.is_new_arrival ? "checked" : ""}><span>Mark as New Arrival</span></label>
+        <label class="admin__toggleRow"><input type="checkbox" id="f_topSeller" ${p.is_top_seller ? "checked" : ""}><span>Feature in homepage Top Sellers</span></label>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:10px">
+        <button type="button" class="admin__btn admin__btn--gold" id="saveProductBtn" style="flex:1">Save Changes</button>
+      </div>
+      ${!isNew ? `<button type="button" class="admin__btn admin__btn--danger" id="deleteProductBtn" style="width:100%;margin-top:10px">Delete This Product</button>` : ""}
+    `;
+    document.getElementById("productModal").style.display = "block";
+    document.getElementById("productModal").scrollTop = 0;
+    document.getElementById("cancelProductBtn").addEventListener("click", closeForm);
+
+    document.getElementById("f_name").addEventListener("input", (e) => {
+      if (isNew) {
+        document.getElementById("f_slug").value = e.target.value.toLowerCase().trim()
+          .replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
+      }
+    });
+
+    // ---- Category / Subcategory ----
+    // Picking a top-level category that has subcategories reveals the
+    // Subcategory dropdown scoped to just that category's children;
+    // picking one with none hides it again.
+    document.getElementById("f_category").addEventListener("change", (e) => {
+      const topId = Number(e.target.value) || "";
+      const subs = subsOf(topId);
+      const subField = document.getElementById("subcategoryField");
+      const subSelect = document.getElementById("f_subcategory");
+      if (subs.length) {
+        subField.style.display = "";
+        const topName = TOP_CATEGORIES.find((c) => c.id === topId)?.name || "";
+        subSelect.innerHTML = `<option value="">— None —</option>${subs.map((c) => `<option value="${c.id}">${c.name}</option>`).join("")}`;
+        subField.querySelector(".admin__hint").textContent = `Pick which ${topName} subcategory this product belongs to — it'll show up under that subcategory on the storefront.`;
+      } else {
+        subField.style.display = "none";
+        subSelect.value = "";
+      }
+    });
+
+    // ---- Photos ----
+    function renderMedia() {
+      const grid = document.getElementById("mediaGrid");
+      grid.innerHTML = media.map((url, i) => {
+        const { src, x, y, zoom } = splitFocal(url);
+        return `
+          <div class="admin__mediaTile" draggable="true" data-idx="${i}">
+            ${i === 0 ? `<span class="admin__mediaHero">MAIN</span>` : ""}
+            <div class="admin__mediaCrop">
+              <img src="${cldUrl(src, 420)}" data-focal-img="${i}" style="object-position:${x}% ${y}%;transform:scale(${zoom})">
+              <span class="admin__mediaDot" style="left:${x}%;top:${y}%"></span>
+              <button type="button" class="admin__mediaCropBtn" data-crop="${i}" aria-label="Edit crop">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2v14a2 2 0 0 0 2 2h14"></path><path d="M18 22V8a2 2 0 0 0-2-2H2"></path></svg>
+              </button>
+            </div>
+            <button type="button" class="admin__mediaRemove" data-remove="${i}">×</button>
+            <button type="button" class="admin__mediaSwapBtn" data-swap="${i}">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8 3 12l4 4"></path><path d="M3 12h13.5a3.5 3.5 0 0 0 0-7H16"></path><path d="M17 16l4-4-4-4"></path><path d="M21 12H7.5a3.5 3.5 0 0 0 0 7H8"></path></svg>
+              <span>Swap</span>
+            </button>
+            <label class="admin__mediaZoom">
+              <span>Zoom</span>
+              <input type="range" min="1" max="2.5" step="0.05" value="${zoom}" data-zoom="${i}">
+            </label>
+          </div>`;
+      }).join("") + `<button type="button" class="admin__mediaAdd" id="mediaAddTile"><span>+</span><small>Add</small></button>`;
+
+      grid.querySelectorAll("[data-crop]").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openCropEditor(Number(btn.dataset.crop));
+        });
+      });
+      grid.querySelectorAll("[data-zoom]").forEach((slider) => {
+        // live-update the preview scale while dragging, commit to `media`
+        // (and reorder to HERO if needed) only on release, so re-render
+        // doesn't fight the slider mid-drag.
+        const i = Number(slider.dataset.zoom);
+        const img = grid.querySelector(`[data-focal-img="${i}"]`);
+        slider.addEventListener("input", () => {
+          if (img) img.style.transform = `scale(${slider.value})`;
+        });
+        slider.addEventListener("change", () => {
+          const { src, x, y } = splitFocal(media[i]);
+          media[i] = joinFocal(src, x, y, Number(slider.value));
+        });
+      });
+      grid.querySelectorAll("[data-remove]").forEach((btn) => {
+        btn.addEventListener("click", () => { media.splice(Number(btn.dataset.remove), 1); renderMedia(); });
+      });
+      const addTile = document.getElementById("mediaAddTile");
+      addTile && addTile.addEventListener("click", () => document.getElementById("mediaFileInput").click());
+
+      let dragIdx = null;
+      grid.querySelectorAll(".admin__mediaTile").forEach((tile) => {
+        tile.addEventListener("dragstart", () => { dragIdx = Number(tile.dataset.idx); });
+        tile.addEventListener("dragover", (e) => e.preventDefault());
+        tile.addEventListener("drop", () => {
+          const dropIdx = Number(tile.dataset.idx);
+          if (dragIdx === null || dragIdx === dropIdx) return;
+          const [moved] = media.splice(dragIdx, 1);
+          media.splice(dropIdx, 0, moved);
+          dragIdx = null;
+          renderMedia();
+        });
+      });
+
+      // ---- Swap button ----
+      // Tap "Swap" on a photo to arm it (it highlights and its button
+      // becomes "Tap target"), then tap the Swap button on any OTHER
+      // photo to swap the two positions — a clear, explicit alternative
+      // to drag-and-drop for touch/tablet. Swapping a photo into slot 0
+      // makes it the new MAIN image. Tapping the armed photo's own Swap
+      // button again cancels without swapping.
+      let armedIdx = null;
+      function setArmed(idx) {
+        armedIdx = idx;
+        grid.querySelectorAll(".admin__mediaTile").forEach((t) => {
+          const isArmed = Number(t.dataset.idx) === idx;
+          t.classList.toggle("is-armed", isArmed);
+          const label = t.querySelector("[data-swap] span");
+          if (label) label.textContent = armedIdx === null ? "Swap" : isArmed ? "Cancel" : "Tap to swap";
+        });
+      }
+      grid.querySelectorAll("[data-swap]").forEach((btn) => {
+        const idx = Number(btn.dataset.swap);
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (armedIdx === null) { setArmed(idx); return; }
+          if (armedIdx === idx) { setArmed(null); return; } // cancel
+          const a = armedIdx, b = idx;
+          [media[a], media[b]] = [media[b], media[a]];
+          armedIdx = null;
+          renderMedia();
+        });
+      });
+
+      renderColorPhotoPickers();
+    }
+    renderMedia();
+
+    // ---- big crop editor ----
+    // A dedicated full-size modal for precisely positioning and zooming a
+    // photo — opened from each tile's crop button. Drag the photo freely
+    // to pan it, use the zoom slider (or scroll/pinch) to scale it, and
+    // the visible square frame is exactly what customers will see. Saves
+    // back into the same "#x,y,zoom" focal-point format renderMedia()
+    // already reads, so nothing else needs to change.
+    function openCropEditor(i) {
+      const { src, x: startX, y: startY, zoom: startZoom } = splitFocal(media[i]);
+      openFocalCropEditor({
+        src, startX, startY, startZoom, aspectRatio: "1",
+        onApply: (x, y, zoom) => {
+          media[i] = joinFocal(src, x, y, zoom);
+          if (i !== 0) { const [m] = media.splice(i, 1); media.unshift(m); }
+          renderMedia();
+        },
+      });
+    }
+
+    document.getElementById("mediaAddBtn").addEventListener("click", () => document.getElementById("mediaFileInput").click());
+    document.getElementById("mediaFileInput").addEventListener("change", async (e) => {
+      const files = Array.from(e.target.files || []);
+      const addBtn = document.getElementById("mediaAddBtn");
+      const addBtnLabel = addBtn.textContent;
+      addBtn.disabled = true;
+      const failures = [];
+      for (let i = 0; i < files.length; i++) {
+        addBtn.textContent = `Uploading ${i + 1}/${files.length}…`;
+        try {
+          media.push(await uploadImageFile(files[i], "products"));
+          renderMedia();
+        } catch (err) {
+          failures.push(err.message);
+        }
+      }
+      addBtn.disabled = false;
+      addBtn.textContent = addBtnLabel;
+      if (failures.length) alert(failures.join("\n\n"));
+      e.target.value = "";
+    });
+
+    // ---- Color Options ----
+    function renderColors() {
+      const list = document.getElementById("colorList");
+      if (!colorOptions.length) {
+        list.innerHTML = `<p class="admin__hint" style="margin-top:0">No color options — this product will show one set of photos with no color choice.</p>`;
+        return;
+      }
+      list.innerHTML = colorOptions.map((c, i) => `
+        <div class="admin__optCard">
+          <div class="admin__field2">
+            <div class="admin__field"><label>Color name</label><input data-color-name="${i}" value="${c.name}" placeholder="e.g. Beige"></div>
+            <div class="admin__field"><label>Swatch</label><input type="color" data-color-hex="${i}" value="${c.hex || "#C9A227"}" style="height:40px;padding:4px"></div>
+          </div>
+          <div class="admin__colorPhotoPicker" data-color-photos="${i}"></div>
+          <button type="button" class="admin__btn admin__btn--outline admin__btn--sm" data-remove-color="${i}">Remove Color</button>
+        </div>
+      `).join("");
+
+      list.querySelectorAll("[data-color-name]").forEach((inp) => inp.addEventListener("input", (e) => { colorOptions[Number(inp.dataset.colorName)].name = e.target.value; }));
+      list.querySelectorAll("[data-color-hex]").forEach((inp) => inp.addEventListener("input", (e) => { colorOptions[Number(inp.dataset.colorHex)].hex = e.target.value; }));
+      list.querySelectorAll("[data-remove-color]").forEach((btn) => btn.addEventListener("click", () => { colorOptions.splice(Number(btn.dataset.removeColor), 1); renderColors(); }));
+      renderColorPhotoPickers();
+    }
+    function renderColorPhotoPickers() {
+      document.querySelectorAll("[data-color-photos]").forEach((wrap) => {
+        const ci = Number(wrap.dataset.colorPhotos);
+        const c = colorOptions[ci];
+        if (!c) return;
+        wrap.innerHTML = media.map((url) => {
+          const { src } = splitFocal(url);
+          const checked = (c.imageUrls || []).some((u) => splitFocal(u).src === src);
+          return `<label class="admin__photoPick"><input type="checkbox" data-pick-color="${ci}" data-pick-url="${encodeURIComponent(url)}" ${checked ? "checked" : ""}><img src="${cldUrl(src, 100)}"></label>`;
+        }).join("");
+        wrap.querySelectorAll("[data-pick-color]").forEach((cb) => {
+          cb.addEventListener("change", () => {
+            const idx = Number(cb.dataset.pickColor);
+            const url = decodeURIComponent(cb.dataset.pickUrl);
+            const imgs = colorOptions[idx].imageUrls || (colorOptions[idx].imageUrls = []);
+            if (cb.checked) { if (!imgs.includes(url)) imgs.push(url); }
+            else { colorOptions[idx].imageUrls = imgs.filter((u) => u !== url); }
+          });
+        });
+      });
+    }
+    renderColors();
+    document.getElementById("addColorBtn").addEventListener("click", () => {
+      colorOptions.push({ name: "", hex: "#C9A227", imageUrls: [] });
+      renderColors();
+    });
+
+    // ---- Size Options ----
+    function renderSizes() {
+      const list = document.getElementById("sizeList");
+      if (!variants.length) {
+        list.innerHTML = `<p class="admin__hint" style="margin-top:0">No size options — this product sells as one size.</p>`;
+      } else {
+        list.innerHTML = variants.map((v, i) => `
+          <div class="admin__optCard">
+            <div class="admin__field2">
+              <div class="admin__field"><label>Size label</label><input data-size-label="${i}" value="${v.label}" placeholder="e.g. Large"></div>
+              <div class="admin__field"><label>Price (EGP)</label><input data-size-price="${i}" type="number" value="${v.price}"></div>
+            </div>
+            <div class="admin__field"><label>Stock</label><input data-size-stock="${i}" type="number" value="${v.stock}"></div>
+            <button type="button" class="admin__btn admin__btn--outline admin__btn--sm" data-remove-size="${i}">Remove Size</button>
+          </div>
+        `).join("");
+        list.querySelectorAll("[data-size-label]").forEach((inp) => inp.addEventListener("input", (e) => { variants[Number(inp.dataset.sizeLabel)].label = e.target.value; }));
+        list.querySelectorAll("[data-size-price]").forEach((inp) => inp.addEventListener("input", (e) => { variants[Number(inp.dataset.sizePrice)].price = Number(e.target.value) || 0; }));
+        list.querySelectorAll("[data-size-stock]").forEach((inp) => inp.addEventListener("input", (e) => { variants[Number(inp.dataset.sizeStock)].stock = Number(e.target.value) || 0; }));
+        list.querySelectorAll("[data-remove-size]").forEach((btn) => btn.addEventListener("click", () => { variants.splice(Number(btn.dataset.removeSize), 1); renderSizes(); }));
+      }
+    }
+    renderSizes();
+
+    // Sale price <-> discount % stay in sync; typing either one turns the sale on.
+    (function wireSale() {
+      const priceEl = document.getElementById("f_price");
+      const saleEl = document.getElementById("f_salePrice");
+      const pctEl = document.getElementById("f_salePercent");
+      const onEl = document.getElementById("f_onSale");
+      const preview = document.getElementById("salePreview");
+      function show() {
+        const price = Number(priceEl.value) || 0;
+        const pct = Number(pctEl.value) || 0;
+        if (onEl.checked && price > 0 && pct > 0) {
+          const now = Math.round(price * (1 - pct / 100));
+          preview.innerHTML = `On sale: <s style="opacity:.6">${fmt(price)}</s> → <strong style="color:var(--a-red)">${fmt(now)}</strong> (−${Math.round(pct * 100) / 100}%)`;
+        } else preview.textContent = "";
+      }
+      function fromSalePrice() {
+        const price = Number(priceEl.value) || 0;
+        const sale = Number(saleEl.value) || 0;
+        if (price > 0 && sale > 0 && sale < price) {
+          pctEl.value = Math.round((1 - sale / price) * 10000) / 100;
+          onEl.checked = true;
+        } else if (!saleEl.value) { pctEl.value = ""; onEl.checked = false; }
+        show();
+      }
+      function fromPercent() {
+        const price = Number(priceEl.value) || 0;
+        const pct = Number(pctEl.value) || 0;
+        if (pct > 0 && pct < 100) {
+          saleEl.value = price > 0 ? Math.round(price * (1 - pct / 100)) : "";
+          onEl.checked = true;
+        } else if (!pctEl.value) { saleEl.value = ""; onEl.checked = false; }
+        show();
+      }
+      saleEl.addEventListener("input", fromSalePrice);
+      pctEl.addEventListener("input", fromPercent);
+      priceEl.addEventListener("input", () => { if (saleEl.value) fromSalePrice(); else show(); });
+      onEl.addEventListener("change", show);
+      show();
+    })();
+    document.getElementById("addSizeBtn").addEventListener("click", () => {
+      variants.push({ label: "", price: Number(document.getElementById("f_price").value) || 0, stock: 0, imageUrls: [] });
+      renderSizes();
+    });
+
+    // ---- Save / Delete ----
+    document.getElementById("saveProductBtn").addEventListener("click", async () => {
+      const saveBtn = document.getElementById("saveProductBtn");
+      if (saveBtn.disabled) return; // guards against a double-click firing two overlapping saves
+      const ok = await AdminShell.confirm({
+        title: isNew ? "Add this product?" : "Save these changes?",
+        message: isNew
+          ? "This will create the product and make it visible per its status."
+          : "This will overwrite the product's current saved details.",
+        confirmLabel: isNew ? "Add Product" : "Save Changes",
+        danger: false,
+      });
+      if (!ok) return;
+      saveBtn.disabled = true;
+      const originalLabel = saveBtn.textContent;
+      saveBtn.textContent = "Saving…";
+      const alsoIds = Array.from(document.querySelectorAll("#alsoShowIn input:checked")).map((cb) => Number(cb.value));
+      const topId = Number(document.getElementById("f_category").value) || null;
+      const subField = document.getElementById("subcategoryField");
+      const subEl = document.getElementById("f_subcategory");
+      const subId = subEl && subField && subField.style.display !== "none" ? Number(subEl.value) || null : null;
+      // A chosen subcategory becomes the real primary category (the
+      // storefront groups by the exact category, subcategory included);
+      // the parent still gets ticked into "Also Show In" so the product
+      // also shows under the broader Accessories listing.
+      const primaryId = subId || topId;
+      const impliedAlso = subId && topId ? [topId] : [];
+      const allCategoryIds = primaryId
+        ? [primaryId, ...impliedAlso, ...alsoIds.filter((id) => id !== primaryId)]
+        : alsoIds;
+
+      const onSale = document.getElementById("f_onSale").checked;
+      const rawPct = Number(document.getElementById("f_salePercent").value) || 0;
+      const salePercent = onSale && rawPct > 0 && rawPct < 100 ? Math.round(rawPct * 100) / 100 : null;
+
+      const body = {
+        name: document.getElementById("f_name").value.trim(),
+        nameAr: document.getElementById("f_nameAr").value.trim(),
+        slug: document.getElementById("f_slug").value.trim(),
+        description: document.getElementById("f_description").value,
+        price: Number(document.getElementById("f_price").value) || 0,
+        salePercent,
+        saleLabel: document.getElementById("f_saleLabel").value,
+        stockQty: Number(document.getElementById("f_stock").value) || 0,
+        lowStockThreshold: Number(document.getElementById("f_threshold").value) || 5,
+        sku: document.getElementById("f_sku").value,
+        material: document.getElementById("f_material").value,
+        sizeCm: document.getElementById("f_sizeCm").value,
+        weightKg: document.getElementById("f_weight").value || null,
+        status: document.getElementById("f_status").value,
+        isNewArrival: document.getElementById("f_newArrival").checked,
+        categoryIds: allCategoryIds,
+        imageUrls: media,
+        colors: colorOptions.map((c) => c.name).filter(Boolean),
+        colorOptions: colorOptions.filter((c) => c.name),
+        variants: variants.filter((v) => v.label),
+      };
+      try {
+        if (isNew) await API.post("/api/products", body);
+        else await API.patch(`/api/products?id=${p.id}`, body);
+        closeForm();
+        await load();
+      } catch (err) {
+        alert(err.message || "Failed to save product.");
+        saveBtn.disabled = false;
+        saveBtn.textContent = originalLabel;
+      }
+    });
+
+    const deleteBtn = document.getElementById("deleteProductBtn");
+    deleteBtn && deleteBtn.addEventListener("click", async () => {
+      const ok = await AdminShell.confirm({
+        title: "Delete this product?",
+        message: `"${p.name}" will be permanently deleted. This cannot be undone.`,
+        confirmLabel: "Delete",
+      });
+      if (!ok) return;
+      try {
+        await API.del(`/api/products?id=${p.id}`);
+        closeForm();
+        await load();
+      } catch { alert("Failed to delete product."); }
+    });
+  }
+
+  function closeForm() { document.getElementById("productModal").style.display = "none"; }
+
+  async function load() {
+    ALL_PRODUCTS = await API.get("/api/products");
+    buildReorderList();
+    render();
+  }
+
+  // Same order the shop uses (this category's sort_order, newest first on
+  // ties), but includes drafts so they can be positioned before going live.
+  function buildReorderList() {
+    if (reorderCategoryId === "new") {
+      const posMap = new Map(NA_ORDER.map((id, i) => [Number(id), i + 1]));
+      const flagged = ALL_PRODUCTS.filter((p) => p.is_new_arrival);
+      reorderList = (flagged.length ? flagged : ALL_PRODUCTS).slice()
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .sort((a, b) => (posMap.get(a.id) || 0) - (posMap.get(b.id) || 0));
+      return;
+    }
+    if (reorderCategoryId === "all") {
+      // Products not yet in the saved order (e.g. newly added) go first,
+      // newest first — the same rule the shop page applies.
+      const posMap = new Map(SHOP_ORDER.map((id, i) => [Number(id), i + 1]));
+      reorderList = ALL_PRODUCTS.slice().sort((a, b) => (posMap.get(a.id) || 0) - (posMap.get(b.id) || 0));
+      return;
+    }
+    const catId = Number(reorderCategoryId);
+    if (!catId) { reorderList = []; return; }
+    const pos = (p) => Number((p.category_sorts || {})[catId]) || 0;
+    reorderList = ALL_PRODUCTS
+      .filter((p) => (p.category_ids || []).includes(catId) || p.category_id === catId)
+      .sort((a, b) => pos(a) - pos(b));
+  }
+
+  function loadReorderCategory(categoryId) {
+    reorderCategoryId = categoryId;
+    naSwapIdx = null;
+    buildReorderList();
+    render();
+  }
+
+  (async () => {
+    const session = await AdminShell.init({ active: "products" });
+    if (!session) return;
+
+    try { CATEGORIES = await API.get("/api/categories"); } catch { CATEGORIES = []; }
+    try {
+      const saved = await API.get("/api/settings?key=shop_order");
+      SHOP_ORDER = Array.isArray(saved) ? saved : [];
+    } catch { SHOP_ORDER = []; }
+    try {
+      const na = await API.get("/api/settings?key=new_arrivals_order");
+      NA_ORDER = Array.isArray(na) ? na : [];
+    } catch { NA_ORDER = []; }
+    await load();
+
+    const reorderSelect = document.getElementById("reorderCategorySelect");
+    reorderSelect.innerHTML = `<option value="">Reorder within category…</option>` +
+      `<option value="new">★ Home page — New Arrivals</option>` +
+      `<option value="all">★ Shop page — All products</option>` +
+      CATEGORIES.map((c) => `<option value="${c.id}">${c.parent_id ? "— " : ""}${c.name}</option>`).join("");
+    reorderSelect.addEventListener("change", (e) => loadReorderCategory(e.target.value));
+
+    document.getElementById("addProductBtn").addEventListener("click", () => openForm(null));
+    document.getElementById("searchInput").addEventListener("input", (e) => { query = e.target.value; page = 1; render(); });
+
+    if (new URLSearchParams(location.search).get("new")) openForm(null);
+  })();

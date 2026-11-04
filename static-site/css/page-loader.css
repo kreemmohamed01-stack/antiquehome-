@@ -1,0 +1,8 @@
+/* "Loading" screen shown only when a page is slow (see js/page-loader.js). */
+.pl{position:fixed;inset:0;z-index:9999;display:flex;opacity:0;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:#fff;transition:opacity .6s ease,visibility .6s}
+.pl[hidden]{display:none}.pl.is-on{opacity:1}.pl.is-done{opacity:0;visibility:hidden}
+.pl__word{position:relative;font:italic 300 clamp(34px,8vw,52px)/1 "Cormorant Garamond","Times New Roman",Georgia,serif;letter-spacing:.32em;margin-right:-.32em;white-space:nowrap}
+.pl__base{color:#EFE8DC}
+.pl__fill{position:absolute;inset:0;color:transparent;background:linear-gradient(100deg,#B89A66 0%,#E3D5BC 45%,#A8875A 70%,#C9B48A 100%);-webkit-background-clip:text;background-clip:text;clip-path:inset(0 100% 0 0);transition:clip-path .25s linear}
+.pl__line{position:relative;width:min(180px,46vw);height:1px;background:#EFE8DC;overflow:hidden}
+.pl__line i{position:absolute;inset:0;background:#C9B48A;transform:scaleX(0);transform-origin:left;transition:transform .25s linear}

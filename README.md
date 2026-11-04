@@ -14,8 +14,16 @@ antique home/
 │   ├── admin/              the dashboard (/admin)
 │   ├── api/                serverless functions (/api/*); files starting
 │   │                       with _ are shared helpers, not endpoints
-│   ├── css/                stylesheets (inlined into pages at build time)
-│   ├── js/                 page scripts
+│   ├── css/                storefront stylesheets (inlined into pages at build time)
+│   │   ├── base.css        shared site styles; fonts.css, page-loader.css
+│   │   ├── <page>.css      one per page (shop, product, checkout, about…)
+│   │   └── admin/          dashboard styles; admin/pages/ = one page's own styles
+│   ├── js/                 storefront scripts
+│   │   ├── api.js, i18n.js, site-chrome.js, chrome-partials.js  shared
+│   │   ├── <page>.js       one per page (index, shop, product, checkout…)
+│   │   ├── page-loader.js  "Loading" screen (inlined at build: data-inline)
+│   │   └── admin/          dashboard shell + effects; admin/pages/<page>.js
+│   │                       = the code for admin/<page>.html
 │   ├── fonts/              self-hosted web fonts
 │   ├── images/
 │   │   ├── brand/          logos

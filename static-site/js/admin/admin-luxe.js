@@ -1,4 +1,4 @@
-// 3D tilt + cursor spotlight for dashboard cards (styles in css/admin-luxe.css).
+// 3D tilt + cursor spotlight for dashboard cards (styles in css/admin/admin-luxe.css).
 // Pure decoration: it only sets CSS variables and a class on the card under
 // the mouse — no layout, content or event handling of the page is touched.
 // Mouse/trackpad only; touch screens and reduced-motion users get none of it.

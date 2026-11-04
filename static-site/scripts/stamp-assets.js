@@ -18,7 +18,7 @@ const hashes = new Map();
 const esbuild = require("esbuild");
 let minified = 0;
 for (const dir of ["css", "js"]) {
-  for (const name of fs.readdirSync(path.join(root, dir))) {
+  for (const name of fs.readdirSync(path.join(root, dir), { recursive: true })) {
     const loader = path.extname(name).slice(1);
     if (loader !== "css" && loader !== "js") continue;
     const file = path.join(root, dir, name);
@@ -66,12 +66,24 @@ function inlineCss(html) {
   });
 }
 
+// <script src="/js/x.js" data-inline> is replaced by the file's code, for
+// tiny scripts that must run before the rest of the page parses (the
+// "Loading" screen) without a blocking request.
+function inlineJs(html) {
+  return html.replace(/<script src="(\/js\/[^"?#]+\.js)" data-inline><\/script>/g, (m, url) => {
+    const file = path.join(root, url);
+    if (!fs.existsSync(file)) return m;
+    inlined++;
+    return `<script>${fs.readFileSync(file, "utf8")}</script>`;
+  });
+}
+
 let stamped = 0;
 for (const file of htmlFiles(root)) {
   let before = fs.readFileSync(file, "utf8");
   const isAdmin = path.relative(root, file).split(path.sep)[0] === "admin";
   const source = before;
-  if (!isAdmin) before = inlineCss(before);
+  if (!isAdmin) before = inlineJs(inlineCss(before));
   const after = before.replace(/(href|src)="(\/(?:css|js)\/[^"?#]+)"/g, (m, attr, url) => {
     const h = hashOf(url);
     if (!h) return m;
@@ -80,4 +92,4 @@ for (const file of htmlFiles(root)) {
   });
   if (after !== source) fs.writeFileSync(file, after);
 }
-console.log(`stamp-assets: inlined ${inlined} stylesheets, versioned ${stamped} css/js references`);
+console.log(`stamp-assets: inlined ${inlined} stylesheets/scripts, versioned ${stamped} css/js references`);

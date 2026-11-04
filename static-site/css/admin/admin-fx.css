@@ -2,7 +2,7 @@
    ADMIN FX — rounded cards, hover lift/zoom, entrance motion.
    Layout, colours and content are untouched: this only changes
    corners, spacing between joined tiles, shadows and motion.
-   Number count-up lives in js/admin-shell.js (AdminFx).
+   Number count-up lives in js/admin/admin-shell.js (AdminFx).
    ========================================================= */
 
 :root{
