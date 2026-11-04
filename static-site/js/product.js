@@ -34,6 +34,14 @@
     return `${cldUrl(img, 480)} 480w, ${cldUrl(img, 640)} 640w, ${cldUrl(img, 900)} 900w, ${cldUrl(img, 1200)} 1200w`;
   }
 
+  // Price of one piece of the selected size, after any sale.
+  function unitPrice() {
+    const selectedVariant = (product.variants || [])[state.variantIdx];
+    const basePrice = selectedVariant ? Number(selectedVariant.price) : Number(product.price);
+    const salePct = effectiveSalePercent(product, siteSale);
+    return salePct > 0 ? priceWithSale(basePrice, salePct) : basePrice;
+  }
+
   function images() {
     const colorOptions = product.color_options || [];
     const own = colorOptions[state.colorIdx] && colorOptions[state.colorIdx].imageUrls;
@@ -252,9 +260,9 @@
               <div>
                 <p class="pdp__option-label">${t("quantity", "Quantity")}:</p>
                 <div class="qty pdp__qty" role="group" aria-label="Quantity">
-                  <button type="button" class="qty__btn" id="pdpQtyDec" aria-label="Decrease quantity"><svg viewBox="0 0 16 16" aria-hidden="true"><line x1="3" y1="8" x2="13" y2="8"></line></svg></button>
-                  <span class="qty__num">${state.qty}</span>
-                  <button type="button" class="qty__btn" id="pdpQtyInc" aria-label="Increase quantity"><svg viewBox="0 0 16 16" aria-hidden="true"><line x1="8" y1="3" x2="8" y2="13"></line><line x1="3" y1="8" x2="13" y2="8"></line></svg></button>
+                  <button type="button" class="qty__btn" id="pdpQtyDec" aria-label="Decrease quantity" ${state.qty <= 1 ? "disabled" : ""}><svg viewBox="0 0 16 16" aria-hidden="true"><line x1="3" y1="8" x2="13" y2="8"></line></svg></button>
+                  <span class="qty__num" id="pdpQtyNum" aria-live="polite"><span>${state.qty}</span></span>
+                  <button type="button" class="qty__btn" id="pdpQtyInc" aria-label="Increase quantity" ${state.qty >= Math.max(1, stockQty || 1) ? "disabled" : ""}><svg viewBox="0 0 16 16" aria-hidden="true"><line x1="8" y1="3" x2="8" y2="13"></line><line x1="3" y1="8" x2="13" y2="8"></line></svg></button>
                 </div>
               </div>
               <p class="pdp__stock">
@@ -267,7 +275,7 @@
 
             <div class="pdp__actions">
               <button type="button" class="pdp-btn pdp-btn--dark" id="pdpAddBtn" ${st === "out" ? "disabled" : ""}>
-                <span>${st === "out" ? t("outOfStock", "Out of Stock") : state.added ? t("addedToCart", "Added to Cart ✓") : `${t("addToCartPrice", "Add to Cart —")} <span>EGP ${(price * state.qty).toLocaleString("en-US")}</span>`}</span>
+                <span>${st === "out" ? t("outOfStock", "Out of Stock") : state.added ? t("addedToCart", "Added to Cart ✓") : `${t("addToCartPrice", "Add to Cart —")} <span id="pdpAddTotal">EGP ${(price * state.qty).toLocaleString("en-US")}</span>`}</span>
               </button>
               <button type="button" class="pdp-fav" id="pdpFavBtn" aria-label="Save to wishlist" aria-pressed="${state.fav}">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.4 4.6 13.2a4.6 4.6 0 1 1 7.4-5.3 4.6 4.6 0 1 1 7.4 5.3Z"></path></svg>
@@ -437,17 +445,29 @@
 
     const qtyDec = document.getElementById("pdpQtyDec");
     const qtyInc = document.getElementById("pdpQtyInc");
-    qtyDec && qtyDec.addEventListener("click", () => {
-      state.qty = Math.max(1, state.qty - 1);
-      render();
-    });
-    qtyInc && qtyInc.addEventListener("click", () => {
-      const variants = product.variants || [];
-      const selectedVariant = variants[state.variantIdx];
-      const stockQty = selectedVariant ? Number(selectedVariant.stock) : product.stock_qty;
-      state.qty = Math.min(Math.max(1, stockQty || 1), state.qty + 1);
-      render();
-    });
+    // Updates the number, the limits and the button total in place (no
+    // full re-render), so the count rolls smoothly instead of the page redrawing.
+    function setQty(next) {
+      const selectedVariant = (product.variants || [])[state.variantIdx];
+      const max = Math.max(1, (selectedVariant ? Number(selectedVariant.stock) : product.stock_qty) || 1);
+      next = Math.min(max, Math.max(1, next));
+      if (next === state.qty) return;
+      const dir = next > state.qty ? "is-up" : "is-down";
+      state.qty = next;
+      const num = document.getElementById("pdpQtyNum");
+      if (num) {
+        num.classList.remove("is-up", "is-down");
+        num.innerHTML = `<span>${next}</span>`;
+        void num.offsetWidth; // restart the roll animation
+        num.classList.add(dir);
+      }
+      qtyDec.disabled = next <= 1;
+      qtyInc.disabled = next >= max;
+      const total = document.getElementById("pdpAddTotal");
+      if (total) total.textContent = "EGP " + (unitPrice() * next).toLocaleString("en-US");
+    }
+    qtyDec && qtyDec.addEventListener("click", () => setQty(state.qty - 1));
+    qtyInc && qtyInc.addEventListener("click", () => setQty(state.qty + 1));
 
     const addBtn = document.getElementById("pdpAddBtn");
     addBtn &&

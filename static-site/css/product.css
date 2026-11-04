@@ -387,32 +387,63 @@
   margin-bottom:20px;
   flex-wrap:wrap;
 }
+/* Quantity: a slim champagne pill. The minus/plus are soft circles that
+   fill gold on hover; the number rolls up/down when it changes (js sets
+   .is-up / .is-down) and a button greys out at its limit. */
 .pdp__qty{
+  --qh:50px;
+  position:relative;
   width:auto;
-  gap:6px;
+  height:var(--qh);
+  gap:0;
   padding:5px;
-  border:1px solid rgba(150,116,72,.45);
-  background: linear-gradient(180deg, #FFFDF9, var(--paper-2, #F6F1E8));
-  box-shadow: 0 2px 10px rgba(43,36,28,.06), inset 0 0 0 1px rgba(255,255,255,.7);
+  border:1px solid rgba(169,138,92,.38);
+  border-radius:999px;
+  background:linear-gradient(180deg,#FFFEFB 0%,#F7F1E7 100%);
+  box-shadow:0 10px 28px -14px rgba(74,59,46,.35), inset 0 1px 0 rgba(255,255,255,.9);
+  transition:border-color .35s var(--ease), box-shadow .35s var(--ease);
+}
+@media (hover:hover){
+  .pdp__qty:hover{ border-color:rgba(169,138,92,.7); box-shadow:0 14px 32px -14px rgba(74,59,46,.42), inset 0 1px 0 rgba(255,255,255,.9); }
 }
 .pdp__qty .qty__btn{
-  width:38px; height:38px;
-  background: var(--paper, #FBF8F3);
-  border:1px solid rgba(150,116,72,.35);
-  color: var(--gold-deep);
-  box-shadow: 0 1px 3px rgba(43,36,28,.08);
+  width:calc(var(--qh) - 10px); height:calc(var(--qh) - 10px);
+  background:transparent;
+  border:0;
+  color:var(--gold-deep);
+  box-shadow:none;
+  transition:background-color .35s var(--ease), color .35s var(--ease), transform .25s var(--ease), opacity .3s var(--ease);
 }
-.pdp__qty .qty__btn svg{ width:14px; height:14px; stroke-width:1.6; }
+.pdp__qty .qty__btn svg{ width:13px; height:13px; stroke-width:1.4; }
 @media (hover:hover){
-  .pdp__qty .qty__btn:hover{ background: var(--gold-deep); border-color: var(--gold-deep); color:#fff; }
+  .pdp__qty .qty__btn:hover:not(:disabled){ background:var(--gold-deep); color:#fff; }
 }
+.pdp__qty .qty__btn:active:not(:disabled){ transform:scale(.88); }
+.pdp__qty .qty__btn:disabled{ opacity:.3; cursor:default; }
+.pdp__qty .qty__btn:focus-visible{ outline:1px solid var(--gold-deep); outline-offset:2px; }
 .pdp__qty .qty__num{
-  min-width:44px;
-  font-family: var(--serif, "Cormorant Garamond", serif);
-  font-size:21px;
+  position:relative;
+  min-width:52px;
+  height:100%;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  font-family:var(--serif, "Cormorant Garamond", serif);
+  font-size:22px;
   font-weight:500;
   letter-spacing:.02em;
+  color:var(--ink-900);
+  font-variant-numeric:tabular-nums;
 }
+.pdp__qty .qty__num::before,.pdp__qty .qty__num::after{
+  content:""; position:absolute; top:22%; bottom:22%; width:1px; background:rgba(169,138,92,.28);
+}
+.pdp__qty .qty__num::before{ left:0; } .pdp__qty .qty__num::after{ right:0; }
+.pdp__qty .qty__num.is-up span{ animation:qtyUp .38s var(--ease); }
+.pdp__qty .qty__num.is-down span{ animation:qtyDown .38s var(--ease); }
+@keyframes qtyUp{ from{ transform:translateY(70%); opacity:0; } to{ transform:none; opacity:1; } }
+@keyframes qtyDown{ from{ transform:translateY(-70%); opacity:0; } to{ transform:none; opacity:1; } }
+@media (prefers-reduced-motion: reduce){ .pdp__qty .qty__num span{ animation:none !important; } }
 /* the main photo follows the finger/mouse while dragging it sideways */
 .pdp__main{ touch-action: pan-y; user-select:none; -webkit-user-select:none; }
 .pdp__main img{ -webkit-user-drag:none; }
