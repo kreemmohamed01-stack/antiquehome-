@@ -179,7 +179,7 @@
       document.getElementById("catProductList").innerHTML = list.length ? list.map((p) => `
         <label style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--a-border);cursor:pointer">
           <input type="checkbox" data-pid="${p.id}" ${selectedProductIds.has(p.id) ? "checked" : ""}>
-          <img src="${cldUrl((p.image_urls || [])[0] || '/logo hero.png', 60)}" alt="" style="width:30px;height:30px;object-fit:cover;flex:none;background:var(--a-panel-2)">
+          <img src="${cldUrl((p.image_urls || [])[0] || '/images/brand/logo.png', 60)}" alt="" style="width:30px;height:30px;object-fit:cover;flex:none;background:var(--a-panel-2)">
           <span style="flex:1;font-size:12.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</span>
         </label>
       `).join("") : `<p style="color:var(--a-text-dim);padding:16px;text-align:center;font-size:12px">No products found.</p>`;

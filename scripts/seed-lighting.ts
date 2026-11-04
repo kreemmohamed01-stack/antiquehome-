@@ -13,7 +13,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const LIGHTING_DIR = path.resolve(process.cwd(), "lighting");
+const LIGHTING_DIR = path.resolve(process.cwd(), "source-media", "lighting");
 
 /** Upload one local file to Cloudinary, return the secure URL. */
 async function upload(file: string): Promise<string> {

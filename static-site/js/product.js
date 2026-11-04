@@ -38,7 +38,7 @@
     const colorOptions = product.color_options || [];
     const own = colorOptions[state.colorIdx] && colorOptions[state.colorIdx].imageUrls;
     if (own && own.length) return own;
-    return product.image_urls && product.image_urls.length ? product.image_urls : ["/logo hero.png"];
+    return product.image_urls && product.image_urls.length ? product.image_urls : ["/images/brand/logo.png"];
   }
 
   function renderNotFound() {
@@ -176,7 +176,7 @@
     document.getElementById("pdpSlot").innerHTML = `
     <main class="pdp">
       <div class="pdp__bg" aria-hidden="true">
-        <img src="/خلفيه منتجات.webp" alt="" loading="eager" />
+        <img src="/images/backgrounds/products-bg.webp" alt="" loading="eager" />
       </div>
 
       <div class="pdp__inner">

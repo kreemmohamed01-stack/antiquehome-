@@ -13,15 +13,15 @@
   var CHROME_HTML = `
 <footer class="foot" id="contact">
   <picture class="foot__bg">
-    <source media="(min-width: 900px)" srcset="/footer/background%20footer%20desk.webp" />
-    <img src="/footer/background footer mop.webp" alt="" loading="lazy" />
+    <source media="(min-width: 900px)" srcset="/images/backgrounds/footer-bg-desktop.webp" />
+    <img src="/images/backgrounds/footer-bg-mobile.webp" alt="" loading="lazy" />
   </picture>
 
   <div class="foot__inner">
     <div class="fmark rv" data-rv>
       <i class="fmark__rule" aria-hidden="true"></i>
       <a class="fmark__logo" href="/" aria-label="Antique Home — Vase &amp; Decor">
-        <img src="/footer/logo-footer.png" alt="Antique Home — Vase &amp; Decor" loading="lazy" />
+        <img src="/images/brand/logo-footer.png" alt="Antique Home — Vase &amp; Decor" loading="lazy" />
         <span class="fmark__shine" aria-hidden="true"></span>
       </a>
       <i class="fmark__rule" aria-hidden="true"></i>
@@ -150,7 +150,7 @@
   <nav class="sidemenu__panel" id="sideMenu" aria-label="Main menu">
     <div class="sm__head">
       <a class="sm__brand" href="/" aria-label="Antique Home — Vase &amp; Decor">
-        <img src="/footer/logo-footer.png" alt="Antique Home — Vase &amp; Decor" />
+        <img src="/images/brand/logo-footer.png" alt="Antique Home — Vase &amp; Decor" />
       </a>
       <button class="sm__close" type="button" id="sideClose" aria-label="Close menu">
         <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4.6" y1="4.6" x2="19.4" y2="19.4"></line><line x1="19.4" y1="4.6" x2="4.6" y2="19.4"></line></svg>

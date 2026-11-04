@@ -150,15 +150,15 @@
         <section class="shop-hero" id="shopHero">
           <div class="shop-hero__media" aria-hidden="true">
             <picture>
-              <source media="(min-width: 900px)" srcset="/هيرو شوب ناو لاب .webp" />
-              <img src="/هيرو شوب ناو موبيل .webp" alt="" loading="eager" fetchpriority="high" />
+              <source media="(min-width: 900px)" srcset="/images/shop/hero-desktop.webp" />
+              <img src="/images/shop/hero-mobile.webp" alt="" loading="eager" fetchpriority="high" />
             </picture>
             <div class="shop-hero__tint"></div>
           </div>
 
           <header class="header">
             <a class="brand" href="/" aria-label="Antique Home — Vase &amp; Decor">
-              <img class="brand__logo" src="/logo hero.png" alt="Antique Home — Vase &amp; Decor" />
+              <img class="brand__logo" src="/images/brand/logo.png" alt="Antique Home — Vase &amp; Decor" />
               <span class="brand__shine" aria-hidden="true"></span>
             </a>
             <button class="icon-btn menu-btn" type="button" id="menuBtn" aria-haspopup="true" aria-expanded="false" aria-controls="sideMenu" aria-label="Open menu">
@@ -211,7 +211,7 @@
           <div class="shop-header">
             <header class="header">
               <a class="brand" href="/" aria-label="Antique Home — Vase &amp; Decor">
-                <img class="brand__logo" src="/logo hero.png" alt="Antique Home — Vase &amp; Decor" />
+                <img class="brand__logo" src="/images/brand/logo.png" alt="Antique Home — Vase &amp; Decor" />
                 <span class="brand__shine" aria-hidden="true"></span>
               </a>
               <button class="icon-btn menu-btn" type="button" id="menuBtn" aria-haspopup="true" aria-expanded="false" aria-controls="sideMenu" aria-label="Open menu">

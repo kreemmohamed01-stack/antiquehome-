@@ -324,21 +324,21 @@ function cldUrl(url, width) {
 // uploaded for it in Dashboard → Categories (categories.image_url empty).
 // Subcategories without their own image borrow their parent's look.
 const CATEGORY_DEFAULT_IMAGES = {
-  "bleu-blanc": "/sec 3/category 1.webp",
-  lighting: "/sec 3/category 2.webp",
-  accessories: "/sec 3/category 3.webp",
-  antiques: "/sec 3/category 4.webp",
-  "artificial-plants-garden-stool": "/sec 3/category 5.webp",
-  "wall-art-plates": "/sec 3/category 6.webp",
-  "murano-glass": "/sec 3/category 7.webp",
-  furniture: "/sec 3/category 8.webp",
-  sale: "/sec 3/category 9.jpeg",
-  "colored-vases": "/sec 3/category 3.webp",
-  "candle-holder": "/sec 3/category 3.webp",
-  "raisin-more": "/sec 3/category 3.webp",
-  "tissue-box": "/sec 3/category 3.webp",
-  ashtray: "/sec 3/category 3.webp",
-  "photo-frame": "/sec 3/category 3.webp",
+  "bleu-blanc": "/images/categories/category-1.webp",
+  lighting: "/images/categories/category-2.webp",
+  accessories: "/images/categories/category-3.webp",
+  antiques: "/images/categories/category-4.webp",
+  "artificial-plants-garden-stool": "/images/categories/category-5.webp",
+  "wall-art-plates": "/images/categories/category-6.webp",
+  "murano-glass": "/images/categories/category-7.webp",
+  furniture: "/images/categories/category-8.webp",
+  sale: "/images/categories/category-9.jpeg",
+  "colored-vases": "/images/categories/category-3.webp",
+  "candle-holder": "/images/categories/category-3.webp",
+  "raisin-more": "/images/categories/category-3.webp",
+  "tissue-box": "/images/categories/category-3.webp",
+  ashtray: "/images/categories/category-3.webp",
+  "photo-frame": "/images/categories/category-3.webp",
 };
 
 // A category's uploaded image can have a different crop per shape it
@@ -388,7 +388,7 @@ function categoryImageUrl(slug, categories, width, shape) {
     const f = focals[shape] || focals.tile;
     return { src: cldUrl(c.image_url, width), position: `${f.x}% ${f.y}%`, zoom: f.zoom };
   }
-  return { src: CATEGORY_DEFAULT_IMAGES[slug] || "/sec 3/category 3.webp", position: "50% 50%", zoom: 1 };
+  return { src: CATEGORY_DEFAULT_IMAGES[slug] || "/images/categories/category-3.webp", position: "50% 50%", zoom: 1 };
 }
 
 // Admin photo upload, shared by the product and category editors.

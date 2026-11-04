@@ -119,7 +119,7 @@
 
     document.getElementById("ocSlot").innerHTML = `
       <div class="chk__bg" aria-hidden="true">
-        <img src="/خلفيه منتجات.webp" alt="" />
+        <img src="/images/backgrounds/products-bg.webp" alt="" />
       </div>
 
       <header class="chk__topbar">

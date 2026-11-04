@@ -239,8 +239,8 @@ a{ color:inherit; text-decoration:none; }
   background-repeat:no-repeat;
   mix-blend-mode: screen;
 
-  -webkit-mask-image: url("/logo hero.png");
-          mask-image: url("/logo hero.png");
+  -webkit-mask-image: url("/images/brand/logo.png");
+          mask-image: url("/images/brand/logo.png");
   -webkit-mask-size: 100% 100%;
           mask-size: 100% 100%;
   -webkit-mask-repeat: no-repeat;

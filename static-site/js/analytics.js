@@ -259,7 +259,7 @@
     const body = document.getElementById("topProductsBody");
     if (!rows.length) { body.innerHTML = `<tr><td colspan="6" class="an__empty">No product activity yet.</td></tr>`; return; }
     body.innerHTML = rows.map((p) => {
-      const img = (p.image_urls || [])[0] || "/logo hero.png";
+      const img = (p.image_urls || [])[0] || "/images/brand/logo.png";
       const src = cldUrl(img, 80);
       return `
         <tr>

@@ -22,7 +22,7 @@
 <body>
 <div class="admin" id="admin-root">
   <div class="admin__pageHead">
-    <img src="/sec 2/main sec 2.webp" alt="">
+    <img src="/images/home/section-2-main.webp" alt="">
     <div class="admin__pageHead-body">
       <p class="admin__crumb"><a href="/admin/index.html">Dashboard</a><span>Products</span></p>
       <h1 class="admin__pageTitle">Products</h1>
@@ -179,7 +179,7 @@
     } else {
       listEl.innerHTML = visible.map((p) => `
         <div class="admin__prow">
-          <img src="${cldUrl(p.image_urls?.[0] || "/logo hero.png", 80)}" alt="">
+          <img src="${cldUrl(p.image_urls?.[0] || "/images/brand/logo.png", 80)}" alt="">
           <div class="admin__prow-main">
             <div class="admin__prow-name">${p.name}</div>
             <div class="admin__prow-sku">SKU: ${p.sku || "—"} · ${p.category_name || "Uncategorised"}</div>
@@ -284,7 +284,7 @@
       ${targets.length ? targets.map(({ p, j }) => `
         <button type="button" data-naswapwith="${j}" style="display:flex;align-items:center;gap:10px;width:100%;padding:6px 8px;margin-bottom:4px;border:1px solid transparent;border-radius:8px;background:rgba(255,255,255,.03);color:inherit;text-align:left;cursor:pointer" onmouseover="this.style.borderColor='var(--a-gold)'" onmouseout="this.style.borderColor='transparent'">
           ${j < 7 ? `<span style="flex:none;font-size:11px;color:var(--a-gold);min-width:52px">Home #${j + 1}</span>` : ""}
-          <img src="${cldUrl(p.image_urls?.[0] || "/logo hero.png", 60)}" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:6px;flex:none">
+          <img src="${cldUrl(p.image_urls?.[0] || "/images/brand/logo.png", 60)}" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:6px;flex:none">
           <span style="flex:1;font-size:12.5px">${p.name}</span>
           <span style="flex:none;font-size:12px;color:var(--a-gold)">⇄</span>
         </button>`).join("") : `<div style="font-size:12px;color:var(--a-text-dim)">No products to swap with.</div>`}
@@ -303,7 +303,7 @@
         ${reorderCategoryId === "new" && i === 0 ? `<div style="margin:0 0 8px;color:var(--a-text);font-size:12px;font-weight:600">⬇ These 7 appear on the home page, in this order</div>` : ""}
         <div class="admin__prow" draggable="true" data-ridx="${i}" style="cursor:grab${naSwapIdx === i ? ";outline:2px solid var(--a-gold, #c9a96e);outline-offset:-2px" : ""}">
           <span aria-hidden="true" style="flex:none;font-size:18px;color:var(--a-text-dim);padding:0 4px;cursor:grab">⠿</span>
-          <img src="${cldUrl(p.image_urls?.[0] || "/logo hero.png", 80)}" alt="">
+          <img src="${cldUrl(p.image_urls?.[0] || "/images/brand/logo.png", 80)}" alt="">
           <div class="admin__prow-main">
             <div class="admin__prow-name">${p.name}</div>
             <div class="admin__prow-sku">SKU: ${p.sku || "—"} · ${priceHtml(p)}</div>

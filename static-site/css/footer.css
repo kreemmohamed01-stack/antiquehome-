@@ -116,8 +116,8 @@
   background-size: 260% 100%;
   background-repeat:no-repeat;
   mix-blend-mode: overlay;
-  -webkit-mask-image: url("/footer/logo-footer.png");
-          mask-image: url("/footer/logo-footer.png");
+  -webkit-mask-image: url("/images/brand/logo-footer.png");
+          mask-image: url("/images/brand/logo-footer.png");
   -webkit-mask-size: 100% 100%;
           mask-size: 100% 100%;
   -webkit-mask-repeat: no-repeat;

@@ -51,7 +51,7 @@
 <script>
   // "All products" hero: start fetching its photo now, not after shop.js builds it.
   if (!new URLSearchParams(location.search).get("category")) {
-    [["(min-width: 900px)", "/هيرو شوب ناو لاب .webp"], ["(max-width: 899px)", "/هيرو شوب ناو موبيل .webp"]].forEach(function (x) {
+    [["(min-width: 900px)", "/images/shop/hero-desktop.webp"], ["(max-width: 899px)", "/images/shop/hero-mobile.webp"]].forEach(function (x) {
       var l = document.createElement("link"); l.rel = "preload"; l.as = "image"; l.media = x[0]; l.href = x[1]; l.setAttribute("fetchpriority", "high"); document.head.appendChild(l);
     });
   }
@@ -119,7 +119,7 @@
   // "All products": paint the hero photo straight from the HTML instead of
   // waiting for js/shop.js, which rebuilds the full banner around it (the
   // photo is cached by then, so nothing flickers).
-  if (!new URLSearchParams(location.search).get("category")) document.write('<section class="shop-hero"><div class="shop-hero__media" aria-hidden="true"><picture><source media="(min-width: 900px)" srcset="/هيرو شوب ناو لاب .webp" /><img src="/هيرو شوب ناو موبيل .webp" alt="" fetchpriority="high" /></picture><div class="shop-hero__tint"></div></div></section>');
+  if (!new URLSearchParams(location.search).get("category")) document.write('<section class="shop-hero"><div class="shop-hero__media" aria-hidden="true"><picture><source media="(min-width: 900px)" srcset="/images/shop/hero-desktop.webp" /><img src="/images/shop/hero-mobile.webp" alt="" fetchpriority="high" /></picture><div class="shop-hero__tint"></div></div></section>');
 </script></div>
 
 <div id="catRailSlot"></div>

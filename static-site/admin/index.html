@@ -24,7 +24,7 @@
   <div id="demoBar"></div>
 
   <div class="admin__hero">
-    <img src="/sec 2/main sec 2.webp" alt="">
+    <img src="/images/home/section-2-main.webp" alt="">
     <div class="admin__hero-body">
       <p class="admin__hero-label">Good Evening, Antique Home</p>
       <h1 class="admin__hero-title">Your Store, Your Story.</h1>
@@ -207,7 +207,7 @@
       topProductsEl.innerHTML = data.topProducts.map((p, i) => `
         <li class="admin__listRow">
           <span class="admin__rankNum">${i + 1}</span>
-          <img src="${cldUrl((p.image_urls || [])[0] || "/logo hero.png", 80)}" alt="">
+          <img src="${cldUrl((p.image_urls || [])[0] || "/images/brand/logo.png", 80)}" alt="">
           <div style="flex:1;min-width:0">
             <div class="name">${p.name}</div>
             <div class="meta">${p.sold} sales</div>
@@ -223,7 +223,7 @@
     if (data.lowStock.length > 0) {
       lowStockEl.innerHTML = data.lowStock.map((p) => `
         <li class="admin__listRow">
-          <img src="${cldUrl((p.image_urls || [])[0] || "/logo hero.png", 80)}" alt="">
+          <img src="${cldUrl((p.image_urls || [])[0] || "/images/brand/logo.png", 80)}" alt="">
           <div style="flex:1;min-width:0"><div class="name">${p.name}</div></div>
           <span class="${p.stock_qty <= 3 ? "admin__pill admin__pill--low" : "admin__pill admin__pill--warn"}">${p.stock_qty} left</span>
         </li>
