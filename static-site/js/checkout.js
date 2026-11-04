@@ -301,21 +301,6 @@
                 : ""
             }
           </section>
-
-          <section class="chk__card${rvClass()}"${rvAttr(0.24)}>
-            <h2 class="chk__heading">${t("orderSummaryHeading", "4. Order Summary")}</h2>
-            <p class="chk__sub">${t("orderSummarySub", "Review your items before placing the order.")}</p>
-            ${itemsHtml}
-
-            <div style="margin-top:18px">${couponHtml}</div>
-
-            <div class="chk__totals">
-              <div class="chk__totalsRow"><span>${t("subtotalLabel", "Subtotal")}</span><span>${fmt(subtotal)}</span></div>
-              ${discount > 0 ? `<div class="chk__totalsRow" style="color:#4C6B3F"><span>${t("discountLabel", "Discount")} (${state.coupon.code})</span><span>-${fmt(discount)}</span></div>` : ""}
-              <div class="chk__totalsRow"><span>${t("shippingLabel", "Shipping")}${weightSurcharge > 0 ? ` <small style="opacity:.65">(${fmt(weightSurcharge)} / ${totalWeight.toFixed(1)}kg)</small>` : ""}</span><span>${shipping === 0 ? t("freeLabel", "Free") : fmt(shipping)}</span></div>
-              <div class="chk__totalsFinal"><span>${t("totalLabel", "Total")}</span><strong>${fmt(total)}</strong></div>
-            </div>
-          </section>
         </div>
 
         <div class="chk__col chk__col--right">
@@ -328,7 +313,7 @@
           </figure>
 
           <section class="chk__card${rvClass()}"${rvAttr(0.08)}>
-            <h2 class="chk__heading">${t("paymentMethodHeading", "5. Payment Method")}</h2>
+            <h2 class="chk__heading">${t("paymentMethodHeading", "4. Payment Method")}</h2>
             <p class="chk__sub">${t("paymentMethodSub", "Choose your preferred payment method.")}</p>
             <div class="chk__payList">
               <label class="chk__payRow${state.payment === "cod" ? " is-active" : ""}">
@@ -411,11 +396,26 @@
           }
 
           <section class="chk__card${rvClass()}"${rvAttr(0.16)}>
-            <h2 class="chk__heading">${t("additionalNotesHeading", "6. Additional Notes")} <small>${t("optionalLabel", "(Optional)")}</small></h2>
+            <h2 class="chk__heading">${t("additionalNotesHeading", "5. Additional Notes")} <small>${t("optionalLabel", "(Optional)")}</small></h2>
             <label class="chk__field chk__field--textarea">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.4h8.4l4 4v13.2H6Z"></path></svg>
               <textarea rows="3" id="fNotes" placeholder="${t("notesPlaceholder", "Any special requests or notes for your order&hellip;")}">${state.notes}</textarea>
             </label>
+          </section>
+
+          <section class="chk__card${rvClass()}"${rvAttr(0.24)}>
+            <h2 class="chk__heading">${t("orderSummaryHeading", "6. Order Summary")}</h2>
+            <p class="chk__sub">${t("orderSummarySub", "Review your items before placing the order.")}</p>
+            ${itemsHtml}
+
+            <div style="margin-top:18px">${couponHtml}</div>
+
+            <div class="chk__totals">
+              <div class="chk__totalsRow"><span>${t("subtotalLabel", "Subtotal")}</span><span>${fmt(subtotal)}</span></div>
+              ${discount > 0 ? `<div class="chk__totalsRow" style="color:#4C6B3F"><span>${t("discountLabel", "Discount")} (${state.coupon.code})</span><span>-${fmt(discount)}</span></div>` : ""}
+              <div class="chk__totalsRow"><span>${t("shippingLabel", "Shipping")}${weightSurcharge > 0 ? ` <small style="opacity:.65">(${fmt(weightSurcharge)} / ${totalWeight.toFixed(1)}kg)</small>` : ""}</span><span>${shipping === 0 ? t("freeLabel", "Free") : fmt(shipping)}</span></div>
+              <div class="chk__totalsFinal"><span>${t("totalLabel", "Total")}</span><strong>${fmt(total)}</strong></div>
+            </div>
 
             <label class="chk__agree${errCls("agree")}">
               <input type="checkbox" id="fAgree" ${state.agree ? "checked" : ""} required />
