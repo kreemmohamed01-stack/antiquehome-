@@ -42,7 +42,7 @@
     let list = ALL_ORDERS;
     if (tab !== "all") list = list.filter((o) => o.status === tab);
     const needle = query.trim().toLowerCase();
-    if (needle) list = list.filter((o) => o.order_number.toLowerCase().includes(needle) || o.customer_name.toLowerCase().includes(needle) || o.email.toLowerCase().includes(needle));
+    if (needle) list = list.filter((o) => o.order_number.toLowerCase().includes(needle) || o.customer_name.toLowerCase().includes(needle) || (o.email || "").toLowerCase().includes(needle) || (o.phone || "").includes(needle));
 
     const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
     const current = Math.min(page, totalPages);
@@ -59,7 +59,7 @@
             ${visible.map((o) => `
               <tr>
                 <td>${o.order_number}</td>
-                <td>${o.customer_name}<br><span style="color:var(--a-text-dim);font-size:11px">${o.email}</span></td>
+                <td>${o.customer_name}<br><span style="color:var(--a-text-dim);font-size:11px">${o.email || o.phone}</span></td>
                 <td>${o.item_count} items</td>
                 <td>${fmt(o.total)}</td>
                 <td><span class="${pillClass(o.status)}">${o.status.charAt(0).toUpperCase() + o.status.slice(1)}</span></td>

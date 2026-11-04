@@ -183,6 +183,7 @@ window.AH_DICTIONARY = {
   contactInfoHeading: "١. معلومات التواصل",
   contactInfoSub: "سنستخدم هذه البيانات لإبقائك على اطلاع بحالة طلبك.",
   emailPlaceholder2: "البريد الإلكتروني",
+  emailOptionalPlaceholder: "البريد الإلكتروني (اختياري)",
   shippingDetailsHeading: "٢. تفاصيل الشحن",
   shippingDetailsSub: "أدخلي بيانات التوصيل الخاصة بكِ.",
   fullNamePlaceholder: "الاسم بالكامل",

@@ -215,7 +215,7 @@
             <p class="chk__sub">${t("contactInfoSub", "We&rsquo;ll use this information to keep you updated about your order.")}</p>
             <label class="chk__field${errCls("email")}">
               <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.4" width="18" height="13.2" rx="2"></rect><polyline points="3.6,6.4 12,13 20.4,6.4"></polyline></svg>
-              <input type="email" id="fEmail" placeholder="${t("emailPlaceholder2", "Email Address")}" autocomplete="email" required value="${state.email}" />
+              <input type="email" id="fEmail" placeholder="${t("emailOptionalPlaceholder", "Email Address (Optional)")}" autocomplete="email" value="${state.email}" />
             </label>
             ${fieldErr("email")}
           </section>
@@ -583,8 +583,8 @@
     state.error = "";
     const errs = {};
     const need = t("errFieldRequired", "Please fill in this field.");
-    if (!state.email.trim()) errs.email = t("errEmailRequired", "Please enter your email address.");
-    else if (!/^\S+@\S+\.\S+$/.test(state.email.trim())) errs.email = t("errEmailInvalid", "Please enter a valid email address.");
+    // Email is optional; only check it when one was typed.
+    if (state.email.trim() && !/^\S+@\S+\.\S+$/.test(state.email.trim())) errs.email = t("errEmailInvalid", "Please enter a valid email address.");
     if (!state.fullName.trim()) errs.fullName = t("errNameRequired", "Please enter your full name.");
     if (!state.phone.trim()) errs.phone = t("errPhoneRequired", "Please enter your phone number.");
     if (!state.governorate) errs.governorate = t("errGovRequired", "Please choose your governorate.");
@@ -614,7 +614,7 @@
         state.delivery === "pickup" ? "Store Pickup" : state.delivery === "express" ? "Express Delivery (1–2 Business Days)" : "Standard Delivery (2–4 Business Days)";
 
       const data = await API.post("/api/orders", {
-        email: state.email,
+        email: state.email.trim(),
         fullName: state.fullName,
         phone: state.phone,
         governorate: state.governorate,

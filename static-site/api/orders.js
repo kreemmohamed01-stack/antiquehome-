@@ -211,7 +211,7 @@ module.exports = async (req, res) => {
     // POST /api/orders -> create a new order at checkout (public).
     if (req.method === "POST") {
       const body = await readBody(req);
-      if (!body.email || !body.fullName || !body.phone || !Array.isArray(body.items) || body.items.length === 0) {
+      if (!body.fullName || !body.phone || !Array.isArray(body.items) || body.items.length === 0) {
         res.status(400).json({ error: "Missing required fields" });
         return;
       }
@@ -238,7 +238,7 @@ module.exports = async (req, res) => {
             order_number, customer_name, email, phone, governorate, city, address,
             delivery_method, payment_method, payment_reference, payment_sender_name, notes, subtotal, shipping, discount, coupon_code, total, status
           ) VALUES (
-            ${orderNumber}, ${body.fullName}, ${body.email}, ${body.phone},
+            ${orderNumber}, ${body.fullName}, ${String(body.email || "").trim()}, ${body.phone},
             ${body.governorate || null}, ${body.city || null}, ${body.address || null},
             ${body.delivery}, ${body.payment}, ${body.paymentReference || null}, ${body.paymentSenderName || null}, ${body.notes || null},
             ${body.subtotal}, ${body.shipping}, ${body.discount || 0}, ${body.couponCode || null}, ${body.total}, 'pending'

@@ -52,7 +52,7 @@
     document.getElementById("customerCard").innerHTML = `
       <div class="admin__panel-head"><h2 class="admin__panel-title">Customer</h2></div>
       <p><strong>${order.customer_name}</strong></p>
-      <p>${order.email}</p>
+      ${order.email ? `<p>${order.email}</p>` : ""}
       <p>${order.phone}</p>
     `;
 

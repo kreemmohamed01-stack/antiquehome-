@@ -44,7 +44,7 @@ async function dashboardData() {
   const totals = await safe(async () => (await sql`
     SELECT COALESCE(SUM(total) FILTER (WHERE status IS DISTINCT FROM 'cancelled'), 0)::float AS sales, COUNT(*)::int AS orders,
            COUNT(*) FILTER (WHERE status IS DISTINCT FROM 'cancelled')::int AS paid_orders,
-           COUNT(DISTINCT email)::int AS customers
+           COUNT(DISTINCT COALESCE(NULLIF(email, ''), phone))::int AS customers
     FROM orders
   `)[0], { sales: 0, orders: 0, paid_orders: 0, customers: 0 });
 
@@ -129,27 +129,27 @@ module.exports = async (req, res) => {
       COALESCE(SUM(total) FILTER (WHERE status IS DISTINCT FROM 'cancelled'), 0)::float AS revenue,
       COUNT(*)::int AS orders,
       COUNT(*) FILTER (WHERE status IS DISTINCT FROM 'cancelled')::int AS paid_orders,
-      COUNT(DISTINCT email)::int AS customers,
+      COUNT(DISTINCT COALESCE(NULLIF(email, ''), phone))::int AS customers,
       COALESCE(SUM(CASE WHEN status = 'returned' THEN total ELSE 0 END), 0)::float AS refunds
     FROM orders WHERE created_at BETWEEN ${fromDate.toISOString()} AND ${toDate.toISOString()}
   `)[0], { revenue: 0, orders: 0, paid_orders: 0, customers: 0, refunds: 0 });
 
   const kpiPrev = await safe(async () => (await sql`
     SELECT COALESCE(SUM(total) FILTER (WHERE status IS DISTINCT FROM 'cancelled'), 0)::float AS revenue, COUNT(*)::int AS orders,
-           COUNT(*) FILTER (WHERE status IS DISTINCT FROM 'cancelled')::int AS paid_orders, COUNT(DISTINCT email)::int AS customers
+           COUNT(*) FILTER (WHERE status IS DISTINCT FROM 'cancelled')::int AS paid_orders, COUNT(DISTINCT COALESCE(NULLIF(email, ''), phone))::int AS customers
     FROM orders WHERE created_at BETWEEN ${prevFrom.toISOString()} AND ${prevTo.toISOString()}
   `)[0], { revenue: 0, orders: 0, paid_orders: 0, customers: 0 });
 
   const newCustomersNow = await safe(async () => (await sql`
     SELECT COUNT(*)::int AS c FROM (
-      SELECT email, MIN(created_at) AS first_order FROM orders GROUP BY email
+      SELECT COALESCE(NULLIF(email, ''), phone) AS customer, MIN(created_at) AS first_order FROM orders GROUP BY 1
     ) f WHERE f.first_order BETWEEN ${fromDate.toISOString()} AND ${toDate.toISOString()}
   `)[0]?.c ?? 0, 0);
 
   const returningCustomersNow = await safe(async () => (await sql`
-    SELECT COUNT(DISTINCT o.email)::int AS c FROM orders o
+    SELECT COUNT(DISTINCT COALESCE(NULLIF(o.email, ''), o.phone))::int AS c FROM orders o
     WHERE o.created_at BETWEEN ${fromDate.toISOString()} AND ${toDate.toISOString()}
-      AND EXISTS (SELECT 1 FROM orders o2 WHERE o2.email = o.email AND o2.created_at < ${fromDate.toISOString()})
+      AND EXISTS (SELECT 1 FROM orders o2 WHERE COALESCE(NULLIF(o2.email, ''), o2.phone) = COALESCE(NULLIF(o.email, ''), o.phone) AND o2.created_at < ${fromDate.toISOString()})
   `)[0]?.c ?? 0, 0);
 
   const visitorsNow = await safe(async () => (await sql`
@@ -188,7 +188,7 @@ module.exports = async (req, res) => {
            COALESCE(SUM(total) FILTER (WHERE status IS DISTINCT FROM 'cancelled'), 0)::float AS revenue,
            COUNT(*)::int AS orders,
            COUNT(*) FILTER (WHERE status IS DISTINCT FROM 'cancelled')::int AS paid_orders,
-           COUNT(DISTINCT email)::int AS customers
+           COUNT(DISTINCT COALESCE(NULLIF(email, ''), phone))::int AS customers
     FROM orders WHERE created_at BETWEEN ${fromDate.toISOString()} AND ${toDate.toISOString()}
     GROUP BY 1 ORDER BY 1
   `, []);
@@ -315,24 +315,24 @@ module.exports = async (req, res) => {
 
   // ---- Customer analytics: new vs returning, by month (last 6 months) ----
   const custByMonth = await safe(async () => await sql`
-    WITH first_orders AS (SELECT email, MIN(created_at) AS first_at FROM orders GROUP BY email)
+    WITH first_orders AS (SELECT COALESCE(NULLIF(email, ''), phone) AS customer, MIN(created_at) AS first_at FROM orders GROUP BY 1)
     SELECT to_char(date_trunc('month', o.created_at), 'Mon') AS month,
-      COUNT(DISTINCT o.email) FILTER (WHERE fo.first_at = date_trunc('day', o.created_at) OR fo.first_at >= date_trunc('month', o.created_at))::int AS new_customers,
-      COUNT(DISTINCT o.email) FILTER (WHERE fo.first_at < date_trunc('month', o.created_at))::int AS returning_customers
-    FROM orders o JOIN first_orders fo ON fo.email = o.email
+      COUNT(DISTINCT COALESCE(NULLIF(o.email, ''), o.phone)) FILTER (WHERE fo.first_at = date_trunc('day', o.created_at) OR fo.first_at >= date_trunc('month', o.created_at))::int AS new_customers,
+      COUNT(DISTINCT COALESCE(NULLIF(o.email, ''), o.phone)) FILTER (WHERE fo.first_at < date_trunc('month', o.created_at))::int AS returning_customers
+    FROM orders o JOIN first_orders fo ON fo.customer = COALESCE(NULLIF(o.email, ''), o.phone)
     WHERE o.created_at >= now() - interval '6 months'
     GROUP BY date_trunc('month', o.created_at), month ORDER BY date_trunc('month', o.created_at)
   `, []);
 
   const repeatPurchaseRate = await safe(async () => {
-    const rows = await sql`SELECT email, COUNT(*)::int AS c FROM orders GROUP BY email`;
+    const rows = await sql`SELECT COALESCE(NULLIF(email, ''), phone) AS customer, COUNT(*)::int AS c FROM orders GROUP BY 1`;
     if (!rows.length) return 0;
     const repeat = rows.filter((r) => r.c > 1).length;
     return (repeat / rows.length) * 100;
   }, 0);
 
   const customerLifetimeValue = await safe(async () => {
-    const rows = await sql`SELECT AVG(t)::float AS v FROM (SELECT SUM(total) AS t FROM orders WHERE status IS DISTINCT FROM 'cancelled' GROUP BY email) x`;
+    const rows = await sql`SELECT AVG(t)::float AS v FROM (SELECT SUM(total) AS t FROM orders WHERE status IS DISTINCT FROM 'cancelled' GROUP BY 1) x`;
     return rows[0]?.v || 0;
   }, 0);
 
