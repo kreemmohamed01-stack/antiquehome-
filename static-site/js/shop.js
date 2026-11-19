@@ -589,8 +589,8 @@
     // Products are requested at the same time as categories/sale settings
     // rather than after them.
     const productsReq = API.get(activeCategory === "all"
-      ? "/api/products?status=active"
-      : "/api/products?category=" + encodeURIComponent(activeCategory)).catch(() => []);
+      ? "/api/products?status=active&view=shop"
+      : "/api/products?category=" + encodeURIComponent(activeCategory) + "&view=shop").catch(() => []);
 
     try {
       const [cats, sale] = await Promise.all([API.get("/api/categories"), API.get("/api/settings?key=site_sale")]);

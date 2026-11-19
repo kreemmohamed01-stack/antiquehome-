@@ -153,6 +153,12 @@ module.exports = async (req, res) => {
           ORDER BY p.created_at DESC
         `;
       }
+      // view=shop -> the shop grid only shows each card's first photo and
+      // never the description, so those are trimmed (about 4x smaller).
+      if (req.query.view === "shop") {
+        rows = rows.map(({ description, description_ar, sku, views, is_demo, ...p }) =>
+          ({ ...p, image_urls: (p.image_urls || []).slice(0, 1) }));
+      }
       res.status(200).json(rows);
       return;
     }

@@ -51,16 +51,16 @@ function htmlFiles(dir) {
   });
 }
 
-// Storefront pages get their stylesheets inlined: the page can paint as
-// soon as its HTML arrives, with no render-blocking CSS round trips (one
-// page's CSS is ~20KB brotli). The url()s in these files are all
-// root-absolute, so they resolve the same from a <style> tag. The admin
-// keeps cached files, since it's opened again and again.
+// Only the small storefront stylesheets (fonts, page-loader) are inlined.
+// The big ones (base.css is ~20KB brotli) stay as files cached for a year:
+// inlining them re-sent them inside every page view, which was most of the
+// site's Vercel bandwidth. The admin keeps cached files too.
+const INLINE_CSS_MAX = 6000; // bytes, after minifying
 let inlined = 0;
 function inlineCss(html) {
   return html.replace(/<link rel="stylesheet" href="(\/css\/[^"?#]+\.css)" \/>/g, (m, url) => {
     const file = path.join(root, url);
-    if (!fs.existsSync(file)) return m;
+    if (!fs.existsSync(file) || fs.statSync(file).size > INLINE_CSS_MAX) return m;
     inlined++;
     return `<style>${fs.readFileSync(file, "utf8")}</style>`;
   });
