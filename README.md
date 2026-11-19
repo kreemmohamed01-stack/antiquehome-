@@ -33,7 +33,7 @@ antique home/
 │   │   ├── shop/           shop page hero (desktop + mobile)
 │   │   ├── backgrounds/    page, menu and footer backgrounds
 │   │   └── about/          about page photos
-│   ├── videos/             hero, intro and instagram films
+│   │                       (videos live on Cloudinary: antique-home/site/)
 │   ├── audio/              ambient music
 │   ├── scripts/            build step (stamp-assets.js) and admin tools
 │   ├── vercel.json         routes, redirects, cache headers
@@ -42,7 +42,8 @@ antique home/
 ├── scripts/                one-off database scripts (migrations, seeds)
 ├── source-media/           original photos/videos — NOT deployed
 │   ├── lighting/, plants/  product photos used by the seed scripts
-│   ├── videos/             full-length source films
+│   ├── videos/             source films; videos/site/ = the copies uploaded
+│   │                       to Cloudinary for the homepage
 │   └── unused/             retired assets kept for reference
 └── backups/                local backups (git-ignored)
 ```

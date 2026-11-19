@@ -144,7 +144,7 @@
   video.addEventListener("ended", function () { setTimeout(finish, 400); }); // let the final logo + tagline read
   video.addEventListener("error", finish);
   setTimeout(finish, 6000); // safety net (the film is ~2.7s): a stalled download never traps anyone on the intro
-  video.src = "/videos/intro.mp4";
+  video.src = "https://res.cloudinary.com/nidqayoe/video/upload/v1795103021/antique-home/site/intro.mp4";
   video.muted = false;
   var p = video.play();
   if (p && p.catch) p.catch(function () {
@@ -166,7 +166,7 @@
 <section class="hero" id="hero">
   <div class="hero__media">
     <picture class="hero__poster"><source media="(min-width: 700px)" srcset="/images/home/hero-poster-1080.webp" /><img class="hero__video" src="/images/home/hero-poster.webp" alt="" decoding="async" fetchpriority="high" aria-hidden="true" /></picture>
-    <video class="hero__video" id="heroVideo" data-src="/videos/hero-720.mp4" data-src-hd="/videos/hero-1080.mp4" loop muted playsinline preload="none" disablepictureinpicture aria-hidden="true" tabindex="-1"></video>
+    <video class="hero__video" id="heroVideo" data-src="https://res.cloudinary.com/nidqayoe/video/upload/v1795103013/antique-home/site/hero-720.mp4" data-src-hd="https://res.cloudinary.com/nidqayoe/video/upload/v1795103019/antique-home/site/hero-1080.mp4" loop muted playsinline preload="none" disablepictureinpicture aria-hidden="true" tabindex="-1"></video>
     <div class="hero__tint" aria-hidden="true"></div>
     <div class="hero__vignette" aria-hidden="true"></div>
   </div>
@@ -438,7 +438,7 @@
     </div>
 
     <figure class="journey__video rv rv--zoom" data-rv>
-      <video id="journeyVideo" data-src="/videos/instagram.mp4" data-poster="/images/home/journey-poster.webp" loop muted playsinline preload="none" disablepictureinpicture aria-label="Styling film from the Antique Home studio"></video>
+      <video id="journeyVideo" data-src="https://res.cloudinary.com/nidqayoe/video/upload/v1795103024/antique-home/site/instagram.mp4" data-poster="/images/home/journey-poster.webp" loop muted playsinline preload="none" disablepictureinpicture aria-label="Styling film from the Antique Home studio"></video>
     </figure>
   </div>
 
