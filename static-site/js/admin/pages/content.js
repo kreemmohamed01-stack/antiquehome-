@@ -15,7 +15,7 @@
 
   // Homepage Instagram tiles: the photo the site ships with, overridden by
   // site_content.igImages[i] when one was uploaded here.
-  const IG_DEFAULTS = ["/images/home/instagram-1.webp", "/images/home/instagram-2.webp", "/images/home/instagram-3.webp", "/images/home/instagram-4.webp"];
+  const IG_DEFAULTS = ["https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103418/antique-home/site/images/home/instagram-1.webp", "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103418/antique-home/site/images/home/instagram-2.webp", "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103420/antique-home/site/images/home/instagram-3.webp", "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103420/antique-home/site/images/home/instagram-4.webp"];
   let igImages = ["", "", "", ""];
 
   function renderIg() {

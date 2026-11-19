@@ -18,7 +18,7 @@
     }
 
     document.getElementById("pageHead").innerHTML = `
-      <img src="${cldUrl(items[0]?.image_snapshot || "/images/home/section-2-main.webp", 600)}" alt="">
+      <img src="${cldUrl(items[0]?.image_snapshot || "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103423/antique-home/site/images/home/section-2-main.webp", 600)}" alt="">
       <div class="admin__pageHead-body">
         <p class="admin__crumb"><a href="/admin/index.html">Dashboard</a><a href="/admin/orders.html">Orders</a><span>${order.order_number}</span></p>
         <h1 class="admin__pageTitle">${order.order_number}</h1>
@@ -68,7 +68,7 @@
       <div class="admin__panel-head"><h2 class="admin__panel-title">Order Items</h2></div>
       ${items.map((it) => `
         <div class="admin__prow">
-          <img src="${cldUrl(it.image_snapshot || "/images/brand/logo.png", 80)}" alt="">
+          <img src="${cldUrl(it.image_snapshot || "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103409/antique-home/site/images/brand/logo.png", 80)}" alt="">
           <div class="admin__prow-main">
             <div class="admin__prow-name">${it.name_snapshot}</div>
             <div class="admin__prow-sku">${[it.color_name, it.variant_label].filter(Boolean).join(" · ")}</div>

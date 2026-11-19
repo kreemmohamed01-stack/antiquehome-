@@ -259,7 +259,7 @@
     const body = document.getElementById("topProductsBody");
     if (!rows.length) { body.innerHTML = `<tr><td colspan="6" class="an__empty">No product activity yet.</td></tr>`; return; }
     body.innerHTML = rows.map((p) => {
-      const img = (p.image_urls || [])[0] || "/images/brand/logo.png";
+      const img = (p.image_urls || [])[0] || "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103409/antique-home/site/images/brand/logo.png";
       const src = cldUrl(img, 80);
       return `
         <tr>

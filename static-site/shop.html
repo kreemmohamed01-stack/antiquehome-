@@ -51,13 +51,13 @@
 <script>
   // "All products" hero: start fetching its photo now, not after shop.js builds it.
   if (!new URLSearchParams(location.search).get("category")) {
-    [["(min-width: 900px)", "/images/shop/hero-desktop.webp"], ["(max-width: 899px)", "/images/shop/hero-mobile.webp"]].forEach(function (x) {
+    [["(min-width: 900px)", "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103427/antique-home/site/images/shop/hero-desktop.webp"], ["(max-width: 899px)", "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103428/antique-home/site/images/shop/hero-mobile.webp"]].forEach(function (x) {
       var l = document.createElement("link"); l.rel = "preload"; l.as = "image"; l.media = x[0]; l.href = x[1]; l.setAttribute("fetchpriority", "high"); document.head.appendChild(l);
     });
   }
 </script>
 <script>document.documentElement.classList.add("shop-pending");setTimeout(function(){document.documentElement.classList.remove("shop-pending")},3000);</script>
-<script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/admin/*","/api/*","/checkout.html","/order-confirmation.html*"]}}]},"eagerness":"moderate"}]}</script>
+<script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/admin/*","/api/*","/checkout.html","/order-confirmation.html*"]}}]},"eagerness":"conservative"}]}</script>
 </head>
 <body>
 <!-- page-loader: only for a slow page. If the page is still parsing 900ms
@@ -81,7 +81,7 @@
   // "All products": paint the hero photo straight from the HTML instead of
   // waiting for js/shop.js, which rebuilds the full banner around it (the
   // photo is cached by then, so nothing flickers).
-  if (!new URLSearchParams(location.search).get("category")) document.write('<section class="shop-hero"><div class="shop-hero__media" aria-hidden="true"><picture><source media="(min-width: 900px)" srcset="/images/shop/hero-desktop.webp" /><img src="/images/shop/hero-mobile.webp" alt="" fetchpriority="high" /></picture><div class="shop-hero__tint"></div></div></section>');
+  if (!new URLSearchParams(location.search).get("category")) document.write('<section class="shop-hero"><div class="shop-hero__media" aria-hidden="true"><picture><source media="(min-width: 900px)" srcset="https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103427/antique-home/site/images/shop/hero-desktop.webp" /><img src="https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103428/antique-home/site/images/shop/hero-mobile.webp" alt="" fetchpriority="high" /></picture><div class="shop-hero__tint"></div></div></section>');
 </script></div>
 
 <div id="catRailSlot"></div>

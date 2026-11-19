@@ -25,16 +25,9 @@ antique home/
 │   │   └── admin/          dashboard shell + effects; admin/pages/<page>.js
 │   │                       = the code for admin/<page>.html
 │   ├── fonts/              self-hosted web fonts
-│   ├── images/
-│   │   ├── brand/          logos
-│   │   ├── home/           homepage sections (hero poster, collections,
-│   │   │                   instagram tiles, section backgrounds)
-│   │   ├── categories/     default category photos
-│   │   ├── shop/           shop page hero (desktop + mobile)
-│   │   ├── backgrounds/    page, menu and footer backgrounds
-│   │   └── about/          about page photos
-│   │                       (videos live on Cloudinary: antique-home/site/)
-│   ├── audio/              ambient music
+│   │   (all page images, videos and the ambient music are served from
+│   │    Cloudinary under antique-home/site/ — the originals are in
+│   │    source-media/site-images/)
 │   ├── scripts/            build step (stamp-assets.js) and admin tools
 │   ├── vercel.json         routes, redirects, cache headers
 │   └── favicons, og-logo-v2.png, site.webmanifest, robots.txt and the
@@ -44,6 +37,8 @@ antique home/
 │   ├── lighting/, plants/  product photos used by the seed scripts
 │   ├── videos/             source films; videos/site/ = the copies uploaded
 │   │                       to Cloudinary for the homepage
+│   ├── site-images/        originals of the page images + music uploaded to
+│   │                       Cloudinary (images/<section>/…, audio/)
 │   └── unused/             retired assets kept for reference
 └── backups/                local backups (git-ignored)
 ```
@@ -52,5 +47,7 @@ antique home/
 
 - **Forgotten dashboard password** (run inside `static-site/`):
   `node --env-file=.env.local scripts/reset-admin-password.js "NewPassword123!"`
-- **New page image:** put it in the matching `static-site/images/<section>/`
-  folder with a lowercase, dash-separated English name (e.g. `hero-mobile.webp`).
+- **New page image:** keep the original in `source-media/site-images/images/<section>/`
+  (lowercase, dash-separated English name), upload it to Cloudinary under
+  `antique-home/site/images/<section>/`, and use its URL with `f_auto,q_auto/`
+  after `/upload/`. Serving media from Cloudinary keeps Vercel bandwidth low.

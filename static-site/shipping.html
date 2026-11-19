@@ -43,7 +43,7 @@
      fetches it on demand if someone switches language). -->
 <meta name="ah-dict" data-src="/js/i18n-dictionary.js" />
 <script>try{if(localStorage.getItem("ah_lang")==="ar")document.write('<script src="'+document.querySelector('meta[name=ah-dict]').getAttribute("data-src")+'"><\/script>')}catch(e){}</script>
-<script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/admin/*","/api/*","/checkout.html","/order-confirmation.html*"]}}]},"eagerness":"moderate"}]}</script>
+<script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/admin/*","/api/*","/checkout.html","/order-confirmation.html*"]}}]},"eagerness":"conservative"}]}</script>
 </head>
 <body class="policy-body">
 <!-- page-loader: only for a slow page. If the page is still parsing 900ms
@@ -77,7 +77,7 @@
 <div class="shop-header">
   <header class="header">
     <a class="brand" href="/" aria-label="Antique Home — Vase &amp; Decor">
-      <img class="brand__logo" src="/images/brand/logo.png" alt="Antique Home — Vase &amp; Decor" />
+      <img class="brand__logo" src="https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103409/antique-home/site/images/brand/logo.png" alt="Antique Home — Vase &amp; Decor" />
       <span class="brand__shine" aria-hidden="true"></span>
     </a>
     <button class="icon-btn menu-btn" type="button" id="menuBtn" aria-haspopup="true" aria-expanded="false" aria-controls="sideMenu" aria-label="Open menu">
