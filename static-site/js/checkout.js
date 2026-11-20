@@ -186,7 +186,7 @@
 
     document.getElementById("checkoutSlot").innerHTML = `
       <div class="chk__bg" aria-hidden="true">
-        <img src="https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103408/antique-home/site/images/backgrounds/products-bg.webp" alt="" loading="eager" />
+        <img src="/images/backgrounds/products-bg.webp" alt="" loading="eager" />
       </div>
 
       <header class="chk__topbar">
@@ -305,7 +305,7 @@
 
         <div class="chk__col chk__col--right">
           <figure class="chk__promoPanel">
-            <img src="https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103422/antique-home/site/images/home/section-2-detail.webp" alt="" loading="lazy" />
+            <img src="https://res.cloudinary.com/nidqayoe/image/upload/v1795103422/antique-home/site/images/home/section-2-detail.webp" alt="" loading="lazy" />
             <figcaption>
               <h3>${t("promoPanelTitle", "Pieces That<br />Tell a Story")}</h3>
               <span class="chk__promoBrand">ANTIQUE HOME</span>

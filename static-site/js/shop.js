@@ -150,8 +150,8 @@
         <section class="shop-hero" id="shopHero">
           <div class="shop-hero__media" aria-hidden="true">
             <picture>
-              <source media="(min-width: 900px)" srcset="https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103427/antique-home/site/images/shop/hero-desktop.webp" />
-              <img src="https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103428/antique-home/site/images/shop/hero-mobile.webp" alt="" loading="eager" fetchpriority="high" />
+              <source media="(min-width: 900px)" srcset="/images/shop/hero-desktop.webp" />
+              <img src="/images/shop/hero-mobile.webp" alt="" loading="eager" fetchpriority="high" />
             </picture>
             <div class="shop-hero__tint"></div>
           </div>

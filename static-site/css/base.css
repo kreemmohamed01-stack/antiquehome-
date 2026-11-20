@@ -3500,7 +3500,7 @@ html[dir="rtl"] .lang-btn__label{ font-family: "Tajawal", sans-serif; letter-spa
 .sm-bg .sidemenu__panel{
   background:
     linear-gradient(180deg, rgba(250,246,238,.55), rgba(250,246,238,.72)),
-    url("https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103407/antique-home/site/images/backgrounds/menu-bg.webp") center / cover no-repeat;
+    url("https://res.cloudinary.com/nidqayoe/image/upload/v1795103407/antique-home/site/images/backgrounds/menu-bg.webp") center / cover no-repeat;
 }
 
 .sidemenu__panel{

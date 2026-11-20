@@ -184,7 +184,7 @@
     document.getElementById("pdpSlot").innerHTML = `
     <main class="pdp">
       <div class="pdp__bg" aria-hidden="true">
-        <img src="https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103408/antique-home/site/images/backgrounds/products-bg.webp" alt="" loading="eager" />
+        <img src="/images/backgrounds/products-bg.webp" alt="" loading="eager" />
       </div>
 
       <div class="pdp__inner">

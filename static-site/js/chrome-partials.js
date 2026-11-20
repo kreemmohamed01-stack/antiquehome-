@@ -13,8 +13,8 @@
   var CHROME_HTML = `
 <footer class="foot" id="contact">
   <picture class="foot__bg">
-    <source media="(min-width: 900px)" srcset="https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103406/antique-home/site/images/backgrounds/footer-bg-desktop.webp" />
-    <img src="https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103406/antique-home/site/images/backgrounds/footer-bg-mobile.webp" alt="" loading="lazy" />
+    <source media="(min-width: 900px)" srcset="https://res.cloudinary.com/nidqayoe/image/upload/v1795103406/antique-home/site/images/backgrounds/footer-bg-desktop.webp" />
+    <img src="https://res.cloudinary.com/nidqayoe/image/upload/v1795103406/antique-home/site/images/backgrounds/footer-bg-mobile.webp" alt="" loading="lazy" />
   </picture>
 
   <div class="foot__inner">

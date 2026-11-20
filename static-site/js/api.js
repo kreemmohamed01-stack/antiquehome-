@@ -324,21 +324,21 @@ function cldUrl(url, width) {
 // uploaded for it in Dashboard → Categories (categories.image_url empty).
 // Subcategories without their own image borrow their parent's look.
 const CATEGORY_DEFAULT_IMAGES = {
-  "bleu-blanc": "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103409/antique-home/site/images/categories/category-1.webp",
-  lighting: "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103410/antique-home/site/images/categories/category-2.webp",
-  accessories: "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103410/antique-home/site/images/categories/category-3.webp",
-  antiques: "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103411/antique-home/site/images/categories/category-4.webp",
-  "artificial-plants-garden-stool": "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103412/antique-home/site/images/categories/category-5.webp",
-  "wall-art-plates": "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103412/antique-home/site/images/categories/category-6.webp",
-  "murano-glass": "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103413/antique-home/site/images/categories/category-7.webp",
-  furniture: "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103414/antique-home/site/images/categories/category-8.webp",
+  "bleu-blanc": "https://res.cloudinary.com/nidqayoe/image/upload/v1795103409/antique-home/site/images/categories/category-1.webp",
+  lighting: "https://res.cloudinary.com/nidqayoe/image/upload/v1795103410/antique-home/site/images/categories/category-2.webp",
+  accessories: "https://res.cloudinary.com/nidqayoe/image/upload/v1795103410/antique-home/site/images/categories/category-3.webp",
+  antiques: "https://res.cloudinary.com/nidqayoe/image/upload/v1795103411/antique-home/site/images/categories/category-4.webp",
+  "artificial-plants-garden-stool": "https://res.cloudinary.com/nidqayoe/image/upload/v1795103412/antique-home/site/images/categories/category-5.webp",
+  "wall-art-plates": "https://res.cloudinary.com/nidqayoe/image/upload/v1795103412/antique-home/site/images/categories/category-6.webp",
+  "murano-glass": "https://res.cloudinary.com/nidqayoe/image/upload/v1795103413/antique-home/site/images/categories/category-7.webp",
+  furniture: "https://res.cloudinary.com/nidqayoe/image/upload/v1795103414/antique-home/site/images/categories/category-8.webp",
   sale: "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103414/antique-home/site/images/categories/category-9.jpg",
-  "colored-vases": "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103410/antique-home/site/images/categories/category-3.webp",
-  "candle-holder": "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103410/antique-home/site/images/categories/category-3.webp",
-  "raisin-more": "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103410/antique-home/site/images/categories/category-3.webp",
-  "tissue-box": "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103410/antique-home/site/images/categories/category-3.webp",
-  ashtray: "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103410/antique-home/site/images/categories/category-3.webp",
-  "photo-frame": "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103410/antique-home/site/images/categories/category-3.webp",
+  "colored-vases": "https://res.cloudinary.com/nidqayoe/image/upload/v1795103410/antique-home/site/images/categories/category-3.webp",
+  "candle-holder": "https://res.cloudinary.com/nidqayoe/image/upload/v1795103410/antique-home/site/images/categories/category-3.webp",
+  "raisin-more": "https://res.cloudinary.com/nidqayoe/image/upload/v1795103410/antique-home/site/images/categories/category-3.webp",
+  "tissue-box": "https://res.cloudinary.com/nidqayoe/image/upload/v1795103410/antique-home/site/images/categories/category-3.webp",
+  ashtray: "https://res.cloudinary.com/nidqayoe/image/upload/v1795103410/antique-home/site/images/categories/category-3.webp",
+  "photo-frame": "https://res.cloudinary.com/nidqayoe/image/upload/v1795103410/antique-home/site/images/categories/category-3.webp",
 };
 
 // A category's uploaded image can have a different crop per shape it
@@ -388,7 +388,7 @@ function categoryImageUrl(slug, categories, width, shape) {
     const f = focals[shape] || focals.tile;
     return { src: cldUrl(c.image_url, width), position: `${f.x}% ${f.y}%`, zoom: f.zoom };
   }
-  return { src: CATEGORY_DEFAULT_IMAGES[slug] || "https://res.cloudinary.com/nidqayoe/image/upload/f_auto,q_auto/v1795103410/antique-home/site/images/categories/category-3.webp", position: "50% 50%", zoom: 1 };
+  return { src: CATEGORY_DEFAULT_IMAGES[slug] || "https://res.cloudinary.com/nidqayoe/image/upload/v1795103410/antique-home/site/images/categories/category-3.webp", position: "50% 50%", zoom: 1 };
 }
 
 // Admin photo upload, shared by the product and category editors.
