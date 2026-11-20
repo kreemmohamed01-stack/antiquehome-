@@ -181,7 +181,12 @@
       )
       .join("");
 
-    document.getElementById("pdpSlot").innerHTML = `
+    // Keep the background <img> that's already on screen (shipped in the
+    // HTML) instead of drawing a new copy: a fresh element would repaint and
+    // be counted as the page's main paint (LCP) only once the data arrived.
+    const slot = document.getElementById("pdpSlot");
+    const paintedBg = slot.querySelector(".pdp__bg");
+    slot.innerHTML = `
     <main class="pdp">
       <div class="pdp__bg" aria-hidden="true">
         <img src="/images/backgrounds/products-bg.webp" alt="" loading="eager" />
@@ -315,6 +320,7 @@
         </div>
       </div>
     </main>`;
+    if (paintedBg) slot.querySelector(".pdp__bg").replaceWith(paintedBg);
 
     wireEvents();
     if (!firstRenderDone && window.AH_REVEAL) window.AH_REVEAL.scan(document.getElementById("pdpSlot"));
