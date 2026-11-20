@@ -43,7 +43,7 @@
      fetches it on demand if someone switches language). -->
 <meta name="ah-dict" data-src="/js/i18n-dictionary.js" />
 <script>try{if(localStorage.getItem("ah_lang")==="ar")document.write('<script src="'+document.querySelector('meta[name=ah-dict]').getAttribute("data-src")+'"><\/script>')}catch(e){}</script>
-<script src="/js/seo.js"></script>
+<script src="/js/seo.js" defer></script>
 <!-- The banner + category rail are built by js/shop.js at the end of the
      page; until then the grid/footer stay hidden, so they don't visibly
      jump down when the banner appears (3s safety net if JS fails). -->
@@ -181,9 +181,9 @@
 
 <div id="chromeSlot"></div>
 
-<script src="/js/api.js"></script>
-<script src="/js/chrome-partials.js"></script>
-<script src="/js/site-chrome.js"></script>
-<script src="/js/shop.js"></script>
+<script src="/js/api.js" defer></script>
+<script src="/js/chrome-partials.js" defer></script>
+<script src="/js/site-chrome.js" defer></script>
+<script src="/js/shop.js" defer></script>
 </body>
 </html>

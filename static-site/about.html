@@ -9,6 +9,7 @@
 <link rel="icon" href="/favicon-16x16.png?v=3" type="image/png" sizes="16x16" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
 <link rel="manifest" href="/site.webmanifest" />
+<link rel="preconnect" href="https://res.cloudinary.com" />
 <title>About Us — Antique Home</title>
 <meta name="description" content="At Antique Home, we believe a home is more than a place — it's a reflection of your story, your taste, and the moments that matter most." />
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
@@ -207,39 +208,9 @@
 
 <div id="chromeSlot"></div>
 
-<script src="/js/api.js"></script>
-<script src="/js/chrome-partials.js"></script>
-<script src="/js/site-chrome.js"></script>
-<script>
-  // Overrides the hardcoded body-copy paragraphs with admin-edited text
-  // from the Content page, when set — the site's own default text (in
-  // the markup above) stays otherwise.
-  (async () => {
-    let content = null;
-    try { content = await API.get("/api/settings?key=site_content"); } catch { content = null; }
-    if (!content) return;
-    const map = {
-      aboutHeroText: "aboutHeroText",
-      aboutJourneyText: "aboutJourneyText",
-      aboutPhilosophyText: "aboutPhilosophyText",
-      aboutCtaText: "aboutCtaText",
-    };
-    for (const [key, elId] of Object.entries(map)) {
-      const val = content[key];
-      const el = document.getElementById(elId);
-      if (val && el) {
-        el.textContent = val;
-        // This element's text just got overwritten with the admin's
-        // English copy — keep AH_I18N.applyLang()'s "original English"
-        // cache in sync, and re-run it if Arabic is currently active, so
-        // this doesn't silently stay in English while the rest of the
-        // page is translated (the element still has no Arabic version
-        // of this custom text, so it falls back to the new English copy).
-        el.removeAttribute("data-i18n-en");
-        if (window.AH_I18N && window.AH_I18N.getLang() === "ar") window.AH_I18N.setLang("ar");
-      }
-    }
-  })();
-</script>
+<script src="/js/api.js" defer></script>
+<script src="/js/chrome-partials.js" defer></script>
+<script src="/js/site-chrome.js" defer></script>
+<script src="/js/about.js" defer></script>
 </body>
 </html>
